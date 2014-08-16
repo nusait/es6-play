@@ -2,8 +2,18 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
+        <script src="built/traceur-runtime.min.js"></script>
+        <script src="built/es6-module-loader-sans-promises.min.js"></script>
+        <script src="built/system.min.js"></script>
     </head>
     <body>
         <h1>ES6 Play</h1>
+        <script>
+        (function() {
+            System.import('built/app').then( function(m) {
+                m.app.run();
+            });
+        })();
+        </script>
     </body>    
 </html>
