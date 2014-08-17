@@ -1,9 +1,11 @@
-"use strict";
-Object.defineProperties(exports, {
-  howdy: {get: function() {
-      return howdy;
-    }},
-  __esModule: {value: true}
+System.register([], function($__export) {
+  "use strict";
+  var howdy;
+  return {
+    setters: [],
+    execute: function() {
+      howdy = "howdy";
+      $__export("howdy", howdy);
+    }
+  };
 });
-var howdy = "howdy";
-;

@@ -5,9 +5,13 @@
 var gulp    = require('gulp');
 var traceur = require('gulp-traceur');
 var rename  = require('gulp-rename');
+var notify  = require('gulp-notify');
+var path    = require('path');
+var {spawn} = require('child_process');
 
 // aliases, closeurs, etc.
 var log = console.log.bind(log);
+var now = Date.now.bind(Date);
 
 // Taskrunner class
 class Taskrunner {
@@ -20,16 +24,72 @@ class Taskrunner {
         this.registerTasks();
     }
     traceurTask(e = {}) {
-        var path = e.path || 'js/**/*.js';
+        var src = e.path || 'js/**/*.js';
 
-        log(`running Traceur on ${path}`);
-        gulp.src(path)
-            .pipe(traceur({
-                modules: 'instantiate',
-            }))
+        var options = {
+            modules: 'instantiate',
+
+            arrowFunctions: true, 
+            defaultParameters: true,
+            restParameters: true,
+            spread: true,
+            forOf: true,
+            destructuring: true,
+
+            classes: true,
+            templateLiterals: true,
+
+            computedPropertyNames: true,
+            propertyMethods: true,
+            propertyNameShorthand: true,
+        };
+
+        var defaultOpts = {};
+
+        var auroraOpts = {
+            arrowFunctions: 'parse',
+            defaultParameters: 'parse',
+            restParameters: 'parse',
+            spread: 'parse',
+            forOf: 'parse',
+            destructuring: 'parse',
+
+            classes: true,
+            templateLiterals: true, // coming in FF34?
+
+            computedPropertyNames: true, // coming in FF34? make test
+            propertyMethods: true, // make test
+            propertyNameShorthand: true, // make test
+        };
+
+        var canaryExpOpts = {
+            arrowFunctions: 'parse',
+            defaultParameters: true,
+            restParameters: true,
+            spread: true,
+            forOf: 'parse',
+            destructuring: 'parse',
+
+            classes: true,
+            templateLiterals: true, // coming in FF34?
+
+            computedPropertyNames: true, // coming in FF34? make test
+            propertyMethods: true, // make test
+            propertyNameShorthand: true, // make test
+        };
+
+        Object.assign(options, defaultOpts);
+        log(options);
+
+        log(`running Traceur on ${src}: ${now()}`);
+        
+        gulp.src(src)
+            .pipe(traceur(options))
+            .pipe(notify(`transpiled ${path.basename(src)}`))
             .pipe(gulp.dest('./built/'));
     }
     configTask() {
+        log('running configTask: ' + now());
         // builds the gulpfile.js from the es6 version
         // ie, traceur --modules commonjs --out gulpfile.js gulpfile-es6.js
         var src = 'gulpfile-es6.js';
@@ -40,10 +100,22 @@ class Taskrunner {
             .pipe(rename('gulpfile.js'))
             .pipe(gulp.dest(''));
     }
+    restartTask() {
+        // see http://noxoc.de/2014/06/25/reload-gulpfile-js-on-change/
+        var process;
+        var restart = () => {
+            if (process) process.kill();
+            process = spawn('gulp', ['watch'], {stdio: 'inherit'});
+        };
+        gulp.watch('gulpfile.js', restart);
+        restart();
+    }
     watchTask() {
-        var watch = (blob, task) => gulp.watch(blob, task.bind(this));
-        watch('./js/**/*.js', this.traceurTask);
-        watch('./gulpfile-es6.js', this.configTask);
+        var ins = this;
+        var watch = (blob, task) => gulp.watch(blob, task.bind(ins));
+
+        watch('./js/**/*.js',      ins.traceurTask);
+        watch('./gulpfile-es6.js', ins.configTask);
     }
     registerTasks() {
         // register all methods ending in 'Task'
