@@ -23,11 +23,50 @@ class Taskrunner {
 
         this.registerTasks();
     }
-    traceurTask(e = {}) {
-        var src = e.path || 'js/**/*.js';
+    get auroraOpts() {
+        var auroraOpts = {
+            generators: 'parse',
 
+            arrowFunctions: 'parse',
+            defaultParameters: 'parse',
+            restParameters: 'parse',
+            spread: 'parse',
+            forOf: 'parse',
+            destructuring: 'parse',
+
+            classes: true,
+            templateLiterals: true, // coming in FF34?
+
+            computedPropertyNames: true, // coming in FF34? make test
+            propertyMethods: true, // make test
+            propertyNameShorthand: true, // make test
+        };
+        return auroraOpts;
+    }
+    get canaryExpOpts() {
+        var canaryExpOpts = {
+            generators: 'parse',
+
+            arrowFunctions: 'parse',
+            defaultParameters: true,
+            restParameters: true,
+            spread: true,
+            forOf: 'parse',
+            destructuring: true,
+
+            classes: true,
+            templateLiterals: true, // coming in FF34?
+
+            computedPropertyNames: true, // coming in FF34? make test
+            propertyMethods: true, // make test
+            propertyNameShorthand: true, // make test
+        };
+        return canaryExpOpts;
+    }
+    get transformAllOpts() {
         var options = {
             modules: 'instantiate',
+            generators: true,
 
             arrowFunctions: true, 
             defaultParameters: true,
@@ -43,42 +82,15 @@ class Taskrunner {
             propertyMethods: true,
             propertyNameShorthand: true,
         };
-
+        return options;    
+    }
+    traceurTask(e = {}) {
+        var src = e.path || 'js/**/*.js';
+        var options = this.transformAllOpts;
         var defaultOpts = {};
+        var {auroraOpts, canaryExpOpts} = this;
 
-        var auroraOpts = {
-            arrowFunctions: 'parse',
-            defaultParameters: 'parse',
-            restParameters: 'parse',
-            spread: 'parse',
-            forOf: 'parse',
-            destructuring: 'parse',
-
-            classes: true,
-            templateLiterals: true, // coming in FF34?
-
-            computedPropertyNames: true, // coming in FF34? make test
-            propertyMethods: true, // make test
-            propertyNameShorthand: true, // make test
-        };
-
-        var canaryExpOpts = {
-            arrowFunctions: 'parse',
-            defaultParameters: true,
-            restParameters: true,
-            spread: true,
-            forOf: 'parse',
-            destructuring: 'parse',
-
-            classes: true,
-            templateLiterals: true, // coming in FF34?
-
-            computedPropertyNames: true, // coming in FF34? make test
-            propertyMethods: true, // make test
-            propertyNameShorthand: true, // make test
-        };
-
-        Object.assign(options, defaultOpts);
+        Object.assign(options, canaryExpOpts);
         log(options);
 
         log(`running Traceur on ${src}: ${now()}`);

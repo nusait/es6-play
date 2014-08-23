@@ -5,10 +5,11 @@ System.register([], function($__export) {
   function run() {
     var console = $window.console;
     var log = console.log.bind(console);
-    var errlog = function(err) {
-      log('error here: ' + err);
+    var errlog = (err) => {
+      debugger;
+      log(("error here: " + err));
     };
-    System.import('built/test').then(function(m) {
+    System.import('built/test').then((m) => {
       var Test = m.Test;
       var test = new Test($window);
       test.run();

@@ -2,16 +2,16 @@
 var $window = window;
 
 function run() {
-    var console = $window.console;
-    var log = console.log.bind(console);
+    var {console} = $window;
+    var log       = console.log.bind(console);
+    var errlog    = err => {
+        debugger;
+        log(`error here: ${err}`);
+    }
 
-    var errlog = function(err) {
-        log('error here: ' + err);
-    };
-
-    System.import('built/test').then( function(m) {
-        var Test = m.Test;
-        var test = new Test($window);
+    System.import('built/test').then(m => {
+        var {Test} = m;
+        var test   = new Test($window);
         test.run();
     }, errlog);
 
@@ -20,7 +20,5 @@ function run() {
     // }, errlog);   
 }
 
-export var app = {
-    run: run
-};
+export var app = {run};
 

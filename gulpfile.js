@@ -15,25 +15,9 @@ var $Taskrunner = Taskrunner;
   run: function() {
     this.registerTasks();
   },
-  traceurTask: function() {
-    var e = arguments[0] !== (void 0) ? arguments[0] : {};
-    var src = e.path || 'js/**/*.js';
-    var options = {
-      modules: 'instantiate',
-      arrowFunctions: true,
-      defaultParameters: true,
-      restParameters: true,
-      spread: true,
-      forOf: true,
-      destructuring: true,
-      classes: true,
-      templateLiterals: true,
-      computedPropertyNames: true,
-      propertyMethods: true,
-      propertyNameShorthand: true
-    };
-    var defaultOpts = {};
+  get auroraOpts() {
     var auroraOpts = {
+      generators: 'parse',
       arrowFunctions: 'parse',
       defaultParameters: 'parse',
       restParameters: 'parse',
@@ -46,20 +30,52 @@ var $Taskrunner = Taskrunner;
       propertyMethods: true,
       propertyNameShorthand: true
     };
+    return auroraOpts;
+  },
+  get canaryExpOpts() {
     var canaryExpOpts = {
+      generators: 'parse',
       arrowFunctions: 'parse',
       defaultParameters: true,
       restParameters: true,
       spread: true,
       forOf: 'parse',
-      destructuring: 'parse',
+      destructuring: true,
       classes: true,
       templateLiterals: true,
       computedPropertyNames: true,
       propertyMethods: true,
       propertyNameShorthand: true
     };
-    Object.assign(options, defaultOpts);
+    return canaryExpOpts;
+  },
+  get transformAllOpts() {
+    var options = {
+      modules: 'instantiate',
+      generators: true,
+      arrowFunctions: true,
+      defaultParameters: true,
+      restParameters: true,
+      spread: true,
+      forOf: true,
+      destructuring: true,
+      classes: true,
+      templateLiterals: true,
+      computedPropertyNames: true,
+      propertyMethods: true,
+      propertyNameShorthand: true
+    };
+    return options;
+  },
+  traceurTask: function() {
+    var e = arguments[0] !== (void 0) ? arguments[0] : {};
+    var src = e.path || 'js/**/*.js';
+    var options = this.transformAllOpts;
+    var defaultOpts = {};
+    var $__3 = this,
+        auroraOpts = $__3.auroraOpts,
+        canaryExpOpts = $__3.canaryExpOpts;
+    Object.assign(options, canaryExpOpts);
     log(options);
     log(("running Traceur on " + src + ": " + now()));
     gulp.src(src).pipe(traceur(options)).pipe(notify(("transpiled " + path.basename(src)))).pipe(gulp.dest('./built/'));

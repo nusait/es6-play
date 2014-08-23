@@ -1,9 +1,41 @@
+/* global window */
 var console, log;
 
 function anotherSpeak() {
+
     log(`anotherSpeak: age is ${this.age}`);
 }
+function async(makeGenerator) {
+    return function () {
+        var generator = makeGenerator.apply(this, arguments);
 
+        function handle(result) {
+            // result => { done: [Boolean], value: [Object] }
+            if (result.done) return Promise.resolve(result.value);
+
+            return Promise.resolve(result.value).then(function (res) {
+                return handle(generator.next(res));
+            }, function (err) {
+                return handle(generator.throw(err));
+            });
+        }
+
+        try {
+            return handle(generator.next());
+        } catch (ex) {
+            return Promise.reject(ex);
+        }
+    };  
+}
+function wait(time = 500) {
+    return new Promise(resolve => {
+        log(`starting to wait ${time}`);
+        setTimeout(() => {
+            log(`just waited ${time}.`);
+            resolve();
+        }, time);
+    });
+}
 class Test {
     constructor($window) {
         console = $window.console;
@@ -24,6 +56,20 @@ class Test {
         this.forOf();
         this.destructuring();
         this.mapObj();
+    }
+    testAsync() {
+        var test = async( function* () {
+            var blah = yield wait(1000);
+            log(`waited in between`);
+            yield wait(2000);
+            log(`finally all done!`);
+        });
+
+        test();
+    }
+    get wait() {
+
+        return wait;
     }
     mapObj() {
         // see https://developer.mozilla.org/en-US/
@@ -108,5 +154,7 @@ class Test {
         log('helllo');
     }
 }
+
+window.test = new Test(window);
 
 export {Test};

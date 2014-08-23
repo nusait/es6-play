@@ -6,6 +6,35 @@ System.register([], function($__export) {
   function anotherSpeak() {
     log(("anotherSpeak: age is " + this.age));
   }
+  function async(makeGenerator) {
+    return function() {
+      var generator = makeGenerator.apply(this, arguments);
+      function handle(result) {
+        if (result.done)
+          return Promise.resolve(result.value);
+        return Promise.resolve(result.value).then(function(res) {
+          return handle(generator.next(res));
+        }, function(err) {
+          return handle(generator.throw(err));
+        });
+      }
+      try {
+        return handle(generator.next());
+      } catch (ex) {
+        return Promise.reject(ex);
+      }
+    };
+  }
+  function wait() {
+    var time = arguments[0] !== (void 0) ? arguments[0] : 500;
+    return new Promise((resolve) => {
+      log(("starting to wait " + time));
+      setTimeout(() => {
+        log(("just waited " + time + "."));
+        resolve();
+      }, time);
+    });
+  }
   return {
     setters: [],
     execute: function() {
@@ -17,11 +46,8 @@ System.register([], function($__export) {
         };
         return ($traceurRuntime.createClass)(Test, {
           speak: function() {
-            var message = arguments[0] !== (void 0) ? arguments[0] : 'default message';
             log('speak method called');
-            var up = (function(str) {
-              return str.toUpperCase();
-            });
+            var up = (str) => str.toUpperCase();
             log(("My " + up('age') + " is " + this.age));
             this.anotherSpeak();
           },
@@ -33,6 +59,18 @@ System.register([], function($__export) {
             this.destructuring();
             this.mapObj();
           },
+          testAsync: function() {
+            var test = async(function*() {
+              var blah = yield wait(1000);
+              log("waited in between");
+              yield wait(2000);
+              log("finally all done!");
+            });
+            test();
+          },
+          get wait() {
+            return wait;
+          },
           mapObj: function() {
             var map = new Map();
             var key,
@@ -43,63 +81,45 @@ System.register([], function($__export) {
             log(map.get(1));
             log(map.size);
             log('#forOf on map');
-            for (var $__1 = map[Symbol.iterator](),
-                $__2; !($__2 = $__1.next()).done; ) {
-              var $__8 = $__2.value,
-                  k = $__8[0],
-                  v = $__8[1],
-                  l = $__8[2];
-              {
-                log(k + ' + ' + v);
-              }
+            for (var $__2 of map) {
+              var k = $__2[0],
+                  v = $__2[1],
+                  l = $__2[2];
+              log(k + ' + ' + v);
             }
             log('map#forEach()');
-            map.forEach((function(value, key, list) {
-              return log(value, key, list);
-            }));
+            map.forEach((value, key, list) => log(value, key, list));
             log('map#values()');
-            for (var $__3 = map.values()[Symbol.iterator](),
-                $__4; !($__4 = $__3.next()).done; ) {
-              value = $__4.value;
-              {
-                log(value);
-              }
+            for (value of map.values()) {
+              log(value);
             }
             log('map#entries()');
-            for (var $__5 = map.entries()[Symbol.iterator](),
-                $__6; !($__6 = $__5.next()).done; ) {
-              value = $__6.value;
-              {
-                log(value);
-              }
+            for (value of map.entries()) {
+              log(value);
             }
             map.delete(1);
-            map.forEach((function(value, key, list) {
-              return log(value, key, list);
-            }));
+            map.forEach((value, key, list) => log(value, key, list));
             map.clear();
-            map.forEach((function(value, key, list) {
-              return log(value, key, list);
-            }));
+            map.forEach((value, key, list) => log(value, key, list));
           },
           destructuring: function() {
-            var $__8 = {
+            var $__2 = {
               age: 18,
               gender: 'female'
             },
-                theirAge = $__8.age,
-                gender = $__8.gender;
+                theirAge = $__2.age,
+                gender = $__2.gender;
             log(theirAge);
             log(gender);
-            var $__8 = [234.234, 643.234],
-                lat = $__8[0],
-                lng = $__8[1];
+            var $__2 = [234.234, 643.234],
+                lat = $__2[0],
+                lng = $__2[1];
             log(lat);
             log(lng);
-            var fnc = function($__8) {
-              var $__9 = $__8,
-                  lat = $__9.lat,
-                  lng = $__9.latitude;
+            var fnc = function($__2) {
+              var $__3 = $__2,
+                  lat = $__3.lat,
+                  lng = $__3.latitude;
               log('destructuring parameters:');
               log(lat);
               log(lng);
@@ -112,12 +132,8 @@ System.register([], function($__export) {
           forOf: function() {
             log('forOf test:');
             var numbers = ['one', 'two', 'three'];
-            for (var $__1 = numbers[Symbol.iterator](),
-                $__2; !($__2 = $__1.next()).done; ) {
-              var number = $__2.value;
-              {
-                log(number);
-              }
+            for (var number of numbers) {
+              log(number);
             }
           },
           spread: function() {
@@ -127,8 +143,8 @@ System.register([], function($__export) {
           },
           restParameters: function(argOne) {
             for (var args = [],
-                $__7 = 1; $__7 < arguments.length; $__7++)
-              args[$__7 - 1] = arguments[$__7];
+                $__1 = 1; $__1 < arguments.length; $__1++)
+              args[$__1 - 1] = arguments[$__1];
             log(argOne);
             log(Array.isArray(args));
             log(("args.length = " + args.length));
@@ -143,6 +159,7 @@ System.register([], function($__export) {
             log('helllo');
           }});
       }());
+      window.test = new Test(window);
       $__export("Test", Test);
     }
   };
