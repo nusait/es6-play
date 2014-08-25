@@ -1,123 +1,52 @@
-"use strict";
-var gulp = require('gulp');
-var traceur = require('gulp-traceur');
-var rename = require('gulp-rename');
-var notify = require('gulp-notify');
-var path = require('path');
-var spawn = require('child_process').spawn;
+// dependencies
+var gulp          = require('gulp');
+var rename        = require('gulp-rename');
+var notify        = require('gulp-notify');
+var path          = require('path');
+var spawn         = require('child_process').spawn;
+var uglify        = require('gulp-uglify');
+var sourcemaps    = require('gulp-sourcemaps');
+var es6ify        = require('es6ify');
+var browserify    = require('browserify');
+var source        = require('vinyl-source-stream');
+var buffer        = require('vinyl-buffer');
+var beautify      = require('gulp-beautify');
+var canaryExpOpts = require('./gulp/canaryExpOpts');
+var auroraOpts    = require('./gulp/auroraOpts');
+
+// aliases, closeurs, etc.
 var log = console.log.bind(log);
-var now = Date.now.bind(Date);
-var Taskrunner = function Taskrunner() {
-  log('Taskrunner constructed');
-};
-var $Taskrunner = Taskrunner;
-($traceurRuntime.createClass)(Taskrunner, {
-  run: function() {
-    this.registerTasks();
-  },
-  get auroraOpts() {
-    var auroraOpts = {
-      generators: 'parse',
-      arrowFunctions: 'parse',
-      defaultParameters: 'parse',
-      restParameters: 'parse',
-      spread: 'parse',
-      forOf: 'parse',
-      destructuring: 'parse',
-      classes: true,
-      templateLiterals: true,
-      computedPropertyNames: true,
-      propertyMethods: true,
-      propertyNameShorthand: true
+
+function uglifyTask() {
+
+    var mangledOptions = {
+        mangle: true,
+        output: {beautify: false}
     };
-    return auroraOpts;
-  },
-  get canaryExpOpts() {
-    var canaryExpOpts = {
-      generators: 'parse',
-      arrowFunctions: 'parse',
-      defaultParameters: true,
-      restParameters: true,
-      spread: true,
-      forOf: 'parse',
-      destructuring: true,
-      classes: true,
-      templateLiterals: true,
-      computedPropertyNames: true,
-      propertyMethods: true,
-      propertyNameShorthand: true
-    };
-    return canaryExpOpts;
-  },
-  get transformAllOpts() {
-    var options = {
-      modules: 'instantiate',
-      generators: true,
-      arrowFunctions: true,
-      defaultParameters: true,
-      restParameters: true,
-      spread: true,
-      forOf: true,
-      destructuring: true,
-      classes: true,
-      templateLiterals: true,
-      computedPropertyNames: true,
-      propertyMethods: true,
-      propertyNameShorthand: true
-    };
-    return options;
-  },
-  traceurTask: function() {
-    var e = arguments[0] !== (void 0) ? arguments[0] : {};
-    var src = e.path || 'js/**/*.js';
-    var options = this.transformAllOpts;
-    var defaultOpts = {};
-    var $__3 = this,
-        auroraOpts = $__3.auroraOpts,
-        canaryExpOpts = $__3.canaryExpOpts;
-    Object.assign(options, canaryExpOpts);
-    log(options);
-    log(("running Traceur on " + src + ": " + now()));
-    gulp.src(src).pipe(traceur(options)).pipe(notify(("transpiled " + path.basename(src)))).pipe(gulp.dest('./built/'));
-  },
-  configTask: function() {
-    log('running configTask: ' + now());
-    var src = 'gulpfile-es6.js';
-    gulp.src(src).pipe(traceur({modules: 'commonjs'})).pipe(rename('gulpfile.js')).pipe(gulp.dest(''));
-  },
-  restartTask: function() {
-    var process;
-    var restart = (function() {
-      if (process)
-        process.kill();
-      process = spawn('gulp', ['watch'], {stdio: 'inherit'});
-    });
-    gulp.watch('gulpfile.js', restart);
-    restart();
-  },
-  watchTask: function() {
-    var ins = this;
-    var watch = (function(blob, task) {
-      return gulp.watch(blob, task.bind(ins));
-    });
-    watch('./js/**/*.js', ins.traceurTask);
-    watch('./gulpfile-es6.js', ins.configTask);
-  },
-  registerTasks: function() {
-    var methodNames = Object.getOwnPropertyNames($Taskrunner.prototype);
-    var taskNames = methodNames.filter((function(name) {
-      return name.endsWith('Task');
-    }));
-    for (var $__1 = taskNames[Symbol.iterator](),
-        $__2; !($__2 = $__1.next()).done; ) {
-      var taskName = $__2.value;
-      {
-        var shortName = taskName.replace(/Task$/, '');
-        log(("Registering task name " + shortName + " with " + taskName));
-        gulp.task(shortName, this[taskName].bind(this));
-      }
-    }
-  }
-}, {});
-var taskrunner = new Taskrunner();
-taskrunner.run();
+
+    return gulp.src('./built/bundle.js')
+        .pipe(uglify(mangledOptions))
+        .pipe(rename('bundle-min.js'))
+        .pipe(gulp.dest('built/'))
+        .pipe(beautify())
+        .pipe(rename('bundle-min-beautified.js'))
+        .pipe(gulp.dest('built/'));
+}
+function traceurTask() {
+
+    // es6ify.traceurOverrides = canaryExpOpts;
+
+    return browserify({debug: true})
+        // .add(es6ify.runtime)
+        .transform(es6ify.configure(/Nusait.*\.js$/))
+        .require(require.resolve('./js/main.js'), { entry: true })
+        .bundle()
+        .pipe(source('bundle.js'))
+        .pipe(gulp.dest('./built/'));
+}
+function registerGulpTasks() {     
+    gulp.task('traceur', traceurTask);     
+    gulp.task('uglify', uglifyTask);     
+}
+
+registerGulpTasks();

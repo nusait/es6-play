@@ -2,20 +2,13 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
+        <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <script src="built/traceur-runtime.min.js"></script>
-        <script src="built/es6-module-loader-sans-promises.min.js"></script>
-        <script src="built/system.min.js"></script>
         <link rel="icon" type="image/gif" href=
         "http://dab1nmslvvntp.cloudfront.net/wp-content/uploads/2009/02/epicurious.gif" />
     </head>
     <body>
         <h1>ES6 Play</h1>
-        <script>
-        (function() {
-            System.import('built/app').then( function(m) {
-                m.app.run();
-            });
-        })();
-        </script>
+        <script src="built/bundle.js"></script>
     </body>    
 </html>

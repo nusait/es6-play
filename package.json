@@ -6,11 +6,23 @@
     "type": "git",
     "url": "https://github.com/puntsok/es6-play"
   },
+  "browser": {
+    "Nusait/Utils/Test": "./js/Nusait/Utils/Test.js",
+    "Nusait/Services/async": "./js/Nusait/Services/async.js"
+  },
   "dependencies": {},
   "devDependencies": {
     "gulp": "*",
-    "gulp-notify": "^1.4.2",
+    "gulp-notify": "*",
     "gulp-rename": "*",
-    "gulp-traceur": "*"
+    "gulp-traceur": "*",
+    "gulp-sourcemaps": "*",
+    "es6ify": "*",
+    "browserify":  "*",
+    "vinyl-source-stream": "*",
+    "vinyl-buffer": "*",
+    "traceur": "*",
+    "gulp-uglify": "*",
+    "gulp-beautify": "*"
   }
 }

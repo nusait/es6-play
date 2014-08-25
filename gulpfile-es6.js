@@ -1,13 +1,19 @@
 // to compile: 
-// traceur --modules commonjs --out gulpfile.js gulpfile-es6.js
+// traceur --modules commonjs --out gulpfile2.js gulpfile-es6.js
 
 // dependencies
-var gulp    = require('gulp');
-var traceur = require('gulp-traceur');
-var rename  = require('gulp-rename');
-var notify  = require('gulp-notify');
-var path    = require('path');
-var {spawn} = require('child_process');
+var traceur     = require('traceur');
+var gulp        = require('gulp');
+var gulpTraceur = require('gulp-traceur');
+var rename      = require('gulp-rename');
+var notify      = require('gulp-notify');
+var path        = require('path');
+var {spawn}     = require('child_process');
+var sourcemaps  = require('gulp-sourcemaps');
+var es6ify      = require('es6ify');
+var browserify  = require('browserify');
+var source      = require('vinyl-source-stream');
+var buffer      = require('vinyl-buffer');
 
 // aliases, closeurs, etc.
 var log = console.log.bind(log);
@@ -84,6 +90,15 @@ class Taskrunner {
         };
         return options;    
     }
+    tracTask() {
+        log(`Running tracTask on ${Date.now()}`);
+
+        return browserify('./js/main.js')
+            .transform(es6ify)
+            .bundle()
+            .pipe(source('bundle.js'))
+            .pipe(gulp.dest('./built/'));
+    }
     traceurTask(e = {}) {
         var src = e.path || 'js/**/*.js';
         var options = this.transformAllOpts;
@@ -96,20 +111,22 @@ class Taskrunner {
         log(`running Traceur on ${src}: ${now()}`);
         
         gulp.src(src)
-            .pipe(traceur(options))
-            .pipe(notify(`transpiled ${path.basename(src)}`))
+            .pipe(sourcemaps.init())
+            .pipe(gulpTraceur(options))
+            // .pipe(notify(`transpiled ${path.basename(src)}`))
+            .pipe(sourcemaps.write())
             .pipe(gulp.dest('./built/'));
     }
     configTask() {
         log('running configTask: ' + now());
-        // builds the gulpfile.js from the es6 version
-        // ie, traceur --modules commonjs --out gulpfile.js gulpfile-es6.js
+        // builds the gulpfile2.js from the es6 version
+        // ie, traceur --modules commonjs --out gulpfile2.js gulpfile-es6.js
         var src = 'gulpfile-es6.js';
         gulp.src(src)
-            .pipe(traceur({
+            .pipe(gulpTraceur({
                 modules: 'commonjs',
             }))
-            .pipe(rename('gulpfile.js'))
+            .pipe(rename('gulpfile2.js'))
             .pipe(gulp.dest(''));
     }
     restartTask() {
@@ -119,14 +136,15 @@ class Taskrunner {
             if (process) process.kill();
             process = spawn('gulp', ['watch'], {stdio: 'inherit'});
         };
-        gulp.watch('gulpfile.js', restart);
+        gulp.watch('gulpfile2.js', restart);
         restart();
     }
     watchTask() {
         var ins = this;
         var watch = (blob, task) => gulp.watch(blob, task.bind(ins));
 
-        watch('./js/**/*.js',      ins.traceurTask);
+        watch('./js/**/*.js',      ins.tracTask);
+        // watch('./js/**/*.js',      ins.traceurTask);
         watch('./gulpfile-es6.js', ins.configTask);
     }
     registerTasks() {
