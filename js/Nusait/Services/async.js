@@ -1,5 +1,5 @@
 /**
-@module async
+@module Nusait.Services.async
 **/
 
 function async(makeGenerator) {
@@ -27,4 +27,4 @@ function async(makeGenerator) {
     };  
 }
 
-module.exports = async;
+exports.async = async;

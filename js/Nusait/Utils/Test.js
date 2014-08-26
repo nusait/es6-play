@@ -1,21 +1,19 @@
 /**
-@module Test
+@module Nusait.Services.Test
 **/
-var async = require('Nusait/Services/async');
+
+var {async} = require('Nusait.Services.async');
 
 var console;
 var log;
 var $Promise;
 var $window;
 
-
-/**
-@class Test
-**/
 class Test {
     /**
+    @class Test
     @constructor
-    @param {Object} windowArg Please pass an object that implements the DOM window
+    @param {Object} windowArg An object that implements the DOM window
     **/
     constructor(windowArg) {
         $window = windowArg;
@@ -24,7 +22,11 @@ class Test {
         $Promise = $window.Promise;
         log('Test being constructed');
     }
-    speak(message = 'default message') {
+    /**
+    @method speak
+    @param message='default message' {String} a message to output
+    **/
+    speak(message = 'defaultmessage') {
         log('speak method called');
         var up = str => str.toUpperCase();
 
@@ -45,7 +47,15 @@ class Test {
         this.forOf();
         this.destructuring();
         this.mapObj();
+        this.shorthandMethods();
     }
+    /**
+    testAsync
+
+    Tests how well generators and promises can be combined.
+
+    @method testAsync
+    **/
     testAsync() {
         var test = async( function* () {
             var blah = yield wait(1000);
@@ -55,6 +65,20 @@ class Test {
         });
 
         test();
+    }
+    shorthandMethods() {
+        log('test shorthandMethods');
+        var obj = {
+            firstMethod() {
+                return 'hey';
+            },
+            secondMethod() {
+                return 'hey2';
+            },  
+        };
+
+        log(obj.firstMethod());
+        log(obj.secondMethod());
     }
     get wait() {
 
@@ -143,7 +167,8 @@ class Test {
 
     Prints out 'hello' to the console
 
-    @method
+    @method hello
+    @static
     **/
     static hello() {
   
@@ -163,4 +188,5 @@ function wait(time = 500) {
         }, time);
     });
 }
-module.exports = Test;
+
+exports.Test = Test;

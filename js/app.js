@@ -9,7 +9,7 @@ function run() {
         log(`error here: ${err}`);
     }
 
-    System.import('built/test').then(m => {
+    System.import('built/test').then(m => { 
         var {Test} = m;
         var test   = new Test($window);
         test.run();

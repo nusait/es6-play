@@ -7,8 +7,8 @@
     "url": "https://github.com/puntsok/es6-play"
   },
   "browser": {
-    "Nusait/Utils/Test": "./js/Nusait/Utils/Test.js",
-    "Nusait/Services/async": "./js/Nusait/Services/async.js"
+    "Nusait.Utils.Test":     "./js/Nusait/Utils/Test.js",
+    "Nusait.Services.async": "./js/Nusait/Services/async.js"
   },
   "dependencies": {},
   "devDependencies": {
@@ -23,6 +23,7 @@
     "vinyl-buffer": "*",
     "traceur": "*",
     "gulp-uglify": "*",
-    "gulp-beautify": "*"
+    "gulp-beautify": "*",
+    "mold-source-map": "*"
   }
 }

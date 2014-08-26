@@ -12,7 +12,7 @@ var auroraOpts = {
     templateLiterals: true, // coming in FF34?
 
     computedPropertyNames: true, // coming in FF34? make test
-    propertyMethods: true, // make test
+    propertyMethods: true, // coming in FF34
     propertyNameShorthand: true, // make test
 };
 module.exports = auroraOpts;

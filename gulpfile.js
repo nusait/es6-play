@@ -13,6 +13,7 @@ var buffer        = require('vinyl-buffer');
 var beautify      = require('gulp-beautify');
 var canaryExpOpts = require('./gulp/canaryExpOpts');
 var auroraOpts    = require('./gulp/auroraOpts');
+var mold          = require('mold-source-map');
 
 // aliases, closeurs, etc.
 var log = console.log.bind(log);
@@ -32,20 +33,37 @@ function uglifyTask() {
         .pipe(rename('bundle-min-beautified.js'))
         .pipe(gulp.dest('built/'));
 }
-function traceurTask() {
+function jsTask(e) {
 
-    // es6ify.traceurOverrides = canaryExpOpts;
+    var filepath = (e && e.path) || null;
+    var jsRoot = path.join(__dirname, '.');
 
+    log('running jsTask triggered by: ' + filepath);
+    
+    es6ify.traceurOverrides = canaryExpOpts;
+    
     return browserify({debug: true})
         // .add(es6ify.runtime)
         .transform(es6ify.configure(/Nusait.*\.js$/))
         .require(require.resolve('./js/main.js'), { entry: true })
         .bundle()
+        .pipe(mold.transformSourcesRelativeTo(jsRoot))
         .pipe(source('bundle.js'))
-        .pipe(gulp.dest('./built/'));
+        .pipe(gulp.dest('./built/'))
+        .on('end', function() {
+            log('end jsTask');
+        });
+}
+function watchTask() {
+    gulp.watch('js/app.js', function() {
+        log('changed');
+    });
+    gulp.watch('js/Nusait/**/*.js', jsTask);
+    gulp.watch('main.js', jsTask);
 }
 function registerGulpTasks() {     
-    gulp.task('traceur', traceurTask);     
+    gulp.task('watch', watchTask);
+    gulp.task('js', jsTask);     
     gulp.task('uglify', uglifyTask);     
 }
 
