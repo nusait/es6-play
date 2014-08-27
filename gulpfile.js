@@ -40,7 +40,7 @@ function jsTask(e) {
 
     log('running jsTask triggered by: ' + filepath);
     
-    es6ify.traceurOverrides = canaryExpOpts;
+    // es6ify.traceurOverrides = canaryExpOpts;
     
     return browserify({debug: true})
         // .add(es6ify.runtime)

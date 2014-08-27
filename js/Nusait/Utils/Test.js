@@ -3,9 +3,10 @@
 **/
 
 var {async} = require('Nusait.Services.async');
+var {Helpers} = require('Nusait.Support.Helpers');
+var {log, wait} = Helpers.prototype;
 
 var console;
-var log;
 var $Promise;
 var $window;
 
@@ -18,7 +19,6 @@ class Test {
     constructor(windowArg) {
         $window = windowArg;
         console = $window.console;
-        log = console.log.bind(console);
         $Promise = $window.Promise;
         log('Test being constructed');
     }
@@ -79,10 +79,6 @@ class Test {
 
         log(obj.firstMethod());
         log(obj.secondMethod());
-    }
-    get wait() {
-
-        return wait;
     }
     mapObj() {
         // see https://developer.mozilla.org/en-US/
@@ -179,14 +175,9 @@ function anotherSpeak() {
 
     log(`anotherSpeak: age is ${this.age}`);
 }
-function wait(time = 500) {
-    return new $Promise(resolve => {
-        log(`starting to wait ${time}`);
-        setTimeout(() => {
-            log(`just waited ${time}.`);
-            resolve();
-        }, time);
-    });
-}
+
+wait(1400).then(() => log('hey, I waited 1400'));
+
+Helpers.assignTo(Test.prototype);
 
 exports.Test = Test;

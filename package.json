@@ -8,7 +8,8 @@
   },
   "browser": {
     "Nusait.Utils.Test":     "./js/Nusait/Utils/Test.js",
-    "Nusait.Services.async": "./js/Nusait/Services/async.js"
+    "Nusait.Services.async": "./js/Nusait/Services/async.js",
+    "Nusait.Support.Helpers": "./js/Nusait/Support/Helpers.js"
   },
   "dependencies": {},
   "devDependencies": {
