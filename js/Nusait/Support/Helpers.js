@@ -35,10 +35,12 @@ class Helpers {
     }
     /**
     @method assignTo
+    @param {Object} target the target object on which to assign 
+    methods of the class
     @static
     */
-    static assignTo(object) {
-        Object.assign(object, Helpers.prototype);
+    static assignTo(target) {
+        Object.assign(target, Helpers.prototype);
     }
     /**
     @method create

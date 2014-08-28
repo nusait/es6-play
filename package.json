@@ -25,6 +25,7 @@
     "traceur": "*",
     "gulp-uglify": "*",
     "gulp-beautify": "*",
-    "mold-source-map": "*"
+    "mold-source-map": "*",
+    "gulp-shell": "*"
   }
 }

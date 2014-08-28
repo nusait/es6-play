@@ -14,6 +14,7 @@ var beautify      = require('gulp-beautify');
 var canaryExpOpts = require('./gulp/canaryExpOpts');
 var auroraOpts    = require('./gulp/auroraOpts');
 var mold          = require('mold-source-map');
+var shell         = require('gulp-shell');
 
 // aliases, closeurs, etc.
 var log = console.log.bind(log);
@@ -54,17 +55,26 @@ function jsTask(e) {
             log('end jsTask');
         });
 }
+function yuidocTask() {
+
+}
 function watchTask() {
     gulp.watch('js/app.js', function() {
         log('changed');
     });
     gulp.watch('js/Nusait/**/*.js', jsTask);
     gulp.watch('main.js', jsTask);
+    // gulp.watch('built/bundle.js', function() {
+
+    // });
 }
 function registerGulpTasks() {     
     gulp.task('watch', watchTask);
     gulp.task('js', jsTask);     
-    gulp.task('uglify', uglifyTask);     
+    gulp.task('uglify', uglifyTask);  
+    gulp.task('yuidoc', shell.task([
+        'yuidoc -o docs js/Nusait'
+    ]));
 }
 
 registerGulpTasks();
