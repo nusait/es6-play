@@ -2,13 +2,12 @@
 @module Nusait.Services.Test
 **/
 
-var {async} = require('Nusait.Services.async');
-var {Helpers} = require('Nusait.Support.Helpers');
-var {log, wait} = Helpers.prototype;
+var {log, wait, async} = 
+    require('Wildcat.Support.helpers').prototype;
 
 var console;
 var $Promise;
-var $window;
+var $window; 
 
 class Test {
     /**
@@ -177,7 +176,5 @@ function anotherSpeak() {
 }
 
 wait(1400).then(() => log('hey, I waited 1400'));
-
-Helpers.assignTo(Test.prototype);
 
 exports.Test = Test;

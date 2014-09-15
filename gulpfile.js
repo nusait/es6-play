@@ -16,23 +16,38 @@ var auroraOpts    = require('./gulp/auroraOpts');
 var mold          = require('mold-source-map');
 var shell         = require('gulp-shell');
 
+var dumpautoload  = require('./dumpautoload');
+
 // aliases, closeurs, etc.
 var log = console.log.bind(log);
 
 function uglifyTask() {
 
-    var mangledOptions = {
-        mangle: true,
-        output: {beautify: false}
-    };
-
-    return gulp.src('./built/bundle.js')
-        .pipe(uglify(mangledOptions))
+    return gulp.src('./public/js/bundle.js')
+        .pipe(uglify({
+            mangle: false,
+            output: {beautify: true},
+            compress: false,
+        }))
+        // .pipe(beautify({preserveNewlines: false}))
+        .pipe(rename('bundle-beautified.js'))
+        .pipe(gulp.dest('./public/js/'))
+        .pipe(uglify({
+            mangle: true,
+            output: {beautify: false},
+        }))
         .pipe(rename('bundle-min.js'))
-        .pipe(gulp.dest('built/'))
+        .pipe(gulp.dest('./public/js/'))
         .pipe(beautify())
         .pipe(rename('bundle-min-beautified.js'))
-        .pipe(gulp.dest('built/'));
+        .pipe(gulp.dest('./public/js/'))
+        .on('end', function() {
+            log('end uglifyTask');
+        });
+}
+function jsTaskWithAutoload() {
+    return dumpautoload()
+        .then(jsTask);
 }
 function jsTask(e) {
 
@@ -44,29 +59,38 @@ function jsTask(e) {
     // es6ify.traceurOverrides = canaryExpOpts;
     
     return browserify({debug: true})
-        // .add(es6ify.runtime)
-        .transform(es6ify.configure(/Nusait.*\.js$/))
-        .require(require.resolve('./js/main.js'), { entry: true })
+        .add(es6ify.runtime)
+        .transform(es6ify.configure(/(app|config|framework).*\.js$/))
+        .require(require.resolve('./app/main.js'), { entry: true })
         .bundle()
         .pipe(mold.transformSourcesRelativeTo(jsRoot))
         .pipe(source('bundle.js'))
-        .pipe(gulp.dest('./built/'))
+        .pipe(gulp.dest('./public/js/'))
         .on('end', function() {
             log('end jsTask');
+        });
+}
+function bootstrapTask() {
+    return browserify({debug: false})
+        .transform(es6ify)
+        .require(require.resolve('./bootstrap/start.js'), { entry: true })
+        .bundle()
+        .pipe(source('boot.js'))
+        .pipe(gulp.dest('./public/js/'))
+        .on('end', function() {
+            log('end bootstrapTask');
         });
 }
 function yuidocTask() {
 
 }
 function watchTask() {
-    gulp.watch('js/app.js', function() {
-        log('changed');
-    });
-    gulp.watch('js/Nusait/**/*.js', jsTask);
-    gulp.watch('main.js', jsTask);
-    // gulp.watch('built/bundle.js', function() {
 
-    // });
+    gulp.watch('framework/**/*.js', jsTaskWithAutoload);
+    gulp.watch('app/**/*.js',       jsTaskWithAutoload);
+    gulp.watch('config/**/*.js',    jsTaskWithAutoload);
+    gulp.watch('public/js/bundle.js', uglifyTask);
+    gulp.watch('bootstrap/**/*.js', bootstrapTask);
 }
 function registerGulpTasks() {     
     gulp.task('watch', watchTask);
@@ -75,6 +99,8 @@ function registerGulpTasks() {
     gulp.task('yuidoc', shell.task([
         'yuidoc -o docs js/Nusait'
     ]));
+    gulp.task('bootstrap', bootstrapTask);
+    gulp.task('dumpautoload', dumpautoload);
 }
 
 registerGulpTasks();
