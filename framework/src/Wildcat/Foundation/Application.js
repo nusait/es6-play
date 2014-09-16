@@ -5,6 +5,7 @@ var Dispatcher         = require('Wildcat.Events.Dispatcher');
 var start              = require('Wildcat.Foundation.start');
 var ProviderRepository = require('Wildcat.Foundation.ProviderRepository');
 
+var config       = require('config.config');
 var {value}      = require('Wildcat.Support.helpers');
 var state        = {};
 
@@ -28,7 +29,7 @@ class Application extends Container {
     }
     getConfigLoader() {
 
-        return new ModuleLoader();
+        return new ModuleLoader(config);
     }
     registerCoreContainerBindings() {
 

@@ -4,12 +4,15 @@ function start() {
 
     var app    = this;
     var env    = app.environment();
+    var providers, config;
 
     app.bind('app', () => app);
 
     app.registerCoreContainerBindings();
 
-    app.getProviderRepository().load(app, app.config.get('app').providers);
+    config = app.config;
+    providers = config.get('app').providers;
+    app.getProviderRepository().load(app, providers);
 }
 
 module.exports = start;

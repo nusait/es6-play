@@ -1,22 +1,34 @@
-var config = require('config.config');
+var state = require('Wildcat.Support.state');
 
 class ModuleLoader {
 
+    constructor(configObj = {}) {
+
+        var _ = state(this, {});
+        _.configObj = configObj;
+    }
+
     load(environment, group, namespace = null) {
+
+        var _ = state(this);
+        var configObj = _.configObj;
         var items = {};
 
-        if (this.exists(group)) items = config[group];
+        if (this.exists(group)) items = configObj[group];
 
-        if (config[`${environment}.${group}`]) {
-            Object.assign(items, config[`${environment}.${group}`]);
+        if (configObj[`${environment}.${group}`]) {
+            Object.assign(items, configObj[`${environment}.${group}`]);
         }
 
         return items;
 
     }
     exists(group, namespace = null) {
+        
+        var _ = state(this);
+        var configObj = _.configObj;
 
-        if (config[group]) return true;
+        if (configObj[group]) return true;
 
         return false;
     }

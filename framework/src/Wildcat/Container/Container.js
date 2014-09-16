@@ -40,7 +40,9 @@ class Container {
         var type = 'bind';
         var target = this;
 
-        console.log(`binding ${abstract}`);
+        if (shared) concrete = this.share(concrete);
+
+        console.log(`binding ${abstract}, shared: ${shared}`);
         state(this).bindings[abstract] = {concrete, shared};
         this.makeAccessorProperty(abstract);
 
@@ -82,16 +84,11 @@ class Container {
         }, true);
     }
     share(func) {
-        return (function() {
-            var object;
-            return function(container) {
-                if (typeof object === undefined) {
-                    console.log('needed to create object');
-                    object = func(container);
-                }
-                return object;
-            };
-        })();
+        var object;
+        return function(container) {
+            if (object === undefined) object = func(container);
+            return object;
+        };
     }
     forgetInstance(abstract) {
 

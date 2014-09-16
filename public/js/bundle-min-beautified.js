@@ -65,21 +65,28 @@ function t(e, r, n) {
     {}],
     5: [function (t, e) {
         "use strict";
-        var r = t("config.config"),
-            n = function () {};
+        var r = t("Wildcat.Support.state"),
+            n = function () {
+                var t = void 0 !== arguments[0] ? arguments[0] : {},
+                    e = r(this, {});
+                e.configObj = t
+            };
         $traceurRuntime.createClass(n, {
             load: function (t, e) {
-                var n = (void 0 !== arguments[2] ? arguments[2] : null, {});
-                return this.exists(e) && (n = r[e]), r[t + "." + e] && Object.assign(n, r[t + "." + e]), n
+                var n = (void 0 !== arguments[2] ? arguments[2] : null, r(this)),
+                    i = n.configObj,
+                    o = {};
+                return this.exists(e) && (o = i[e]), i[t + "." + e] && Object.assign(o, i[t + "." + e]), o
             },
             exists: function (t) {
-                void 0 !== arguments[1] ? arguments[1] : null;
-                return r[t] ? !0 : !1
+                var e = (void 0 !== arguments[1] ? arguments[1] : null, r(this)),
+                    n = e.configObj;
+                return n[t] ? !0 : !1
             }
         }, {}), e.exports = n
     },
     {
-        "config.config": 3
+        "Wildcat.Support.state": 16
     }],
     6: [function (t, e) {
         "use strict";
@@ -92,24 +99,29 @@ function t(e, r, n) {
             var e = t[0];
             return 1 === t.length ? [null, e, null] : [null, e, t[1]]
         }
-        var i = function (t, e) {
-            this.loader = t, this.environment = e
-        };
-        $traceurRuntime.createClass(i, {
+        var i = t("Wildcat.Support.state"),
+            o = function (t, e) {
+                var r = i(this, {});
+                r.loader = t, r.environment = e
+            };
+        $traceurRuntime.createClass(o, {
             has: function () {},
             get: function (t, e) {
-                var n = this.environment,
-                    i = $traceurRuntime.assertObject(r(t)),
-                    o = i[0],
-                    u = i[1],
-                    s = i[2],
-                    a = this.loader.load(n, u, o);
-                return s ? void 0 !== a[s] ? a[s] : e : a
+                var n = i(this),
+                    o = $traceurRuntime.assertObject(n).environment,
+                    u = $traceurRuntime.assertObject(r(t)),
+                    s = u[0],
+                    a = u[1],
+                    c = u[2],
+                    l = n.loader.load(o, a, s);
+                return c ? void 0 !== l[c] ? l[c] : e : l
             },
             set: function () {}
-        }, {}), e.exports = i
+        }, {}), e.exports = o
     },
-    {}],
+    {
+        "Wildcat.Support.state": 16
+    }],
     7: [function (t, e) {
         "use strict";
         var r = $traceurRuntime.assertObject(t("Wildcat.Support.helpers")),
@@ -135,7 +147,7 @@ function t(e, r, n) {
                     r = void 0 !== arguments[2] ? arguments[2] : !1,
                     n = "bind",
                     i = this;
-                console.log("binding " + t), s(this).bindings[t] = {
+                r && (e = this.share(e)), console.log("binding " + t + ", shared: " + r), s(this).bindings[t] = {
                     concrete: e,
                     shared: r
                 }, this.makeAccessorProperty(t), this.emit("bind." + t, {
@@ -171,12 +183,10 @@ function t(e, r, n) {
                 }, !0)
             },
             share: function (t) {
-                return function () {
-                    var e;
-                    return function (r) {
-                        return void 0 === typeof e && (console.log("needed to create object"), e = t(r)), e
-                    }
-                }()
+                var e;
+                return function (r) {
+                    return void 0 === e && (e = t(r)), e
+                }
             },
             forgetInstance: function (t) {
                 delete s(this).instances[t]
@@ -235,25 +245,26 @@ function t(e, r, n) {
             o = t("Wildcat.Events.Dispatcher"),
             u = t("Wildcat.Foundation.start"),
             s = t("Wildcat.Foundation.ProviderRepository"),
-            a = $traceurRuntime.assertObject(t("Wildcat.Support.helpers")).value,
-            c = {},
-            l = function () {
-                $traceurRuntime.defaultSuperCall(this, f.prototype, arguments)
+            a = t("config.config"),
+            c = $traceurRuntime.assertObject(t("Wildcat.Support.helpers")).value,
+            l = {},
+            f = function () {
+                $traceurRuntime.defaultSuperCall(this, p.prototype, arguments)
             },
-            f = l;
-        $traceurRuntime.createClass(l, {
+            p = f;
+        $traceurRuntime.createClass(f, {
             detectEnvironment: function (t) {
-                return c.env = a(t)
+                return l.env = c(t)
             },
             isLocal: function () {
                 return this.environment("local")
             },
             environment: function () {
                 for (var t = [], e = 0; e < arguments.length; e++) t[e] = arguments[e];
-                return t.length ? -1 !== t.indexOf(c.env) : c.env
+                return t.length ? -1 !== t.indexOf(l.env) : l.env
             },
             getConfigLoader: function () {
-                return new i
+                return new i(a)
             },
             registerCoreContainerBindings: function () {
                 var t = this;
@@ -275,7 +286,7 @@ function t(e, r, n) {
             register: function (t) {
                 return t.register(), t
             }
-        }, {}, r), e.exports = l
+        }, {}, r), e.exports = f
     },
     {
         "Wildcat.Config.ModuleLoader": 5,
@@ -284,7 +295,8 @@ function t(e, r, n) {
         "Wildcat.Events.Dispatcher": 8,
         "Wildcat.Foundation.ProviderRepository": 10,
         "Wildcat.Foundation.start": 11,
-        "Wildcat.Support.helpers": 15
+        "Wildcat.Support.helpers": 15,
+        "config.config": 3
     }],
     10: [function (t, e) {
         "use strict";
@@ -307,12 +319,12 @@ function t(e, r, n) {
 
         function r() {
             {
-                var t = this;
-                t.environment()
+                var t, e, r = this;
+                r.environment()
             }
-            t.bind("app", function () {
-                return t
-            }), t.registerCoreContainerBindings(), t.getProviderRepository().load(t, t.config.get("app").providers)
+            r.bind("app", function () {
+                return r
+            }), r.registerCoreContainerBindings(), e = r.config, t = e.get("app").providers, r.getProviderRepository().load(r, t)
         }
         t("Wildcat.Config.Repository");
         e.exports = r

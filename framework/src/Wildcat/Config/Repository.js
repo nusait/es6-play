@@ -1,20 +1,21 @@
+var state = require('Wildcat.Support.state')
 
 class Repository {
 
     constructor(loader, environment) {
-        
-        this.loader = loader;
-        this.environment = environment;
+        var _ = state(this, {});
+        _.loader = loader;
+        _.environment = environment;
     }
     has() {
 
     }
     get(key, defaultVal) {
-
-        var {environment} = this;
+        var _ = state(this);
+        var {environment} = _;
         var [namespace, group, item] = parseKey(key);
 
-        var items = this.loader.load(environment, group, namespace);
+        var items = _.loader.load(environment, group, namespace);
 
         if ( ! item) return items;
 

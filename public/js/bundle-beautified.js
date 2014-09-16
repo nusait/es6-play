@@ -61,40 +61,51 @@
     }, {} ],
     5: [ function(require, module, exports) {
         "use strict";
-        var config = require("config.config");
-        var ModuleLoader = function ModuleLoader() {};
+        var state = require("Wildcat.Support.state");
+        var ModuleLoader = function ModuleLoader() {
+            var configObj = arguments[0] !== void 0 ? arguments[0] : {};
+            var _ = state(this, {});
+            _.configObj = configObj;
+        };
         $traceurRuntime.createClass(ModuleLoader, {
             load: function(environment, group) {
                 var namespace = arguments[2] !== void 0 ? arguments[2] : null;
+                var _ = state(this);
+                var configObj = _.configObj;
                 var items = {};
-                if (this.exists(group)) items = config[group];
-                if (config[environment + "." + group]) {
-                    Object.assign(items, config[environment + "." + group]);
+                if (this.exists(group)) items = configObj[group];
+                if (configObj[environment + "." + group]) {
+                    Object.assign(items, configObj[environment + "." + group]);
                 }
                 return items;
             },
             exists: function(group) {
                 var namespace = arguments[1] !== void 0 ? arguments[1] : null;
-                if (config[group]) return true;
+                var _ = state(this);
+                var configObj = _.configObj;
+                if (configObj[group]) return true;
                 return false;
             }
         }, {});
         module.exports = ModuleLoader;
     }, {
-        "config.config": 3
+        "Wildcat.Support.state": 16
     } ],
     6: [ function(require, module, exports) {
         "use strict";
+        var state = require("Wildcat.Support.state");
         var Repository = function Repository(loader, environment) {
-            this.loader = loader;
-            this.environment = environment;
+            var _ = state(this, {});
+            _.loader = loader;
+            _.environment = environment;
         };
         $traceurRuntime.createClass(Repository, {
             has: function() {},
             get: function(key, defaultVal) {
-                var environment = this.environment;
+                var _ = state(this);
+                var environment = $traceurRuntime.assertObject(_).environment;
                 var $__1 = $traceurRuntime.assertObject(parseKey(key)), namespace = $__1[0], group = $__1[1], item = $__1[2];
-                var items = this.loader.load(environment, group, namespace);
+                var items = _.loader.load(environment, group, namespace);
                 if (!item) return items;
                 if (items[item] !== undefined) return items[item];
                 return defaultVal;
@@ -114,7 +125,9 @@
             }
         }
         module.exports = Repository;
-    }, {} ],
+    }, {
+        "Wildcat.Support.state": 16
+    } ],
     7: [ function(require, module, exports) {
         "use strict";
         var $__2 = $traceurRuntime.assertObject(require("Wildcat.Support.helpers")), keys = $__2.keys, implementIterator = $__2.implementIterator, isUndefined = $__2.isUndefined, arrayIterator = $__2.arrayIterator, extendProtoOf = $__2.extendProtoOf;
@@ -138,7 +151,8 @@
                 var shared = arguments[2] !== void 0 ? arguments[2] : false;
                 var type = "bind";
                 var target = this;
-                console.log("binding " + abstract);
+                if (shared) concrete = this.share(concrete);
+                console.log("binding " + abstract + ", shared: " + shared);
                 state(this).bindings[abstract] = {
                     concrete: concrete,
                     shared: shared
@@ -185,16 +199,11 @@
                 }, true);
             },
             share: function(func) {
-                return function() {
-                    var object;
-                    return function(container) {
-                        if (typeof object === undefined) {
-                            console.log("needed to create object");
-                            object = func(container);
-                        }
-                        return object;
-                    };
-                }();
+                var object;
+                return function(container) {
+                    if (object === undefined) object = func(container);
+                    return object;
+                };
             },
             forgetInstance: function(abstract) {
                 delete state(this).instances[abstract];
@@ -258,6 +267,7 @@
         var Dispatcher = require("Wildcat.Events.Dispatcher");
         var start = require("Wildcat.Foundation.start");
         var ProviderRepository = require("Wildcat.Foundation.ProviderRepository");
+        var config = require("config.config");
         var value = $traceurRuntime.assertObject(require("Wildcat.Support.helpers")).value;
         var state = {};
         var Application = function Application() {
@@ -280,7 +290,7 @@
                 }
             },
             getConfigLoader: function() {
-                return new ModuleLoader();
+                return new ModuleLoader(config);
             },
             registerCoreContainerBindings: function() {
                 var app = this;
@@ -314,7 +324,8 @@
         "Wildcat.Events.Dispatcher": 8,
         "Wildcat.Foundation.ProviderRepository": 10,
         "Wildcat.Foundation.start": 11,
-        "Wildcat.Support.helpers": 15
+        "Wildcat.Support.helpers": 15,
+        "config.config": 3
     } ],
     10: [ function(require, module, exports) {
         "use strict";
@@ -340,11 +351,14 @@
         function start() {
             var app = this;
             var env = app.environment();
+            var providers, config;
             app.bind("app", function() {
                 return app;
             });
             app.registerCoreContainerBindings();
-            app.getProviderRepository().load(app, app.config.get("app").providers);
+            config = app.config;
+            providers = config.get("app").providers;
+            app.getProviderRepository().load(app, providers);
         }
         module.exports = start;
     }, {
