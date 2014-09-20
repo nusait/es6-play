@@ -91,6 +91,7 @@ function getArrayOfRelevantFiles() {
     return q.all([
         recursive(base + 'app'),
         recursive(base + 'config'),
+        recursive(base + 'bootstrap'),
         recursive(base + 'framework/src'),
     ]).then(concatAllArrays);
 }

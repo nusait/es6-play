@@ -70,11 +70,19 @@ function jsTask(e) {
             log('end jsTask');
         });
 }
+function bootstrapTaskWithAutoload() {
+    return dumpautoload()
+        .then(bootstrapTask);
+}
 function bootstrapTask() {
+    
+    var jsRoot = path.join(__dirname, '.');
+
     return browserify({debug: false})
         .transform(es6ify)
         .require(require.resolve('./bootstrap/start.js'), { entry: true })
         .bundle()
+        // .pipe(mold.transformSourcesRelativeTo(jsRoot))
         .pipe(source('boot.js'))
         .pipe(gulp.dest('./public/js/'))
         .on('end', function() {
@@ -99,7 +107,7 @@ function registerGulpTasks() {
     gulp.task('yuidoc', shell.task([
         'yuidoc -o docs js/Nusait'
     ]));
-    gulp.task('bootstrap', bootstrapTask);
+    gulp.task('bootstrap', bootstrapTaskWithAutoload);
     gulp.task('dumpautoload', dumpautoload);
 }
 

@@ -34,15 +34,13 @@ class Application extends Container {
     registerCoreContainerBindings() {
 
         var app = this;
-        console.log('registerCoreContainerBindings');
+        var configLoader = app.getConfigLoader();
+        var environment  = app.environment();
 
-        app.bind('config', function() {
-            return new Config(new app.getConfigLoader(), app.environment());
-        }, true);
-
-        app.bind('events', function() {
-            return new Dispatcher(app);
-        }, true);   
+        app.bindShared([
+            ['config', app => new Config(configLoader, environment)],
+            ['events', app => new Dispatcher(app)],
+        ]);
     }
     getProviderRepository() {
 

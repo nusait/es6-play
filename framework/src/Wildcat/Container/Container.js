@@ -1,17 +1,13 @@
-var {
-    keys, implementIterator, 
-    isUndefined, arrayIterator,
-    extendProtoOf,
-} = require('Wildcat.Support.helpers');
-
-var state = require('Wildcat.Support.state');
+var state        = require('Wildcat.Support.state');
 var EventEmitter = require('events').EventEmitter;
+var helpers      = require('Wildcat.Support.helpers');
 
 class Container {
 
     // use EventEmitter;
 
     constructor() {
+        
         EventEmitter.call(this);
 
         var _ = state(this, {});
@@ -28,7 +24,7 @@ class Container {
         // console.log('was not an instance');
 
         var concrete = this.getConcrete(abstract);
-        var object   = concrete();
+        var object   = concrete(this);
 
         // if (this.isShared(abstract)) {
         //     state.instances[abstract] = object;
@@ -37,17 +33,29 @@ class Container {
         return object;
     }
     bind(abstract, concrete = null, shared = false) {
+
         var type = 'bind';
         var target = this;
 
-        if (shared) concrete = this.share(concrete);
-
-        console.log(`binding ${abstract}, shared: ${shared}`);
         state(this).bindings[abstract] = {concrete, shared};
         this.makeAccessorProperty(abstract);
 
-        this.emit(`bind.${abstract}`, {type, target, abstract});
-        this.emit('bind', {type, target, abstract});
+        this.emit(`bind.${abstract}`, 
+            noProto({type: `${type}.${abstract}`, target, abstract, shared})
+        );
+        
+        this.emit('bind', 
+            noProto({type, target, abstract, shared})
+        );
+    }
+    bindShared(abstract, concrete, ...args) {
+
+        if (Array.isArray(abstract)) {
+            for (var $args of abstract) this.bindShared(...$args);
+            return;
+        }
+
+        this.bind(abstract, this.share(concrete, ...args), true);
     }
     getConcrete(abstract) {
 
@@ -72,21 +80,24 @@ class Container {
 
         return keys(this.getBindings());
     }
-    instance(abstract, ins) {
-        console.log('called instance method with ' + abstract);
-        state(this).instances[abstract] = ins;
-        this.makeAccessorProperty(abstract);
-    }
-    singleton(abstract, concrete = null, ...args) {
+    newInstanceOf(abstract, instantiable, ...args) {
 
-        this.bind(abstract, function() {
-            return new concrete(...args);
-        }, true);
+        this.bind(abstract, function(app) {
+            return new instantiable(...args);
+        }, false);
     }
-    share(func) {
+    singleton(abstract, instantiable, ...args) {
+
+        // this.bindShared(abstract, function(app) {
+        //     return new instantiable(...args);
+        // });
+        
+        this.bindShared(abstract, app => new instantiable(...args));
+    }
+    share(func, ...args) {
         var object;
         return function(container) {
-            if (object === undefined) object = func(container);
+            if (object === undefined) object = func(container, ...args);
             return object;
         };
     }
@@ -95,6 +106,9 @@ class Container {
         delete state(this).instances[abstract];
     }
     makeAccessorProperty(abstract) {
+
+        if (this.abstract) return;
+
         Object.defineProperty(this, abstract, {
             get: function() {
                 return this.make(abstract);
@@ -107,13 +121,55 @@ class Container {
         // return state;
     }
     getItems() {
-        return [3,2,6,3,6,3,2];
+        
+        return this.getBindingsKeys();
+    }
+    forEach(cb, context) {
+
+        context = defined(context, this);
+
+        // be sure third argument is this collection, not its array;
+        return this.getItems().forEach((value, key) => {
+            return cb.call(context, value, key, this);
+        });
+    }
+    map(cb, context) {
+
+        context = defined(context, this);
+
+        // be sure third argument is this collection, not its array;
+        return this.getItems().map((value, key) => {
+            return cb.call(context, value, key, this);
+        });
+    }
+    filter(cb, context) {
+
+        context = defined(context, this);
+
+        // be sure third argument is this collection, not its array;
+        return this.getItems().filter((value, key) => {
+            return cb.call(context, value, key, this);
+        });
     }
     getIterator() {
         
-        return arrayIterator(this.getBindingsKeys());
+        return arrayIterator(this.getItems());
     }
 }
+
+var {
+
+    keys, 
+    implementIterator, 
+    isUndefined,
+    isDefined,
+    defined,
+    arrayIterator,
+    extendProtoOf,
+    noProto,
+
+} = helpers;
+
 extendProtoOf(Container, EventEmitter);
 implementIterator(Container);
 

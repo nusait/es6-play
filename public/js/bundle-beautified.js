@@ -24,42 +24,75 @@
 })({
     1: [ function(require, module, exports) {
         "use strict";
-        var App = require("Wildcat.Foundation.Application");
-        window.App = App;
+        var View = require("Wildcat.View.View");
+        var IntroView = function IntroView() {
+            $traceurRuntime.defaultSuperCall(this, $IntroView.prototype, arguments);
+        };
+        var $IntroView = IntroView;
+        $traceurRuntime.createClass(IntroView, {
+            hi: function() {
+                console.log("I am the introview");
+            }
+        }, {}, View);
+        module.exports = IntroView;
     }, {
-        "Wildcat.Foundation.Application": 9
+        "Wildcat.View.View": 21
     } ],
     2: [ function(require, module, exports) {
         "use strict";
+        var App = require("Wildcat.Foundation.Application");
+        window.App = App;
+    }, {
+        "Wildcat.Foundation.Application": 12
+    } ],
+    3: [ function(require, module, exports) {
+        "use strict";
         var LogServiceProvider = require("Wildcat.Log.LogServiceProvider");
+        var WindowServiceProvider = require("Wildcat.DOM.WindowServiceProvider");
+        var ViewServiceProvider = require("Wildcat.View.ViewServiceProvider");
         module.exports = {
             debug: false,
-            providers: [ LogServiceProvider ],
+            providers: [ LogServiceProvider, WindowServiceProvider, ViewServiceProvider ],
             locale: "en",
             get browser() {
                 return window.navigator.userAgent;
             }
         };
     }, {
-        "Wildcat.Log.LogServiceProvider": 13
+        "Wildcat.DOM.WindowServiceProvider": 10,
+        "Wildcat.Log.LogServiceProvider": 16,
+        "Wildcat.View.ViewServiceProvider": 22
     } ],
-    3: [ function(require, module, exports) {
+    4: [ function(require, module, exports) {
         "use strict";
         module.exports = {
             app: require("./app"),
-            "local.app": require("./local/app")
+            "local.app": require("./local/app"),
+            views: require("./views")
         };
     }, {
-        "./app": 2,
-        "./local/app": 4
+        "./app": 3,
+        "./local/app": 5,
+        "./views": 6
     } ],
-    4: [ function(require, module, exports) {
+    5: [ function(require, module, exports) {
         "use strict";
         module.exports = {
             debug: true
         };
     }, {} ],
-    5: [ function(require, module, exports) {
+    6: [ function(require, module, exports) {
+        "use strict";
+        var IntroView = require("App.Browser.Views.IntroView");
+        module.exports = [ {
+            "abstract": "introView",
+            $constructor: IntroView,
+            build: "singleton"
+        } ];
+    }, {
+        "App.Browser.Views.IntroView": 1
+    } ],
+    7: [ function(require, module, exports) {
         "use strict";
         var state = require("Wildcat.Support.state");
         var ModuleLoader = function ModuleLoader() {
@@ -89,9 +122,9 @@
         }, {});
         module.exports = ModuleLoader;
     }, {
-        "Wildcat.Support.state": 16
+        "Wildcat.Support.state": 20
     } ],
-    6: [ function(require, module, exports) {
+    8: [ function(require, module, exports) {
         "use strict";
         var state = require("Wildcat.Support.state");
         var Repository = function Repository(loader, environment) {
@@ -126,13 +159,13 @@
         }
         module.exports = Repository;
     }, {
-        "Wildcat.Support.state": 16
+        "Wildcat.Support.state": 20
     } ],
-    7: [ function(require, module, exports) {
+    9: [ function(require, module, exports) {
         "use strict";
-        var $__2 = $traceurRuntime.assertObject(require("Wildcat.Support.helpers")), keys = $__2.keys, implementIterator = $__2.implementIterator, isUndefined = $__2.isUndefined, arrayIterator = $__2.arrayIterator, extendProtoOf = $__2.extendProtoOf;
         var state = require("Wildcat.Support.state");
         var EventEmitter = require("events").EventEmitter;
+        var helpers = require("Wildcat.Support.helpers");
         var Container = function Container() {
             EventEmitter.call(this);
             var _ = state(this, {});
@@ -143,7 +176,7 @@
             make: function(abstract) {
                 var parameters = arguments[1] !== void 0 ? arguments[1] : [];
                 var concrete = this.getConcrete(abstract);
-                var object = concrete();
+                var object = concrete(this);
                 return object;
             },
             bind: function(abstract) {
@@ -151,23 +184,35 @@
                 var shared = arguments[2] !== void 0 ? arguments[2] : false;
                 var type = "bind";
                 var target = this;
-                if (shared) concrete = this.share(concrete);
-                console.log("binding " + abstract + ", shared: " + shared);
                 state(this).bindings[abstract] = {
                     concrete: concrete,
                     shared: shared
                 };
                 this.makeAccessorProperty(abstract);
-                this.emit("bind." + abstract, {
+                this.emit("bind." + abstract, noProto({
+                    type: type + "." + abstract,
+                    target: target,
+                    "abstract": abstract,
+                    shared: shared
+                }));
+                this.emit("bind", noProto({
                     type: type,
                     target: target,
-                    "abstract": abstract
-                });
-                this.emit("bind", {
-                    type: type,
-                    target: target,
-                    "abstract": abstract
-                });
+                    "abstract": abstract,
+                    shared: shared
+                }));
+            },
+            bindShared: function(abstract, concrete) {
+                var $__9, $__10;
+                for (var args = [], $__4 = 2; $__4 < arguments.length; $__4++) args[$__4 - 2] = arguments[$__4];
+                if (Array.isArray(abstract)) {
+                    for (var $__2 = abstract[Symbol.iterator](), $__3; !($__3 = $__2.next()).done; ) {
+                        var $args = $__3.value;
+                        ($__9 = this).bindShared.apply($__9, $traceurRuntime.spread($args));
+                    }
+                    return;
+                }
+                this.bind(abstract, ($__10 = this).share.apply($__10, $traceurRuntime.spread([ concrete ], args)), true);
             },
             getConcrete: function(abstract) {
                 return state(this).bindings[abstract].concrete;
@@ -186,22 +231,23 @@
             getBindingsKeys: function() {
                 return keys(this.getBindings());
             },
-            instance: function(abstract, ins) {
-                console.log("called instance method with " + abstract);
-                state(this).instances[abstract] = ins;
-                this.makeAccessorProperty(abstract);
+            newInstanceOf: function(abstract, instantiable) {
+                for (var args = [], $__5 = 2; $__5 < arguments.length; $__5++) args[$__5 - 2] = arguments[$__5];
+                this.bind(abstract, function(app) {
+                    return new (Function.prototype.bind.apply(instantiable, $traceurRuntime.spread([ null ], args)))();
+                }, false);
             },
-            singleton: function(abstract) {
-                var concrete = arguments[1] !== void 0 ? arguments[1] : null;
-                for (var args = [], $__1 = 2; $__1 < arguments.length; $__1++) args[$__1 - 2] = arguments[$__1];
-                this.bind(abstract, function() {
-                    return new (Function.prototype.bind.apply(concrete, $traceurRuntime.spread([ null ], args)))();
-                }, true);
+            singleton: function(abstract, instantiable) {
+                for (var args = [], $__6 = 2; $__6 < arguments.length; $__6++) args[$__6 - 2] = arguments[$__6];
+                this.bindShared(abstract, function(app) {
+                    return new (Function.prototype.bind.apply(instantiable, $traceurRuntime.spread([ null ], args)))();
+                });
             },
             share: function(func) {
+                for (var args = [], $__7 = 1; $__7 < arguments.length; $__7++) args[$__7 - 1] = arguments[$__7];
                 var object;
                 return function(container) {
-                    if (object === undefined) object = func(container);
+                    if (object === undefined) object = func.apply(null, $traceurRuntime.spread([ container ], args));
                     return object;
                 };
             },
@@ -209,6 +255,7 @@
                 delete state(this).instances[abstract];
             },
             makeAccessorProperty: function(abstract) {
+                if (this.abstract) return;
                 Object.defineProperty(this, abstract, {
                     get: function() {
                         return this.make(abstract);
@@ -219,21 +266,67 @@
                 console.dir(state);
             },
             getItems: function() {
-                return [ 3, 2, 6, 3, 6, 3, 2 ];
+                return this.getBindingsKeys();
+            },
+            forEach: function(cb, context) {
+                var $__0 = this;
+                context = defined(context, this);
+                return this.getItems().forEach(function(value, key) {
+                    return cb.call(context, value, key, $__0);
+                });
+            },
+            map: function(cb, context) {
+                var $__0 = this;
+                context = defined(context, this);
+                return this.getItems().map(function(value, key) {
+                    return cb.call(context, value, key, $__0);
+                });
+            },
+            filter: function(cb, context) {
+                var $__0 = this;
+                context = defined(context, this);
+                return this.getItems().filter(function(value, key) {
+                    return cb.call(context, value, key, $__0);
+                });
             },
             getIterator: function() {
-                return arrayIterator(this.getBindingsKeys());
+                return arrayIterator(this.getItems());
             }
         }, {});
+        var $__8 = $traceurRuntime.assertObject(helpers), keys = $__8.keys, implementIterator = $__8.implementIterator, isUndefined = $__8.isUndefined, isDefined = $__8.isDefined, defined = $__8.defined, arrayIterator = $__8.arrayIterator, extendProtoOf = $__8.extendProtoOf, noProto = $__8.noProto;
         extendProtoOf(Container, EventEmitter);
         implementIterator(Container);
         module.exports = Container;
     }, {
-        "Wildcat.Support.helpers": 15,
-        "Wildcat.Support.state": 16,
-        events: 17
+        "Wildcat.Support.helpers": 18,
+        "Wildcat.Support.state": 20,
+        events: 23
     } ],
-    8: [ function(require, module, exports) {
+    10: [ function(require, module, exports) {
+        (function(global) {
+            "use strict";
+            var ServiceProvider = require("Wildcat.Support.ServiceProvider");
+            var WindowServiceProvider = function WindowServiceProvider() {
+                $traceurRuntime.defaultSuperCall(this, $WindowServiceProvider.prototype, arguments);
+            };
+            var $WindowServiceProvider = WindowServiceProvider;
+            $traceurRuntime.createClass(WindowServiceProvider, {
+                register: function() {
+                    var app = this.app;
+                    app.bindShared("window", function(app) {
+                        return global;
+                    });
+                },
+                provides: function() {
+                    return [ "window" ];
+                }
+            }, {}, ServiceProvider);
+            module.exports = WindowServiceProvider;
+        }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
+    }, {
+        "Wildcat.Support.ServiceProvider": 17
+    } ],
+    11: [ function(require, module, exports) {
         "use strict";
         var EventEmitter = require("events").EventEmitter;
         var $__1 = $traceurRuntime.assertObject(require("Wildcat.Support.helpers")), extendProtoOf = $__1.extendProtoOf, isString = $__1.isString;
@@ -256,10 +349,10 @@
         }
         module.exports = Dispatcher;
     }, {
-        "Wildcat.Support.helpers": 15,
-        events: 17
+        "Wildcat.Support.helpers": 18,
+        events: 23
     } ],
-    9: [ function(require, module, exports) {
+    12: [ function(require, module, exports) {
         "use strict";
         var Container = require("Wildcat.Container.Container");
         var Config = require("Wildcat.Config.Repository");
@@ -294,13 +387,13 @@
             },
             registerCoreContainerBindings: function() {
                 var app = this;
-                console.log("registerCoreContainerBindings");
-                app.bind("config", function() {
-                    return new Config(new app.getConfigLoader(), app.environment());
-                }, true);
-                app.bind("events", function() {
+                var configLoader = app.getConfigLoader();
+                var environment = app.environment();
+                app.bindShared([ [ "config", function(app) {
+                    return new Config(configLoader, environment);
+                } ], [ "events", function(app) {
                     return new Dispatcher(app);
-                }, true);
+                } ] ]);
             },
             getProviderRepository: function() {
                 return new ProviderRepository();
@@ -318,16 +411,16 @@
         }, {}, Container);
         module.exports = Application;
     }, {
-        "Wildcat.Config.ModuleLoader": 5,
-        "Wildcat.Config.Repository": 6,
-        "Wildcat.Container.Container": 7,
-        "Wildcat.Events.Dispatcher": 8,
-        "Wildcat.Foundation.ProviderRepository": 10,
-        "Wildcat.Foundation.start": 11,
-        "Wildcat.Support.helpers": 15,
-        "config.config": 3
+        "Wildcat.Config.ModuleLoader": 7,
+        "Wildcat.Config.Repository": 8,
+        "Wildcat.Container.Container": 9,
+        "Wildcat.Events.Dispatcher": 11,
+        "Wildcat.Foundation.ProviderRepository": 13,
+        "Wildcat.Foundation.start": 14,
+        "Wildcat.Support.helpers": 18,
+        "config.config": 4
     } ],
-    10: [ function(require, module, exports) {
+    13: [ function(require, module, exports) {
         "use strict";
         var ProviderRepository = function ProviderRepository() {};
         $traceurRuntime.createClass(ProviderRepository, {
@@ -345,14 +438,14 @@
         }, {});
         module.exports = ProviderRepository;
     }, {} ],
-    11: [ function(require, module, exports) {
+    14: [ function(require, module, exports) {
         "use strict";
         var Config = require("Wildcat.Config.Repository");
         function start() {
             var app = this;
             var env = app.environment();
             var providers, config;
-            app.bind("app", function() {
+            app.bindShared("app", function() {
                 return app;
             });
             app.registerCoreContainerBindings();
@@ -362,9 +455,9 @@
         }
         module.exports = start;
     }, {
-        "Wildcat.Config.Repository": 6
+        "Wildcat.Config.Repository": 8
     } ],
-    12: [ function(require, module, exports) {
+    15: [ function(require, module, exports) {
         (function(global) {
             "use strict";
             var state = require("Wildcat.Support.state");
@@ -394,9 +487,9 @@
             module.exports = ConsoleLogger;
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
-        "Wildcat.Support.state": 16
+        "Wildcat.Support.state": 20
     } ],
-    13: [ function(require, module, exports) {
+    16: [ function(require, module, exports) {
         "use strict";
         var ServiceProvider = require("Wildcat.Support.ServiceProvider");
         var ConsoleLogger = require("Wildcat.Log.ConsoleLogger");
@@ -414,10 +507,10 @@
         }, {}, ServiceProvider);
         module.exports = LogServiceProvider;
     }, {
-        "Wildcat.Log.ConsoleLogger": 12,
-        "Wildcat.Support.ServiceProvider": 14
+        "Wildcat.Log.ConsoleLogger": 15,
+        "Wildcat.Support.ServiceProvider": 17
     } ],
-    14: [ function(require, module, exports) {
+    17: [ function(require, module, exports) {
         "use strict";
         var state = require("Wildcat.Support.state");
         var ServiceProvider = function ServiceProvider(app) {
@@ -432,9 +525,9 @@
         }, {});
         module.exports = ServiceProvider;
     }, {
-        "Wildcat.Support.state": 16
+        "Wildcat.Support.state": 20
     } ],
-    15: [ function(require, module, exports) {
+    18: [ function(require, module, exports) {
         "use strict";
         function keys(object) {
             return Object.keys(object);
@@ -473,6 +566,12 @@
         }
         function isUndefined(val) {
             return val === undefined;
+        }
+        function isDefined(val) {
+            return !isUndefined(val);
+        }
+        function defined(val, $default) {
+            return isDefined(val) ? val : $default;
         }
         function wait() {
             var time = arguments[0] !== void 0 ? arguments[0] : 500;
@@ -520,6 +619,12 @@
                 }
             };
         }
+        function noProto() {
+            var source = arguments[0] !== void 0 ? arguments[0] : {};
+            var empty = Object.create(null);
+            Object.assign(empty, source);
+            return empty;
+        }
         var helpers = {
             keys: keys,
             assign: assign,
@@ -529,27 +634,125 @@
             isNull: isNull,
             isString: isString,
             isUndefined: isUndefined,
+            isDefined: isDefined,
+            defined: defined,
             wait: wait,
             log: log,
             async: async,
-            arrayIterator: arrayIterator
+            arrayIterator: arrayIterator,
+            noProto: noProto
         };
         module.exports = helpers;
     }, {} ],
-    16: [ function(require, module, exports) {
-        "use strict";
-        var isUndefined = $traceurRuntime.assertObject(require("Wildcat.Support.helpers")).isUndefined;
-        var map = new Map();
-        function state(obj, val) {
-            if (isUndefined(val)) return map.get(obj);
-            map.set(obj, val);
-            return map.get(obj);
-        }
-        module.exports = state;
+    19: [ function(require, module, exports) {
+        (function(global) {
+            "use strict";
+            var observeJs = require("observe-js");
+            module.exports = {
+                Observer: global.Observer,
+                ArrayObserver: global.ArrayObserver,
+                ArraySplice: global.ArraySplice,
+                ObjectObserver: global.ObjectObserver,
+                PathObserver: global.PathObserver,
+                CompoundObserver: global.CompoundObserver,
+                Path: global.Path,
+                ObserverTransform: global.ObserverTransform,
+                Platform: global.Platform
+            };
+        }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
-        "Wildcat.Support.helpers": 15
+        "observe-js": 26
     } ],
-    17: [ function(require, module, exports) {
+    20: [ function(require, module, exports) {
+        (function(global) {
+            "use strict";
+            var isUndefined = $traceurRuntime.assertObject(require("Wildcat.Support.helpers")).isUndefined;
+            var MapConstructor = global.WeakMap || global.Map;
+            console.log("supports " + MapConstructor.name);
+            var map = new MapConstructor();
+            function state(obj, val) {
+                if (isUndefined(val)) return map.get(obj);
+                map.set(obj, val);
+                return map.get(obj);
+            }
+            module.exports = state;
+        }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
+    }, {
+        "Wildcat.Support.helpers": 18
+    } ],
+    21: [ function(require, module, exports) {
+        "use strict";
+        var state = require("Wildcat.Support.state");
+        var observe = require("Wildcat.Support.observe");
+        var $__1 = $traceurRuntime.assertObject(observe), PathObserver = $__1.PathObserver, Platform = $__1.Platform;
+        var View = function View() {
+            var el = arguments[0] !== void 0 ? arguments[0] : null;
+            var _ = state(this, {});
+            _.el = el;
+            console.log("being constructed");
+            this.bindStateEvents();
+        };
+        $traceurRuntime.createClass(View, {
+            bindStateEvents: function() {
+                var _ = state(this);
+                _.elObserver = new PathObserver(_, "el");
+                _.elObserver.open(this.onElChange.bind(this));
+            },
+            onElChange: function(newValue, oldValue) {
+                console.log("newValue = " + newValue);
+                console.log("oldValue = " + oldValue);
+            },
+            setElement: function(element) {
+                var quiet = arguments[1] !== void 0 ? arguments[1] : false;
+                var _ = state(this);
+                _.el = element;
+                if (quiet) _.elObserver.discardChanges();
+                Platform.performMicrotaskCheckpoint();
+            },
+            get el() {
+                return state(this).el;
+            },
+            set el(value) {
+                this.setElement(value);
+            },
+            render: function() {}
+        }, {});
+        module.exports = View;
+    }, {
+        "Wildcat.Support.observe": 19,
+        "Wildcat.Support.state": 20
+    } ],
+    22: [ function(require, module, exports) {
+        "use strict";
+        var ServiceProvider = require("Wildcat.Support.ServiceProvider");
+        var View = require("Wildcat.View.View");
+        var ViewServiceProvider = function ViewServiceProvider() {
+            $traceurRuntime.defaultSuperCall(this, $ViewServiceProvider.prototype, arguments);
+        };
+        var $ViewServiceProvider = ViewServiceProvider;
+        $traceurRuntime.createClass(ViewServiceProvider, {
+            register: function() {
+                var app = this.app;
+                var config = app.config;
+                var views = config.get("views");
+                for (var $__1 = views[Symbol.iterator](), $__2; !($__2 = $__1.next()).done; ) {
+                    var $__3 = $traceurRuntime.assertObject($__2.value), abstract = $__3.abstract, $constructor = $__3.$constructor, build = $__3.build;
+                    {
+                        switch (build) {
+                          case "singleton":
+                            app.singleton(abstract, $constructor);
+                            break;
+                        }
+                    }
+                }
+            }
+        }, {}, ServiceProvider);
+        module.exports = ViewServiceProvider;
+    }, {
+        "Wildcat.Support.ServiceProvider": 17,
+        "Wildcat.View.View": 21
+    } ],
+    23: [ function(require, module, exports) {
         function EventEmitter() {
             this._events = this._events || {};
             this._maxListeners = this._maxListeners || undefined;
@@ -722,7 +925,7 @@
             return arg === void 0;
         }
     }, {} ],
-    18: [ function(require, module, exports) {
+    24: [ function(require, module, exports) {
         var process = module.exports = {};
         process.nextTick = function() {
             var canSetImmediate = typeof window !== "undefined" && window.setImmediate;
@@ -775,7 +978,7 @@
             throw new Error("process.chdir is not supported");
         };
     }, {} ],
-    19: [ function(require, module, exports) {
+    25: [ function(require, module, exports) {
         (function(process, global) {
             (function(global) {
                 "use strict";
@@ -3059,6 +3262,1169 @@
             System.get("traceur-runtime@0.0.55/src/runtime/polyfill-import" + "");
         }).call(this, require("_process"), typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
-        _process: 18
-    } ]
-}, {}, [ 19, 1 ]);
+        _process: 24
+    } ],
+    26: [ function(require, module, exports) {
+        (function(global) {
+            (function(global) {
+                "use strict";
+                var testingExposeCycleCount = global.testingExposeCycleCount;
+                function detectObjectObserve() {
+                    if (typeof Object.observe !== "function" || typeof Array.observe !== "function") {
+                        return false;
+                    }
+                    var records = [];
+                    function callback(recs) {
+                        records = recs;
+                    }
+                    var test = {};
+                    var arr = [];
+                    Object.observe(test, callback);
+                    Array.observe(arr, callback);
+                    test.id = 1;
+                    test.id = 2;
+                    delete test.id;
+                    arr.push(1, 2);
+                    arr.length = 0;
+                    Object.deliverChangeRecords(callback);
+                    if (records.length !== 5) return false;
+                    if (records[0].type != "add" || records[1].type != "update" || records[2].type != "delete" || records[3].type != "splice" || records[4].type != "splice") {
+                        return false;
+                    }
+                    Object.unobserve(test, callback);
+                    Array.unobserve(arr, callback);
+                    return true;
+                }
+                var hasObserve = detectObjectObserve();
+                function detectEval() {
+                    if (typeof chrome !== "undefined" && chrome.app && chrome.app.runtime) {
+                        return false;
+                    }
+                    if (typeof navigator != "undefined" && navigator.getDeviceStorage) {
+                        return false;
+                    }
+                    try {
+                        var f = new Function("", "return true;");
+                        return f();
+                    } catch (ex) {
+                        return false;
+                    }
+                }
+                var hasEval = detectEval();
+                function isIndex(s) {
+                    return +s === s >>> 0 && s !== "";
+                }
+                function toNumber(s) {
+                    return +s;
+                }
+                function isObject(obj) {
+                    return obj === Object(obj);
+                }
+                var numberIsNaN = global.Number.isNaN || function(value) {
+                    return typeof value === "number" && global.isNaN(value);
+                };
+                function areSameValue(left, right) {
+                    if (left === right) return left !== 0 || 1 / left === 1 / right;
+                    if (numberIsNaN(left) && numberIsNaN(right)) return true;
+                    return left !== left && right !== right;
+                }
+                var createObject = "__proto__" in {} ? function(obj) {
+                    return obj;
+                } : function(obj) {
+                    var proto = obj.__proto__;
+                    if (!proto) return obj;
+                    var newObject = Object.create(proto);
+                    Object.getOwnPropertyNames(obj).forEach(function(name) {
+                        Object.defineProperty(newObject, name, Object.getOwnPropertyDescriptor(obj, name));
+                    });
+                    return newObject;
+                };
+                var identStart = "[$_a-zA-Z]";
+                var identPart = "[$_a-zA-Z0-9]";
+                var identRegExp = new RegExp("^" + identStart + "+" + identPart + "*" + "$");
+                function getPathCharType(char) {
+                    if (char === undefined) return "eof";
+                    var code = char.charCodeAt(0);
+                    switch (code) {
+                      case 91:
+                      case 93:
+                      case 46:
+                      case 34:
+                      case 39:
+                      case 48:
+                        return char;
+
+                      case 95:
+                      case 36:
+                        return "ident";
+
+                      case 32:
+                      case 9:
+                      case 10:
+                      case 13:
+                      case 160:
+                      case 65279:
+                      case 8232:
+                      case 8233:
+                        return "ws";
+                    }
+                    if (97 <= code && code <= 122 || 65 <= code && code <= 90) return "ident";
+                    if (49 <= code && code <= 57) return "number";
+                    return "else";
+                }
+                var pathStateMachine = {
+                    beforePath: {
+                        ws: [ "beforePath" ],
+                        ident: [ "inIdent", "append" ],
+                        "[": [ "beforeElement" ],
+                        eof: [ "afterPath" ]
+                    },
+                    inPath: {
+                        ws: [ "inPath" ],
+                        ".": [ "beforeIdent" ],
+                        "[": [ "beforeElement" ],
+                        eof: [ "afterPath" ]
+                    },
+                    beforeIdent: {
+                        ws: [ "beforeIdent" ],
+                        ident: [ "inIdent", "append" ]
+                    },
+                    inIdent: {
+                        ident: [ "inIdent", "append" ],
+                        "0": [ "inIdent", "append" ],
+                        number: [ "inIdent", "append" ],
+                        ws: [ "inPath", "push" ],
+                        ".": [ "beforeIdent", "push" ],
+                        "[": [ "beforeElement", "push" ],
+                        eof: [ "afterPath", "push" ]
+                    },
+                    beforeElement: {
+                        ws: [ "beforeElement" ],
+                        "0": [ "afterZero", "append" ],
+                        number: [ "inIndex", "append" ],
+                        "'": [ "inSingleQuote", "append", "" ],
+                        '"': [ "inDoubleQuote", "append", "" ]
+                    },
+                    afterZero: {
+                        ws: [ "afterElement", "push" ],
+                        "]": [ "inPath", "push" ]
+                    },
+                    inIndex: {
+                        "0": [ "inIndex", "append" ],
+                        number: [ "inIndex", "append" ],
+                        ws: [ "afterElement" ],
+                        "]": [ "inPath", "push" ]
+                    },
+                    inSingleQuote: {
+                        "'": [ "afterElement" ],
+                        eof: [ "error" ],
+                        "else": [ "inSingleQuote", "append" ]
+                    },
+                    inDoubleQuote: {
+                        '"': [ "afterElement" ],
+                        eof: [ "error" ],
+                        "else": [ "inDoubleQuote", "append" ]
+                    },
+                    afterElement: {
+                        ws: [ "afterElement" ],
+                        "]": [ "inPath", "push" ]
+                    }
+                };
+                function noop() {}
+                function parsePath(path) {
+                    var keys = [];
+                    var index = -1;
+                    var c, newChar, key, type, transition, action, typeMap, mode = "beforePath";
+                    var actions = {
+                        push: function() {
+                            if (key === undefined) return;
+                            keys.push(key);
+                            key = undefined;
+                        },
+                        append: function() {
+                            if (key === undefined) key = newChar; else key += newChar;
+                        }
+                    };
+                    function maybeUnescapeQuote() {
+                        if (index >= path.length) return;
+                        var nextChar = path[index + 1];
+                        if (mode == "inSingleQuote" && nextChar == "'" || mode == "inDoubleQuote" && nextChar == '"') {
+                            index++;
+                            newChar = nextChar;
+                            actions.append();
+                            return true;
+                        }
+                    }
+                    while (mode) {
+                        index++;
+                        c = path[index];
+                        if (c == "\\" && maybeUnescapeQuote(mode)) continue;
+                        type = getPathCharType(c);
+                        typeMap = pathStateMachine[mode];
+                        transition = typeMap[type] || typeMap["else"] || "error";
+                        if (transition == "error") return;
+                        mode = transition[0];
+                        action = actions[transition[1]] || noop;
+                        newChar = transition[2] === undefined ? c : transition[2];
+                        action();
+                        if (mode === "afterPath") {
+                            return keys;
+                        }
+                    }
+                    return;
+                }
+                function isIdent(s) {
+                    return identRegExp.test(s);
+                }
+                var constructorIsPrivate = {};
+                function Path(parts, privateToken) {
+                    if (privateToken !== constructorIsPrivate) throw Error("Use Path.get to retrieve path objects");
+                    for (var i = 0; i < parts.length; i++) {
+                        this.push(String(parts[i]));
+                    }
+                    if (hasEval && this.length) {
+                        this.getValueFrom = this.compiledGetValueFromFn();
+                    }
+                }
+                var pathCache = {};
+                function getPath(pathString) {
+                    if (pathString instanceof Path) return pathString;
+                    if (pathString == null || pathString.length == 0) pathString = "";
+                    if (typeof pathString != "string") {
+                        if (isIndex(pathString.length)) {
+                            return new Path(pathString, constructorIsPrivate);
+                        }
+                        pathString = String(pathString);
+                    }
+                    var path = pathCache[pathString];
+                    if (path) return path;
+                    var parts = parsePath(pathString);
+                    if (!parts) return invalidPath;
+                    var path = new Path(parts, constructorIsPrivate);
+                    pathCache[pathString] = path;
+                    return path;
+                }
+                Path.get = getPath;
+                function formatAccessor(key) {
+                    if (isIndex(key)) {
+                        return "[" + key + "]";
+                    } else {
+                        return '["' + key.replace(/"/g, '\\"') + '"]';
+                    }
+                }
+                Path.prototype = createObject({
+                    __proto__: [],
+                    valid: true,
+                    toString: function() {
+                        var pathString = "";
+                        for (var i = 0; i < this.length; i++) {
+                            var key = this[i];
+                            if (isIdent(key)) {
+                                pathString += i ? "." + key : key;
+                            } else {
+                                pathString += formatAccessor(key);
+                            }
+                        }
+                        return pathString;
+                    },
+                    getValueFrom: function(obj, directObserver) {
+                        for (var i = 0; i < this.length; i++) {
+                            if (obj == null) return;
+                            obj = obj[this[i]];
+                        }
+                        return obj;
+                    },
+                    iterateObjects: function(obj, observe) {
+                        for (var i = 0; i < this.length; i++) {
+                            if (i) obj = obj[this[i - 1]];
+                            if (!isObject(obj)) return;
+                            observe(obj, this[0]);
+                        }
+                    },
+                    compiledGetValueFromFn: function() {
+                        var str = "";
+                        var pathString = "obj";
+                        str += "if (obj != null";
+                        var i = 0;
+                        var key;
+                        for (;i < this.length - 1; i++) {
+                            key = this[i];
+                            pathString += isIdent(key) ? "." + key : formatAccessor(key);
+                            str += " &&\n     " + pathString + " != null";
+                        }
+                        str += ")\n";
+                        var key = this[i];
+                        pathString += isIdent(key) ? "." + key : formatAccessor(key);
+                        str += "  return " + pathString + ";\nelse\n  return undefined;";
+                        return new Function("obj", str);
+                    },
+                    setValueFrom: function(obj, value) {
+                        if (!this.length) return false;
+                        for (var i = 0; i < this.length - 1; i++) {
+                            if (!isObject(obj)) return false;
+                            obj = obj[this[i]];
+                        }
+                        if (!isObject(obj)) return false;
+                        obj[this[i]] = value;
+                        return true;
+                    }
+                });
+                var invalidPath = new Path("", constructorIsPrivate);
+                invalidPath.valid = false;
+                invalidPath.getValueFrom = invalidPath.setValueFrom = function() {};
+                var MAX_DIRTY_CHECK_CYCLES = 1e3;
+                function dirtyCheck(observer) {
+                    var cycles = 0;
+                    while (cycles < MAX_DIRTY_CHECK_CYCLES && observer.check_()) {
+                        cycles++;
+                    }
+                    if (testingExposeCycleCount) global.dirtyCheckCycleCount = cycles;
+                    return cycles > 0;
+                }
+                function objectIsEmpty(object) {
+                    for (var prop in object) return false;
+                    return true;
+                }
+                function diffIsEmpty(diff) {
+                    return objectIsEmpty(diff.added) && objectIsEmpty(diff.removed) && objectIsEmpty(diff.changed);
+                }
+                function diffObjectFromOldObject(object, oldObject) {
+                    var added = {};
+                    var removed = {};
+                    var changed = {};
+                    for (var prop in oldObject) {
+                        var newValue = object[prop];
+                        if (newValue !== undefined && newValue === oldObject[prop]) continue;
+                        if (!(prop in object)) {
+                            removed[prop] = undefined;
+                            continue;
+                        }
+                        if (newValue !== oldObject[prop]) changed[prop] = newValue;
+                    }
+                    for (var prop in object) {
+                        if (prop in oldObject) continue;
+                        added[prop] = object[prop];
+                    }
+                    if (Array.isArray(object) && object.length !== oldObject.length) changed.length = object.length;
+                    return {
+                        added: added,
+                        removed: removed,
+                        changed: changed
+                    };
+                }
+                var eomTasks = [];
+                function runEOMTasks() {
+                    if (!eomTasks.length) return false;
+                    for (var i = 0; i < eomTasks.length; i++) {
+                        eomTasks[i]();
+                    }
+                    eomTasks.length = 0;
+                    return true;
+                }
+                var runEOM = hasObserve ? function() {
+                    var eomObj = {
+                        pingPong: true
+                    };
+                    var eomRunScheduled = false;
+                    Object.observe(eomObj, function() {
+                        runEOMTasks();
+                        eomRunScheduled = false;
+                    });
+                    return function(fn) {
+                        eomTasks.push(fn);
+                        if (!eomRunScheduled) {
+                            eomRunScheduled = true;
+                            eomObj.pingPong = !eomObj.pingPong;
+                        }
+                    };
+                }() : function() {
+                    return function(fn) {
+                        eomTasks.push(fn);
+                    };
+                }();
+                var observedObjectCache = [];
+                function newObservedObject() {
+                    var observer;
+                    var object;
+                    var discardRecords = false;
+                    var first = true;
+                    function callback(records) {
+                        if (observer && observer.state_ === OPENED && !discardRecords) observer.check_(records);
+                    }
+                    return {
+                        open: function(obs) {
+                            if (observer) throw Error("ObservedObject in use");
+                            if (!first) Object.deliverChangeRecords(callback);
+                            observer = obs;
+                            first = false;
+                        },
+                        observe: function(obj, arrayObserve) {
+                            object = obj;
+                            if (arrayObserve) Array.observe(object, callback); else Object.observe(object, callback);
+                        },
+                        deliver: function(discard) {
+                            discardRecords = discard;
+                            Object.deliverChangeRecords(callback);
+                            discardRecords = false;
+                        },
+                        close: function() {
+                            observer = undefined;
+                            Object.unobserve(object, callback);
+                            observedObjectCache.push(this);
+                        }
+                    };
+                }
+                function getObservedObject(observer, object, arrayObserve) {
+                    var dir = observedObjectCache.pop() || newObservedObject();
+                    dir.open(observer);
+                    dir.observe(object, arrayObserve);
+                    return dir;
+                }
+                var observedSetCache = [];
+                function newObservedSet() {
+                    var observerCount = 0;
+                    var observers = [];
+                    var objects = [];
+                    var rootObj;
+                    var rootObjProps;
+                    function observe(obj, prop) {
+                        if (!obj) return;
+                        if (obj === rootObj) rootObjProps[prop] = true;
+                        if (objects.indexOf(obj) < 0) {
+                            objects.push(obj);
+                            Object.observe(obj, callback);
+                        }
+                        observe(Object.getPrototypeOf(obj), prop);
+                    }
+                    function allRootObjNonObservedProps(recs) {
+                        for (var i = 0; i < recs.length; i++) {
+                            var rec = recs[i];
+                            if (rec.object !== rootObj || rootObjProps[rec.name] || rec.type === "setPrototype") {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                    function callback(recs) {
+                        if (allRootObjNonObservedProps(recs)) return;
+                        var observer;
+                        for (var i = 0; i < observers.length; i++) {
+                            observer = observers[i];
+                            if (observer.state_ == OPENED) {
+                                observer.iterateObjects_(observe);
+                            }
+                        }
+                        for (var i = 0; i < observers.length; i++) {
+                            observer = observers[i];
+                            if (observer.state_ == OPENED) {
+                                observer.check_();
+                            }
+                        }
+                    }
+                    var record = {
+                        object: undefined,
+                        objects: objects,
+                        open: function(obs, object) {
+                            if (!rootObj) {
+                                rootObj = object;
+                                rootObjProps = {};
+                            }
+                            observers.push(obs);
+                            observerCount++;
+                            obs.iterateObjects_(observe);
+                        },
+                        close: function(obs) {
+                            observerCount--;
+                            if (observerCount > 0) {
+                                return;
+                            }
+                            for (var i = 0; i < objects.length; i++) {
+                                Object.unobserve(objects[i], callback);
+                                Observer.unobservedCount++;
+                            }
+                            observers.length = 0;
+                            objects.length = 0;
+                            rootObj = undefined;
+                            rootObjProps = undefined;
+                            observedSetCache.push(this);
+                        }
+                    };
+                    return record;
+                }
+                var lastObservedSet;
+                function getObservedSet(observer, obj) {
+                    if (!lastObservedSet || lastObservedSet.object !== obj) {
+                        lastObservedSet = observedSetCache.pop() || newObservedSet();
+                        lastObservedSet.object = obj;
+                    }
+                    lastObservedSet.open(observer, obj);
+                    return lastObservedSet;
+                }
+                var UNOPENED = 0;
+                var OPENED = 1;
+                var CLOSED = 2;
+                var RESETTING = 3;
+                var nextObserverId = 1;
+                function Observer() {
+                    this.state_ = UNOPENED;
+                    this.callback_ = undefined;
+                    this.target_ = undefined;
+                    this.directObserver_ = undefined;
+                    this.value_ = undefined;
+                    this.id_ = nextObserverId++;
+                }
+                Observer.prototype = {
+                    open: function(callback, target) {
+                        if (this.state_ != UNOPENED) throw Error("Observer has already been opened.");
+                        addToAll(this);
+                        this.callback_ = callback;
+                        this.target_ = target;
+                        this.connect_();
+                        this.state_ = OPENED;
+                        return this.value_;
+                    },
+                    close: function() {
+                        if (this.state_ != OPENED) return;
+                        removeFromAll(this);
+                        this.disconnect_();
+                        this.value_ = undefined;
+                        this.callback_ = undefined;
+                        this.target_ = undefined;
+                        this.state_ = CLOSED;
+                    },
+                    deliver: function() {
+                        if (this.state_ != OPENED) return;
+                        dirtyCheck(this);
+                    },
+                    report_: function(changes) {
+                        try {
+                            this.callback_.apply(this.target_, changes);
+                        } catch (ex) {
+                            Observer._errorThrownDuringCallback = true;
+                            console.error("Exception caught during observer callback: " + (ex.stack || ex));
+                        }
+                    },
+                    discardChanges: function() {
+                        this.check_(undefined, true);
+                        return this.value_;
+                    }
+                };
+                var collectObservers = !hasObserve;
+                var allObservers;
+                Observer._allObserversCount = 0;
+                if (collectObservers) {
+                    allObservers = [];
+                }
+                function addToAll(observer) {
+                    Observer._allObserversCount++;
+                    if (!collectObservers) return;
+                    allObservers.push(observer);
+                }
+                function removeFromAll(observer) {
+                    Observer._allObserversCount--;
+                }
+                var runningMicrotaskCheckpoint = false;
+                global.Platform = global.Platform || {};
+                global.Platform.performMicrotaskCheckpoint = function() {
+                    if (runningMicrotaskCheckpoint) return;
+                    if (!collectObservers) return;
+                    runningMicrotaskCheckpoint = true;
+                    var cycles = 0;
+                    var anyChanged, toCheck;
+                    do {
+                        cycles++;
+                        toCheck = allObservers;
+                        allObservers = [];
+                        anyChanged = false;
+                        for (var i = 0; i < toCheck.length; i++) {
+                            var observer = toCheck[i];
+                            if (observer.state_ != OPENED) continue;
+                            if (observer.check_()) anyChanged = true;
+                            allObservers.push(observer);
+                        }
+                        if (runEOMTasks()) anyChanged = true;
+                    } while (cycles < MAX_DIRTY_CHECK_CYCLES && anyChanged);
+                    if (testingExposeCycleCount) global.dirtyCheckCycleCount = cycles;
+                    runningMicrotaskCheckpoint = false;
+                };
+                if (collectObservers) {
+                    global.Platform.clearObservers = function() {
+                        allObservers = [];
+                    };
+                }
+                function ObjectObserver(object) {
+                    Observer.call(this);
+                    this.value_ = object;
+                    this.oldObject_ = undefined;
+                }
+                ObjectObserver.prototype = createObject({
+                    __proto__: Observer.prototype,
+                    arrayObserve: false,
+                    connect_: function(callback, target) {
+                        if (hasObserve) {
+                            this.directObserver_ = getObservedObject(this, this.value_, this.arrayObserve);
+                        } else {
+                            this.oldObject_ = this.copyObject(this.value_);
+                        }
+                    },
+                    copyObject: function(object) {
+                        var copy = Array.isArray(object) ? [] : {};
+                        for (var prop in object) {
+                            copy[prop] = object[prop];
+                        }
+                        if (Array.isArray(object)) copy.length = object.length;
+                        return copy;
+                    },
+                    check_: function(changeRecords, skipChanges) {
+                        var diff;
+                        var oldValues;
+                        if (hasObserve) {
+                            if (!changeRecords) return false;
+                            oldValues = {};
+                            diff = diffObjectFromChangeRecords(this.value_, changeRecords, oldValues);
+                        } else {
+                            oldValues = this.oldObject_;
+                            diff = diffObjectFromOldObject(this.value_, this.oldObject_);
+                        }
+                        if (diffIsEmpty(diff)) return false;
+                        if (!hasObserve) this.oldObject_ = this.copyObject(this.value_);
+                        this.report_([ diff.added || {}, diff.removed || {}, diff.changed || {}, function(property) {
+                            return oldValues[property];
+                        } ]);
+                        return true;
+                    },
+                    disconnect_: function() {
+                        if (hasObserve) {
+                            this.directObserver_.close();
+                            this.directObserver_ = undefined;
+                        } else {
+                            this.oldObject_ = undefined;
+                        }
+                    },
+                    deliver: function() {
+                        if (this.state_ != OPENED) return;
+                        if (hasObserve) this.directObserver_.deliver(false); else dirtyCheck(this);
+                    },
+                    discardChanges: function() {
+                        if (this.directObserver_) this.directObserver_.deliver(true); else this.oldObject_ = this.copyObject(this.value_);
+                        return this.value_;
+                    }
+                });
+                function ArrayObserver(array) {
+                    if (!Array.isArray(array)) throw Error("Provided object is not an Array");
+                    ObjectObserver.call(this, array);
+                }
+                ArrayObserver.prototype = createObject({
+                    __proto__: ObjectObserver.prototype,
+                    arrayObserve: true,
+                    copyObject: function(arr) {
+                        return arr.slice();
+                    },
+                    check_: function(changeRecords) {
+                        var splices;
+                        if (hasObserve) {
+                            if (!changeRecords) return false;
+                            splices = projectArraySplices(this.value_, changeRecords);
+                        } else {
+                            splices = calcSplices(this.value_, 0, this.value_.length, this.oldObject_, 0, this.oldObject_.length);
+                        }
+                        if (!splices || !splices.length) return false;
+                        if (!hasObserve) this.oldObject_ = this.copyObject(this.value_);
+                        this.report_([ splices ]);
+                        return true;
+                    }
+                });
+                ArrayObserver.applySplices = function(previous, current, splices) {
+                    splices.forEach(function(splice) {
+                        var spliceArgs = [ splice.index, splice.removed.length ];
+                        var addIndex = splice.index;
+                        while (addIndex < splice.index + splice.addedCount) {
+                            spliceArgs.push(current[addIndex]);
+                            addIndex++;
+                        }
+                        Array.prototype.splice.apply(previous, spliceArgs);
+                    });
+                };
+                function PathObserver(object, path) {
+                    Observer.call(this);
+                    this.object_ = object;
+                    this.path_ = getPath(path);
+                    this.directObserver_ = undefined;
+                }
+                PathObserver.prototype = createObject({
+                    __proto__: Observer.prototype,
+                    get path() {
+                        return this.path_;
+                    },
+                    connect_: function() {
+                        if (hasObserve) this.directObserver_ = getObservedSet(this, this.object_);
+                        this.check_(undefined, true);
+                    },
+                    disconnect_: function() {
+                        this.value_ = undefined;
+                        if (this.directObserver_) {
+                            this.directObserver_.close(this);
+                            this.directObserver_ = undefined;
+                        }
+                    },
+                    iterateObjects_: function(observe) {
+                        this.path_.iterateObjects(this.object_, observe);
+                    },
+                    check_: function(changeRecords, skipChanges) {
+                        var oldValue = this.value_;
+                        this.value_ = this.path_.getValueFrom(this.object_);
+                        if (skipChanges || areSameValue(this.value_, oldValue)) return false;
+                        this.report_([ this.value_, oldValue, this ]);
+                        return true;
+                    },
+                    setValue: function(newValue) {
+                        if (this.path_) this.path_.setValueFrom(this.object_, newValue);
+                    }
+                });
+                function CompoundObserver(reportChangesOnOpen) {
+                    Observer.call(this);
+                    this.reportChangesOnOpen_ = reportChangesOnOpen;
+                    this.value_ = [];
+                    this.directObserver_ = undefined;
+                    this.observed_ = [];
+                }
+                var observerSentinel = {};
+                CompoundObserver.prototype = createObject({
+                    __proto__: Observer.prototype,
+                    connect_: function() {
+                        if (hasObserve) {
+                            var object;
+                            var needsDirectObserver = false;
+                            for (var i = 0; i < this.observed_.length; i += 2) {
+                                object = this.observed_[i];
+                                if (object !== observerSentinel) {
+                                    needsDirectObserver = true;
+                                    break;
+                                }
+                            }
+                            if (needsDirectObserver) this.directObserver_ = getObservedSet(this, object);
+                        }
+                        this.check_(undefined, !this.reportChangesOnOpen_);
+                    },
+                    disconnect_: function() {
+                        for (var i = 0; i < this.observed_.length; i += 2) {
+                            if (this.observed_[i] === observerSentinel) this.observed_[i + 1].close();
+                        }
+                        this.observed_.length = 0;
+                        this.value_.length = 0;
+                        if (this.directObserver_) {
+                            this.directObserver_.close(this);
+                            this.directObserver_ = undefined;
+                        }
+                    },
+                    addPath: function(object, path) {
+                        if (this.state_ != UNOPENED && this.state_ != RESETTING) throw Error("Cannot add paths once started.");
+                        var path = getPath(path);
+                        this.observed_.push(object, path);
+                        if (!this.reportChangesOnOpen_) return;
+                        var index = this.observed_.length / 2 - 1;
+                        this.value_[index] = path.getValueFrom(object);
+                    },
+                    addObserver: function(observer) {
+                        if (this.state_ != UNOPENED && this.state_ != RESETTING) throw Error("Cannot add observers once started.");
+                        this.observed_.push(observerSentinel, observer);
+                        if (!this.reportChangesOnOpen_) return;
+                        var index = this.observed_.length / 2 - 1;
+                        this.value_[index] = observer.open(this.deliver, this);
+                    },
+                    startReset: function() {
+                        if (this.state_ != OPENED) throw Error("Can only reset while open");
+                        this.state_ = RESETTING;
+                        this.disconnect_();
+                    },
+                    finishReset: function() {
+                        if (this.state_ != RESETTING) throw Error("Can only finishReset after startReset");
+                        this.state_ = OPENED;
+                        this.connect_();
+                        return this.value_;
+                    },
+                    iterateObjects_: function(observe) {
+                        var object;
+                        for (var i = 0; i < this.observed_.length; i += 2) {
+                            object = this.observed_[i];
+                            if (object !== observerSentinel) this.observed_[i + 1].iterateObjects(object, observe);
+                        }
+                    },
+                    check_: function(changeRecords, skipChanges) {
+                        var oldValues;
+                        for (var i = 0; i < this.observed_.length; i += 2) {
+                            var object = this.observed_[i];
+                            var path = this.observed_[i + 1];
+                            var value;
+                            if (object === observerSentinel) {
+                                var observable = path;
+                                value = this.state_ === UNOPENED ? observable.open(this.deliver, this) : observable.discardChanges();
+                            } else {
+                                value = path.getValueFrom(object);
+                            }
+                            if (skipChanges) {
+                                this.value_[i / 2] = value;
+                                continue;
+                            }
+                            if (areSameValue(value, this.value_[i / 2])) continue;
+                            oldValues = oldValues || [];
+                            oldValues[i / 2] = this.value_[i / 2];
+                            this.value_[i / 2] = value;
+                        }
+                        if (!oldValues) return false;
+                        this.report_([ this.value_, oldValues, this.observed_ ]);
+                        return true;
+                    }
+                });
+                function identFn(value) {
+                    return value;
+                }
+                function ObserverTransform(observable, getValueFn, setValueFn, dontPassThroughSet) {
+                    this.callback_ = undefined;
+                    this.target_ = undefined;
+                    this.value_ = undefined;
+                    this.observable_ = observable;
+                    this.getValueFn_ = getValueFn || identFn;
+                    this.setValueFn_ = setValueFn || identFn;
+                    this.dontPassThroughSet_ = dontPassThroughSet;
+                }
+                ObserverTransform.prototype = {
+                    open: function(callback, target) {
+                        this.callback_ = callback;
+                        this.target_ = target;
+                        this.value_ = this.getValueFn_(this.observable_.open(this.observedCallback_, this));
+                        return this.value_;
+                    },
+                    observedCallback_: function(value) {
+                        value = this.getValueFn_(value);
+                        if (areSameValue(value, this.value_)) return;
+                        var oldValue = this.value_;
+                        this.value_ = value;
+                        this.callback_.call(this.target_, this.value_, oldValue);
+                    },
+                    discardChanges: function() {
+                        this.value_ = this.getValueFn_(this.observable_.discardChanges());
+                        return this.value_;
+                    },
+                    deliver: function() {
+                        return this.observable_.deliver();
+                    },
+                    setValue: function(value) {
+                        value = this.setValueFn_(value);
+                        if (!this.dontPassThroughSet_ && this.observable_.setValue) return this.observable_.setValue(value);
+                    },
+                    close: function() {
+                        if (this.observable_) this.observable_.close();
+                        this.callback_ = undefined;
+                        this.target_ = undefined;
+                        this.observable_ = undefined;
+                        this.value_ = undefined;
+                        this.getValueFn_ = undefined;
+                        this.setValueFn_ = undefined;
+                    }
+                };
+                var expectedRecordTypes = {
+                    add: true,
+                    update: true,
+                    "delete": true
+                };
+                function diffObjectFromChangeRecords(object, changeRecords, oldValues) {
+                    var added = {};
+                    var removed = {};
+                    for (var i = 0; i < changeRecords.length; i++) {
+                        var record = changeRecords[i];
+                        if (!expectedRecordTypes[record.type]) {
+                            console.error("Unknown changeRecord type: " + record.type);
+                            console.error(record);
+                            continue;
+                        }
+                        if (!(record.name in oldValues)) oldValues[record.name] = record.oldValue;
+                        if (record.type == "update") continue;
+                        if (record.type == "add") {
+                            if (record.name in removed) delete removed[record.name]; else added[record.name] = true;
+                            continue;
+                        }
+                        if (record.name in added) {
+                            delete added[record.name];
+                            delete oldValues[record.name];
+                        } else {
+                            removed[record.name] = true;
+                        }
+                    }
+                    for (var prop in added) added[prop] = object[prop];
+                    for (var prop in removed) removed[prop] = undefined;
+                    var changed = {};
+                    for (var prop in oldValues) {
+                        if (prop in added || prop in removed) continue;
+                        var newValue = object[prop];
+                        if (oldValues[prop] !== newValue) changed[prop] = newValue;
+                    }
+                    return {
+                        added: added,
+                        removed: removed,
+                        changed: changed
+                    };
+                }
+                function newSplice(index, removed, addedCount) {
+                    return {
+                        index: index,
+                        removed: removed,
+                        addedCount: addedCount
+                    };
+                }
+                var EDIT_LEAVE = 0;
+                var EDIT_UPDATE = 1;
+                var EDIT_ADD = 2;
+                var EDIT_DELETE = 3;
+                function ArraySplice() {}
+                ArraySplice.prototype = {
+                    calcEditDistances: function(current, currentStart, currentEnd, old, oldStart, oldEnd) {
+                        var rowCount = oldEnd - oldStart + 1;
+                        var columnCount = currentEnd - currentStart + 1;
+                        var distances = new Array(rowCount);
+                        for (var i = 0; i < rowCount; i++) {
+                            distances[i] = new Array(columnCount);
+                            distances[i][0] = i;
+                        }
+                        for (var j = 0; j < columnCount; j++) distances[0][j] = j;
+                        for (var i = 1; i < rowCount; i++) {
+                            for (var j = 1; j < columnCount; j++) {
+                                if (this.equals(current[currentStart + j - 1], old[oldStart + i - 1])) distances[i][j] = distances[i - 1][j - 1]; else {
+                                    var north = distances[i - 1][j] + 1;
+                                    var west = distances[i][j - 1] + 1;
+                                    distances[i][j] = north < west ? north : west;
+                                }
+                            }
+                        }
+                        return distances;
+                    },
+                    spliceOperationsFromEditDistances: function(distances) {
+                        var i = distances.length - 1;
+                        var j = distances[0].length - 1;
+                        var current = distances[i][j];
+                        var edits = [];
+                        while (i > 0 || j > 0) {
+                            if (i == 0) {
+                                edits.push(EDIT_ADD);
+                                j--;
+                                continue;
+                            }
+                            if (j == 0) {
+                                edits.push(EDIT_DELETE);
+                                i--;
+                                continue;
+                            }
+                            var northWest = distances[i - 1][j - 1];
+                            var west = distances[i - 1][j];
+                            var north = distances[i][j - 1];
+                            var min;
+                            if (west < north) min = west < northWest ? west : northWest; else min = north < northWest ? north : northWest;
+                            if (min == northWest) {
+                                if (northWest == current) {
+                                    edits.push(EDIT_LEAVE);
+                                } else {
+                                    edits.push(EDIT_UPDATE);
+                                    current = northWest;
+                                }
+                                i--;
+                                j--;
+                            } else if (min == west) {
+                                edits.push(EDIT_DELETE);
+                                i--;
+                                current = west;
+                            } else {
+                                edits.push(EDIT_ADD);
+                                j--;
+                                current = north;
+                            }
+                        }
+                        edits.reverse();
+                        return edits;
+                    },
+                    calcSplices: function(current, currentStart, currentEnd, old, oldStart, oldEnd) {
+                        var prefixCount = 0;
+                        var suffixCount = 0;
+                        var minLength = Math.min(currentEnd - currentStart, oldEnd - oldStart);
+                        if (currentStart == 0 && oldStart == 0) prefixCount = this.sharedPrefix(current, old, minLength);
+                        if (currentEnd == current.length && oldEnd == old.length) suffixCount = this.sharedSuffix(current, old, minLength - prefixCount);
+                        currentStart += prefixCount;
+                        oldStart += prefixCount;
+                        currentEnd -= suffixCount;
+                        oldEnd -= suffixCount;
+                        if (currentEnd - currentStart == 0 && oldEnd - oldStart == 0) return [];
+                        if (currentStart == currentEnd) {
+                            var splice = newSplice(currentStart, [], 0);
+                            while (oldStart < oldEnd) splice.removed.push(old[oldStart++]);
+                            return [ splice ];
+                        } else if (oldStart == oldEnd) return [ newSplice(currentStart, [], currentEnd - currentStart) ];
+                        var ops = this.spliceOperationsFromEditDistances(this.calcEditDistances(current, currentStart, currentEnd, old, oldStart, oldEnd));
+                        var splice = undefined;
+                        var splices = [];
+                        var index = currentStart;
+                        var oldIndex = oldStart;
+                        for (var i = 0; i < ops.length; i++) {
+                            switch (ops[i]) {
+                              case EDIT_LEAVE:
+                                if (splice) {
+                                    splices.push(splice);
+                                    splice = undefined;
+                                }
+                                index++;
+                                oldIndex++;
+                                break;
+
+                              case EDIT_UPDATE:
+                                if (!splice) splice = newSplice(index, [], 0);
+                                splice.addedCount++;
+                                index++;
+                                splice.removed.push(old[oldIndex]);
+                                oldIndex++;
+                                break;
+
+                              case EDIT_ADD:
+                                if (!splice) splice = newSplice(index, [], 0);
+                                splice.addedCount++;
+                                index++;
+                                break;
+
+                              case EDIT_DELETE:
+                                if (!splice) splice = newSplice(index, [], 0);
+                                splice.removed.push(old[oldIndex]);
+                                oldIndex++;
+                                break;
+                            }
+                        }
+                        if (splice) {
+                            splices.push(splice);
+                        }
+                        return splices;
+                    },
+                    sharedPrefix: function(current, old, searchLength) {
+                        for (var i = 0; i < searchLength; i++) if (!this.equals(current[i], old[i])) return i;
+                        return searchLength;
+                    },
+                    sharedSuffix: function(current, old, searchLength) {
+                        var index1 = current.length;
+                        var index2 = old.length;
+                        var count = 0;
+                        while (count < searchLength && this.equals(current[--index1], old[--index2])) count++;
+                        return count;
+                    },
+                    calculateSplices: function(current, previous) {
+                        return this.calcSplices(current, 0, current.length, previous, 0, previous.length);
+                    },
+                    equals: function(currentValue, previousValue) {
+                        return currentValue === previousValue;
+                    }
+                };
+                var arraySplice = new ArraySplice();
+                function calcSplices(current, currentStart, currentEnd, old, oldStart, oldEnd) {
+                    return arraySplice.calcSplices(current, currentStart, currentEnd, old, oldStart, oldEnd);
+                }
+                function intersect(start1, end1, start2, end2) {
+                    if (end1 < start2 || end2 < start1) return -1;
+                    if (end1 == start2 || end2 == start1) return 0;
+                    if (start1 < start2) {
+                        if (end1 < end2) return end1 - start2; else return end2 - start2;
+                    } else {
+                        if (end2 < end1) return end2 - start1; else return end1 - start1;
+                    }
+                }
+                function mergeSplice(splices, index, removed, addedCount) {
+                    var splice = newSplice(index, removed, addedCount);
+                    var inserted = false;
+                    var insertionOffset = 0;
+                    for (var i = 0; i < splices.length; i++) {
+                        var current = splices[i];
+                        current.index += insertionOffset;
+                        if (inserted) continue;
+                        var intersectCount = intersect(splice.index, splice.index + splice.removed.length, current.index, current.index + current.addedCount);
+                        if (intersectCount >= 0) {
+                            splices.splice(i, 1);
+                            i--;
+                            insertionOffset -= current.addedCount - current.removed.length;
+                            splice.addedCount += current.addedCount - intersectCount;
+                            var deleteCount = splice.removed.length + current.removed.length - intersectCount;
+                            if (!splice.addedCount && !deleteCount) {
+                                inserted = true;
+                            } else {
+                                var removed = current.removed;
+                                if (splice.index < current.index) {
+                                    var prepend = splice.removed.slice(0, current.index - splice.index);
+                                    Array.prototype.push.apply(prepend, removed);
+                                    removed = prepend;
+                                }
+                                if (splice.index + splice.removed.length > current.index + current.addedCount) {
+                                    var append = splice.removed.slice(current.index + current.addedCount - splice.index);
+                                    Array.prototype.push.apply(removed, append);
+                                }
+                                splice.removed = removed;
+                                if (current.index < splice.index) {
+                                    splice.index = current.index;
+                                }
+                            }
+                        } else if (splice.index < current.index) {
+                            inserted = true;
+                            splices.splice(i, 0, splice);
+                            i++;
+                            var offset = splice.addedCount - splice.removed.length;
+                            current.index += offset;
+                            insertionOffset += offset;
+                        }
+                    }
+                    if (!inserted) splices.push(splice);
+                }
+                function createInitialSplices(array, changeRecords) {
+                    var splices = [];
+                    for (var i = 0; i < changeRecords.length; i++) {
+                        var record = changeRecords[i];
+                        switch (record.type) {
+                          case "splice":
+                            mergeSplice(splices, record.index, record.removed.slice(), record.addedCount);
+                            break;
+
+                          case "add":
+                          case "update":
+                          case "delete":
+                            if (!isIndex(record.name)) continue;
+                            var index = toNumber(record.name);
+                            if (index < 0) continue;
+                            mergeSplice(splices, index, [ record.oldValue ], 1);
+                            break;
+
+                          default:
+                            console.error("Unexpected record type: " + JSON.stringify(record));
+                            break;
+                        }
+                    }
+                    return splices;
+                }
+                function projectArraySplices(array, changeRecords) {
+                    var splices = [];
+                    createInitialSplices(array, changeRecords).forEach(function(splice) {
+                        if (splice.addedCount == 1 && splice.removed.length == 1) {
+                            if (splice.removed[0] !== array[splice.index]) splices.push(splice);
+                            return;
+                        }
+                        splices = splices.concat(calcSplices(array, splice.index, splice.index + splice.addedCount, splice.removed, 0, splice.removed.length));
+                    });
+                    return splices;
+                }
+                global.Observer = Observer;
+                global.Observer.runEOM_ = runEOM;
+                global.Observer.observerSentinel_ = observerSentinel;
+                global.Observer.hasObjectObserve = hasObserve;
+                global.ArrayObserver = ArrayObserver;
+                global.ArrayObserver.calculateSplices = function(current, previous) {
+                    return arraySplice.calculateSplices(current, previous);
+                };
+                global.ArraySplice = ArraySplice;
+                global.ObjectObserver = ObjectObserver;
+                global.PathObserver = PathObserver;
+                global.CompoundObserver = CompoundObserver;
+                global.Path = Path;
+                global.ObserverTransform = ObserverTransform;
+            })(typeof global !== "undefined" && global && typeof module !== "undefined" && module ? global : this || window);
+        }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
+    }, {} ]
+}, {}, [ 25, 2 ]);

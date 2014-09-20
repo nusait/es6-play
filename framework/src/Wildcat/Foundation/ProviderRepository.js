@@ -4,6 +4,7 @@ class ProviderRepository {
     load(app, providers) {
         
         for (var provider of providers) {
+            
             app.register(this.createProvider(app, provider));
         }
     }

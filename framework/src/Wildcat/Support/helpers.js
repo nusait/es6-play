@@ -38,6 +38,14 @@ function isUndefined(val) {
 
     return val === undefined;
 }
+function isDefined(val) {
+
+    return ( ! isUndefined(val));
+}
+function defined(val, $default) {
+
+    return isDefined(val) ? val : $default;
+}
 function wait(time = 500) {
     return new Promise(resolve => {
         setTimeout(resolve, time);
@@ -83,6 +91,13 @@ function arrayIterator(items = []) {
         }
     };
 }
+function noProto(source = {}) {
+
+    var empty = Object.create(null);
+    Object.assign(empty, source);
+    return empty;
+
+}
 var helpers = {
     keys,
     assign,
@@ -92,10 +107,13 @@ var helpers = {
     isNull,
     isString,
     isUndefined,
+    isDefined,
+    defined,
     wait,
     log,
     async,
     arrayIterator,
+    noProto,
 };
 
 module.exports = helpers;

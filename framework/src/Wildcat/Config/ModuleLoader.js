@@ -24,7 +24,7 @@ class ModuleLoader {
 
     }
     exists(group, namespace = null) {
-        
+
         var _ = state(this);
         var configObj = _.configObj;
 
@@ -35,13 +35,3 @@ class ModuleLoader {
 }
 
 module.exports = ModuleLoader;
-
-/*
-
-public function load($environment, $group, $namespace = null);
-public function exists($group, $namespace = null);
-public function addNamespace($namespace, $hint);
-public function getNamespaces();
-public function cascadePackage($environment, $package, $group, $items);
-
- */

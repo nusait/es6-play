@@ -6,7 +6,7 @@ function start() {
     var env    = app.environment();
     var providers, config;
 
-    app.bind('app', () => app);
+    app.bindShared('app', () => app);
 
     app.registerCoreContainerBindings();
 

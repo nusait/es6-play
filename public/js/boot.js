@@ -30,16 +30,13 @@ module.exports = environment;
 
 },{}],3:[function(require,module,exports){
 "use strict";
-var autoload = require('./autoload');
-var environment = require('./environment');
+var autoload = require('bootstrap.autoload');
+var environment = require('bootstrap.environment');
 var helpers = require('Wildcat.Support.helpers');
 var log = helpers.log;
 var APPSTART = Date.now();
 function instantiateNewApplication(App) {
   var app = new App();
-  app.on('bind', (function(e) {
-    return log(("bind event: " + e.abstract));
-  }));
   return app;
 }
 function loadEnvironment(app) {
@@ -47,6 +44,10 @@ function loadEnvironment(app) {
   return app;
 }
 function startApp(app) {
+  if (app.isLocal()) {
+    log("i am local");
+    app.on('bind', log);
+  }
   app.start();
   return app;
 }
@@ -56,16 +57,15 @@ function runApp(app) {
 }
 function complete(app) {
   var APPDONE = Date.now();
-  log(("application loaded in " + (APPDONE - APPSTART) + " ms"));
+  log(("=== application loaded in " + (APPDONE - APPSTART) + " ms"));
 }
 function debugIfLocalEnvironment(app) {
   if (app.isLocal()) {
-    log('! environment is local, add container values to window');
+    log(("=== app.environment() is " + app.environment()));
     for (var $__0 = app[Symbol.iterator](),
         $__1; !($__1 = $__0.next()).done; ) {
       var key = $__1.value;
       {
-        log(("key here: " + key));
         if (!window[key])
           window[key] = app[key];
       }
@@ -87,7 +87,7 @@ function appFailedToLoad(error) {
 autoload.loadApp().then(instantiateNewApplication).then(loadEnvironment).then(startApp).then(runApp).then(debugIfLocalEnvironment).then(complete).catch(appFailedToLoad);
 
 
-},{"./autoload":1,"./environment":2,"Wildcat.Support.helpers":4}],4:[function(require,module,exports){
+},{"Wildcat.Support.helpers":4,"bootstrap.autoload":1,"bootstrap.environment":2}],4:[function(require,module,exports){
 "use strict";
 function keys(object) {
   return Object.keys(object);
@@ -129,6 +129,12 @@ function isString(val) {
 }
 function isUndefined(val) {
   return val === undefined;
+}
+function isDefined(val) {
+  return (!isUndefined(val));
+}
+function defined(val, $default) {
+  return isDefined(val) ? val : $default;
 }
 function wait() {
   var time = arguments[0] !== (void 0) ? arguments[0] : 500;
@@ -179,6 +185,12 @@ function arrayIterator() {
       };
     }};
 }
+function noProto() {
+  var source = arguments[0] !== (void 0) ? arguments[0] : {};
+  var empty = Object.create(null);
+  Object.assign(empty, source);
+  return empty;
+}
 var helpers = {
   keys: keys,
   assign: assign,
@@ -188,10 +200,13 @@ var helpers = {
   isNull: isNull,
   isString: isString,
   isUndefined: isUndefined,
+  isDefined: isDefined,
+  defined: defined,
   wait: wait,
   log: log,
   async: async,
-  arrayIterator: arrayIterator
+  arrayIterator: arrayIterator,
+  noProto: noProto
 };
 module.exports = helpers;
 
@@ -268,7 +283,7 @@ process.chdir = function (dir) {
  * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/rsvp.js/master/LICENSE
- * @version   3.0.13
+ * @version   3.0.14
  */
 
 (function() {

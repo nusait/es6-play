@@ -3,6 +3,7 @@ var state = require('Wildcat.Support.state')
 class Repository {
 
     constructor(loader, environment) {
+
         var _ = state(this, {});
         _.loader = loader;
         _.environment = environment;
@@ -11,6 +12,7 @@ class Repository {
 
     }
     get(key, defaultVal) {
+        
         var _ = state(this);
         var {environment} = _;
         var [namespace, group, item] = parseKey(key);
