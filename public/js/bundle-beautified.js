@@ -30,58 +30,288 @@
         };
         var $IntroView = IntroView;
         $traceurRuntime.createClass(IntroView, {
-            hi: function() {
-                console.log("I am the introview");
+            postReport: function(name, incident) {
+                var command = this.app.make("postReportCommand", [ name, incident ]);
+                this.execute(command);
             }
         }, {}, View);
         module.exports = IntroView;
     }, {
-        "Wildcat.View.View": 21
+        "Wildcat.View.View": 36
     } ],
     2: [ function(require, module, exports) {
+        "use strict";
+        var PostReportCommand = function PostReportCommand(name, incident) {
+            this.name = name;
+            this.incident = incident;
+        };
+        $traceurRuntime.createClass(PostReportCommand, {}, {
+            getName: function() {
+                return "postReportCommand";
+            }
+        });
+        module.exports = PostReportCommand;
+    }, {} ],
+    3: [ function(require, module, exports) {
+        "use strict";
+        var CommandHandler = require("Wildcat.Commander.CommandHandler");
+        var helpers = require("Wildcat.Support.helpers");
+        var PostReportCommandHandler = function PostReportCommandHandler() {
+            $traceurRuntime.defaultSuperCall(this, $PostReportCommandHandler.prototype, arguments);
+        };
+        var $PostReportCommandHandler = PostReportCommandHandler;
+        $traceurRuntime.createClass(PostReportCommandHandler, {
+            handle: function(command) {
+                var $this = this;
+                var $__1 = $traceurRuntime.assertObject(command), name = $__1.name, incident = $__1.incident;
+                var app = $traceurRuntime.assertObject($this).app;
+                var Report = app.make("Report");
+                async($traceurRuntime.initGeneratorFunction(function $__2() {
+                    var report;
+                    return $traceurRuntime.createGeneratorInstance(function($ctx) {
+                        while (true) switch ($ctx.state) {
+                          case 0:
+                            $ctx.state = 2;
+                            return Report.post(name, incident);
+
+                          case 2:
+                            report = $ctx.sent;
+                            $ctx.state = 4;
+                            break;
+
+                          case 4:
+                            $this.dispatchEventsFor(report);
+                            $ctx.state = -2;
+                            break;
+
+                          default:
+                            return $ctx.end();
+                        }
+                    }, $__2, this);
+                }))().catch(terminateError);
+            }
+        }, {}, CommandHandler);
+        var $__1 = $traceurRuntime.assertObject(helpers), terminateError = $__1.terminateError, async = $__1.async;
+        module.exports = PostReportCommandHandler;
+    }, {
+        "Wildcat.Commander.CommandHandler": 16,
+        "Wildcat.Support.helpers": 33
+    } ],
+    4: [ function(require, module, exports) {
+        "use strict";
+        var ReportWasPosted = function ReportWasPosted(report) {
+            this.report = report;
+        };
+        $traceurRuntime.createClass(ReportWasPosted, {
+            getName: function() {
+                return "reportWasPosted";
+            }
+        }, {});
+        module.exports = ReportWasPosted;
+    }, {} ],
+    5: [ function(require, module, exports) {
+        "use strict";
+        var EventGenerator = require("Wildcat.Commander.Events.EventGenerator");
+        var helpers = require("Wildcat.Support.helpers");
+        var Report = function Report(name, incident) {
+            this.name = name;
+            this.incident = incident;
+            EventGenerator.call(this);
+        };
+        var $Report = Report;
+        $traceurRuntime.createClass(Report, {}, {
+            post: function() {
+                for (var args = [], $__1 = 0; $__1 < arguments.length; $__1++) args[$__1] = arguments[$__1];
+                var app = $Report.getApplication();
+                var reportRepository = $traceurRuntime.assertObject(app).reportRepository;
+                return async($traceurRuntime.initGeneratorFunction(function $__3() {
+                    var report, event;
+                    return $traceurRuntime.createGeneratorInstance(function($ctx) {
+                        while (true) switch ($ctx.state) {
+                          case 0:
+                            report = app.make("report", args);
+                            $ctx.state = 8;
+                            break;
+
+                          case 8:
+                            $ctx.state = 2;
+                            return reportRepository.save(report);
+
+                          case 2:
+                            report = $ctx.sent;
+                            $ctx.state = 4;
+                            break;
+
+                          case 4:
+                            event = app.make("reportWasPosted", [ report ]);
+                            $ctx.state = 10;
+                            break;
+
+                          case 10:
+                            $ctx.returnValue = report.raise(event);
+                            $ctx.state = -2;
+                            break;
+
+                          default:
+                            return $ctx.end();
+                        }
+                    }, $__3, this);
+                }))();
+            },
+            getApplication: function() {
+                return $Report.app_;
+            },
+            setApplication: function(app) {
+                $Report.app_ = app;
+            }
+        });
+        var $__2 = $traceurRuntime.assertObject(helpers), log = $__2.log, extendProtoOf = $__2.extendProtoOf;
+        extendProtoOf(Report, EventGenerator);
+        module.exports = Report;
+    }, {
+        "Wildcat.Commander.Events.EventGenerator": 21,
+        "Wildcat.Support.helpers": 33
+    } ],
+    6: [ function(require, module, exports) {
+        "use strict";
+        var ServiceProvider = require("Wildcat.Support.ServiceProvider");
+        var Report = require("App.Entities.Reports.Report");
+        var ReportWasPosted = require("App.Entities.Reports.Events.ReportWasPosted");
+        var ReportRepository = require("App.Repositories.ReportRepository");
+        var helpers = require("Wildcat.Support.helpers");
+        var AppServiceProvider = function AppServiceProvider() {
+            $traceurRuntime.defaultSuperCall(this, $AppServiceProvider.prototype, arguments);
+        };
+        var $AppServiceProvider = AppServiceProvider;
+        $traceurRuntime.createClass(AppServiceProvider, {
+            boot: function() {},
+            register: function() {
+                registerEntities.call(this);
+                registerRepositories.call(this);
+            }
+        }, {}, ServiceProvider);
+        function registerEntities() {
+            var app = this.app;
+            app.bindShared("Report", function(app) {
+                Report.setApplication(app);
+                return Report;
+            });
+            app.bind("report", function(app) {
+                for (var args = [], $__1 = 1; $__1 < arguments.length; $__1++) args[$__1 - 1] = arguments[$__1];
+                return new (Function.prototype.bind.apply(app.Report, $traceurRuntime.spread([ null ], args)))();
+            });
+            app.bind("reportWasPosted", function(app) {
+                for (var args = [], $__2 = 1; $__2 < arguments.length; $__2++) args[$__2 - 1] = arguments[$__2];
+                return new (Function.prototype.bind.apply(ReportWasPosted, $traceurRuntime.spread([ null ], args)))();
+            });
+        }
+        function registerRepositories() {
+            var app = this.app;
+            app.bindShared("reportRepository", function(app) {
+                return new ReportRepository(app);
+            });
+        }
+        var log = $traceurRuntime.assertObject(helpers).log;
+        module.exports = AppServiceProvider;
+    }, {
+        "App.Entities.Reports.Events.ReportWasPosted": 4,
+        "App.Entities.Reports.Report": 5,
+        "App.Repositories.ReportRepository": 7,
+        "Wildcat.Support.ServiceProvider": 32,
+        "Wildcat.Support.helpers": 33
+    } ],
+    7: [ function(require, module, exports) {
+        "use strict";
+        var helpers = require("Wildcat.Support.helpers");
+        var ReportRepository = function ReportRepository(app) {
+            this.app = app;
+        };
+        $traceurRuntime.createClass(ReportRepository, {
+            save: function(report) {
+                log("saving report, please wait…");
+                return wait().then(function() {
+                    log("report saved, thank you.");
+                    return report;
+                });
+            }
+        }, {});
+        var $__1 = $traceurRuntime.assertObject(helpers), log = $__1.log, wait = $__1.wait;
+        module.exports = ReportRepository;
+    }, {
+        "Wildcat.Support.helpers": 33
+    } ],
+    8: [ function(require, module, exports) {
         "use strict";
         var App = require("Wildcat.Foundation.Application");
         window.App = App;
     }, {
-        "Wildcat.Foundation.Application": 12
+        "Wildcat.Foundation.Application": 27
     } ],
-    3: [ function(require, module, exports) {
+    9: [ function(require, module, exports) {
         "use strict";
+        var AppServiceProvider = require("App.Providers.AppServiceProvider");
         var LogServiceProvider = require("Wildcat.Log.LogServiceProvider");
         var WindowServiceProvider = require("Wildcat.DOM.WindowServiceProvider");
         var ViewServiceProvider = require("Wildcat.View.ViewServiceProvider");
+        var CommanderServiceProvider = require("Wildcat.Commander.CommandServiceProvider");
         module.exports = {
             debug: false,
-            providers: [ LogServiceProvider, WindowServiceProvider, ViewServiceProvider ],
+            providers: [ AppServiceProvider, LogServiceProvider, WindowServiceProvider, ViewServiceProvider, CommanderServiceProvider ],
             locale: "en",
             get browser() {
                 return window.navigator.userAgent;
             }
         };
     }, {
-        "Wildcat.DOM.WindowServiceProvider": 10,
-        "Wildcat.Log.LogServiceProvider": 16,
-        "Wildcat.View.ViewServiceProvider": 22
+        "App.Providers.AppServiceProvider": 6,
+        "Wildcat.Commander.CommandServiceProvider": 17,
+        "Wildcat.DOM.WindowServiceProvider": 25,
+        "Wildcat.Log.LogServiceProvider": 31,
+        "Wildcat.View.ViewServiceProvider": 37
     } ],
-    4: [ function(require, module, exports) {
+    10: [ function(require, module, exports) {
+        "use strict";
+        var PostReportCommand = require("App.Commands.PostReportCommand");
+        module.exports = [ {
+            "abstract": "postReportCommand",
+            command: PostReportCommand
+        } ];
+    }, {
+        "App.Commands.PostReportCommand": 2
+    } ],
+    11: [ function(require, module, exports) {
         "use strict";
         module.exports = {
             app: require("./app"),
             "local.app": require("./local/app"),
+            commands: require("./commands"),
+            handlers: require("./handlers"),
             views: require("./views")
         };
     }, {
-        "./app": 3,
-        "./local/app": 5,
-        "./views": 6
+        "./app": 9,
+        "./commands": 10,
+        "./handlers": 12,
+        "./local/app": 13,
+        "./views": 14
     } ],
-    5: [ function(require, module, exports) {
+    12: [ function(require, module, exports) {
+        "use strict";
+        var PostReportCommandHandler = require("App.Commands.PostReportCommandHandler");
+        module.exports = [ {
+            "abstract": "postReportCommandHandler",
+            handler: PostReportCommandHandler
+        } ];
+    }, {
+        "App.Commands.PostReportCommandHandler": 3
+    } ],
+    13: [ function(require, module, exports) {
         "use strict";
         module.exports = {
             debug: true
         };
     }, {} ],
-    6: [ function(require, module, exports) {
+    14: [ function(require, module, exports) {
         "use strict";
         var IntroView = require("App.Browser.Views.IntroView");
         module.exports = [ {
@@ -92,7 +322,174 @@
     }, {
         "App.Browser.Views.IntroView": 1
     } ],
-    7: [ function(require, module, exports) {
+    15: [ function(require, module, exports) {
+        "use strict";
+        var CommandBus = function CommandBus(app) {
+            this.app = app;
+        };
+        $traceurRuntime.createClass(CommandBus, {
+            execute: function(command) {
+                var commandName = command.constructor.getName();
+                var handlerName = commandName + "Handler";
+                var handler = this.app.make(handlerName);
+                handler.handle(command);
+            }
+        }, {});
+        module.exports = CommandBus;
+    }, {} ],
+    16: [ function(require, module, exports) {
+        "use strict";
+        var DispatchableTrait = require("Wildcat.Commander.Events.DispatchableTrait");
+        var helpers = require("Wildcat.Support.helpers");
+        var CommandHandler = function CommandHandler(app) {
+            this.app = app;
+        };
+        $traceurRuntime.createClass(CommandHandler, {}, {});
+        var extendProtoOf = $traceurRuntime.assertObject(helpers).extendProtoOf;
+        extendProtoOf(CommandHandler, DispatchableTrait);
+        module.exports = CommandHandler;
+    }, {
+        "Wildcat.Commander.Events.DispatchableTrait": 19,
+        "Wildcat.Support.helpers": 33
+    } ],
+    17: [ function(require, module, exports) {
+        "use strict";
+        var log = $traceurRuntime.assertObject(require("Wildcat.Support.helpers")).log;
+        var ServiceProvider = require("Wildcat.Support.ServiceProvider");
+        var CommandBus = require("Wildcat.Commander.CommandBus");
+        var EventDispatcher = require("Wildcat.Commander.Events.EventDispatcher");
+        var CommandServiceProvider = function CommandServiceProvider() {
+            $traceurRuntime.defaultSuperCall(this, $CommandServiceProvider.prototype, arguments);
+        };
+        var $CommandServiceProvider = CommandServiceProvider;
+        $traceurRuntime.createClass(CommandServiceProvider, {
+            register: function() {
+                registerCommandBus.call(this);
+                registerCommands.call(this);
+                registerHandlers.call(this);
+                registerEventDispatcher.call(this);
+            }
+        }, {}, ServiceProvider);
+        function registerCommandBus() {
+            this.app.bindShared("commandBus", function(app) {
+                return new CommandBus(app);
+            });
+        }
+        function registerCommands() {
+            var app = this.app;
+            var commands = app.config.get("commands");
+            for (var $__1 = commands[Symbol.iterator](), $__2; !($__2 = $__1.next()).done; ) {
+                var $__4 = $traceurRuntime.assertObject($__2.value), abstract = $__4.abstract, command = $__4.command;
+                {
+                    app.bind(abstract, function(app) {
+                        for (var args = [], $__3 = 1; $__3 < arguments.length; $__3++) args[$__3 - 1] = arguments[$__3];
+                        return new (Function.prototype.bind.apply(command, $traceurRuntime.spread([ null ], args)))();
+                    });
+                }
+            }
+        }
+        function registerHandlers() {
+            var app = this.app;
+            var handlers = app.config.get("handlers");
+            for (var $__1 = handlers[Symbol.iterator](), $__2; !($__2 = $__1.next()).done; ) {
+                var $__4 = $traceurRuntime.assertObject($__2.value), abstract = $__4.abstract, handler = $__4.handler;
+                {
+                    app.bind(abstract, function(app) {
+                        for (var args = [], $__3 = 1; $__3 < arguments.length; $__3++) args[$__3 - 1] = arguments[$__3];
+                        return new (Function.prototype.bind.apply(handler, $traceurRuntime.spread([ null, app ], args)))();
+                    });
+                }
+            }
+        }
+        function registerEventDispatcher() {
+            var app = this.app;
+            var $__4 = $traceurRuntime.assertObject(app), events = $__4.events, log = $__4.log;
+            app.bind("eventDispatcher", function(app) {
+                return new EventDispatcher(events, log);
+            });
+        }
+        module.exports = CommandServiceProvider;
+    }, {
+        "Wildcat.Commander.CommandBus": 15,
+        "Wildcat.Commander.Events.EventDispatcher": 20,
+        "Wildcat.Support.ServiceProvider": 32,
+        "Wildcat.Support.helpers": 33
+    } ],
+    18: [ function(require, module, exports) {
+        "use strict";
+        var helpers = require("Wildcat.Support.helpers");
+        var CommanderTrait = function CommanderTrait() {};
+        $traceurRuntime.createClass(CommanderTrait, {
+            execute: function(command, input) {
+                var bus = this.getCommandBus();
+                bus.execute(command);
+            },
+            getCommandBus: function() {
+                return this.app.make("commandBus");
+            }
+        }, {});
+        var log = $traceurRuntime.assertObject(helpers).log;
+        module.exports = CommanderTrait;
+    }, {
+        "Wildcat.Support.helpers": 33
+    } ],
+    19: [ function(require, module, exports) {
+        "use strict";
+        var DispatchableTrait = function DispatchableTrait() {};
+        $traceurRuntime.createClass(DispatchableTrait, {
+            dispatchEventsFor: function(entity) {
+                var dispatcher = this.getDispatcher();
+                var events = entity.releaseEvents();
+                dispatcher.dispatch(events);
+            },
+            getDispatcher: function() {
+                return this.app.eventDispatcher;
+            }
+        }, {});
+        module.exports = DispatchableTrait;
+    }, {} ],
+    20: [ function(require, module, exports) {
+        "use strict";
+        var EventDispatcher = function EventDispatcher(event, log) {
+            this.event_ = event;
+            this.log_ = log;
+        };
+        $traceurRuntime.createClass(EventDispatcher, {
+            dispatch: function(events) {
+                for (var $__1 = events[Symbol.iterator](), $__2; !($__2 = $__1.next()).done; ) {
+                    var event = $__2.value;
+                    {
+                        var eventName = getEventName.call(this, event);
+                        this.event_.emit(eventName, event);
+                        this.log_.log(eventName + " was fired.");
+                    }
+                }
+            }
+        }, {});
+        function getEventName(event) {
+            return event.getName();
+        }
+        module.exports = EventDispatcher;
+    }, {} ],
+    21: [ function(require, module, exports) {
+        "use strict";
+        var EventGenerator = function EventGenerator() {
+            this.pendingEvents_ = [];
+        };
+        $traceurRuntime.createClass(EventGenerator, {
+            raise: function(event) {
+                this.pendingEvents_.push(event);
+                return this;
+            },
+            releaseEvents: function() {
+                var events = this.pendingEvents_;
+                this.pendingEvents_ = [];
+                return events;
+            }
+        }, {});
+        module.exports = EventGenerator;
+    }, {} ],
+    22: [ function(require, module, exports) {
         "use strict";
         var state = require("Wildcat.Support.state");
         var ModuleLoader = function ModuleLoader() {
@@ -122,9 +519,9 @@
         }, {});
         module.exports = ModuleLoader;
     }, {
-        "Wildcat.Support.state": 20
+        "Wildcat.Support.state": 35
     } ],
-    8: [ function(require, module, exports) {
+    23: [ function(require, module, exports) {
         "use strict";
         var state = require("Wildcat.Support.state");
         var Repository = function Repository(loader, environment) {
@@ -159,9 +556,9 @@
         }
         module.exports = Repository;
     }, {
-        "Wildcat.Support.state": 20
+        "Wildcat.Support.state": 35
     } ],
-    9: [ function(require, module, exports) {
+    24: [ function(require, module, exports) {
         "use strict";
         var state = require("Wildcat.Support.state");
         var EventEmitter = require("events").EventEmitter;
@@ -176,7 +573,7 @@
             make: function(abstract) {
                 var parameters = arguments[1] !== void 0 ? arguments[1] : [];
                 var concrete = this.getConcrete(abstract);
-                var object = concrete(this);
+                var object = concrete.apply(null, $traceurRuntime.spread([ this ], parameters));
                 return object;
             },
             bind: function(abstract) {
@@ -298,11 +695,11 @@
         implementIterator(Container);
         module.exports = Container;
     }, {
-        "Wildcat.Support.helpers": 18,
-        "Wildcat.Support.state": 20,
-        events: 23
+        "Wildcat.Support.helpers": 33,
+        "Wildcat.Support.state": 35,
+        events: 38
     } ],
-    10: [ function(require, module, exports) {
+    25: [ function(require, module, exports) {
         (function(global) {
             "use strict";
             var ServiceProvider = require("Wildcat.Support.ServiceProvider");
@@ -324,14 +721,14 @@
             module.exports = WindowServiceProvider;
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
-        "Wildcat.Support.ServiceProvider": 17
+        "Wildcat.Support.ServiceProvider": 32
     } ],
-    11: [ function(require, module, exports) {
+    26: [ function(require, module, exports) {
         "use strict";
         var EventEmitter = require("events").EventEmitter;
         var $__1 = $traceurRuntime.assertObject(require("Wildcat.Support.helpers")), extendProtoOf = $__1.extendProtoOf, isString = $__1.isString;
         var Dispatcher = function Dispatcher(app) {
-            this._app = app;
+            this.app_ = app;
             EventEmitter.call(this);
         };
         $traceurRuntime.createClass(Dispatcher, {
@@ -343,16 +740,16 @@
         extendProtoOf(Dispatcher, EventEmitter);
         function resolveSubscriber(subscriber) {
             if (isString(subscriber)) {
-                return this._app[subscriber];
+                return this.app_[subscriber];
             }
             return subscriber;
         }
         module.exports = Dispatcher;
     }, {
-        "Wildcat.Support.helpers": 18,
-        events: 23
+        "Wildcat.Support.helpers": 33,
+        events: 38
     } ],
-    12: [ function(require, module, exports) {
+    27: [ function(require, module, exports) {
         "use strict";
         var Container = require("Wildcat.Container.Container");
         var Config = require("Wildcat.Config.Repository");
@@ -411,16 +808,16 @@
         }, {}, Container);
         module.exports = Application;
     }, {
-        "Wildcat.Config.ModuleLoader": 7,
-        "Wildcat.Config.Repository": 8,
-        "Wildcat.Container.Container": 9,
-        "Wildcat.Events.Dispatcher": 11,
-        "Wildcat.Foundation.ProviderRepository": 13,
-        "Wildcat.Foundation.start": 14,
-        "Wildcat.Support.helpers": 18,
-        "config.config": 4
+        "Wildcat.Config.ModuleLoader": 22,
+        "Wildcat.Config.Repository": 23,
+        "Wildcat.Container.Container": 24,
+        "Wildcat.Events.Dispatcher": 26,
+        "Wildcat.Foundation.ProviderRepository": 28,
+        "Wildcat.Foundation.start": 29,
+        "Wildcat.Support.helpers": 33,
+        "config.config": 11
     } ],
-    13: [ function(require, module, exports) {
+    28: [ function(require, module, exports) {
         "use strict";
         var ProviderRepository = function ProviderRepository() {};
         $traceurRuntime.createClass(ProviderRepository, {
@@ -438,7 +835,7 @@
         }, {});
         module.exports = ProviderRepository;
     }, {} ],
-    14: [ function(require, module, exports) {
+    29: [ function(require, module, exports) {
         "use strict";
         var Config = require("Wildcat.Config.Repository");
         function start() {
@@ -455,9 +852,9 @@
         }
         module.exports = start;
     }, {
-        "Wildcat.Config.Repository": 8
+        "Wildcat.Config.Repository": 23
     } ],
-    15: [ function(require, module, exports) {
+    30: [ function(require, module, exports) {
         (function(global) {
             "use strict";
             var state = require("Wildcat.Support.state");
@@ -487,9 +884,9 @@
             module.exports = ConsoleLogger;
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
-        "Wildcat.Support.state": 20
+        "Wildcat.Support.state": 35
     } ],
-    16: [ function(require, module, exports) {
+    31: [ function(require, module, exports) {
         "use strict";
         var ServiceProvider = require("Wildcat.Support.ServiceProvider");
         var ConsoleLogger = require("Wildcat.Log.ConsoleLogger");
@@ -507,10 +904,10 @@
         }, {}, ServiceProvider);
         module.exports = LogServiceProvider;
     }, {
-        "Wildcat.Log.ConsoleLogger": 15,
-        "Wildcat.Support.ServiceProvider": 17
+        "Wildcat.Log.ConsoleLogger": 30,
+        "Wildcat.Support.ServiceProvider": 32
     } ],
-    17: [ function(require, module, exports) {
+    32: [ function(require, module, exports) {
         "use strict";
         var state = require("Wildcat.Support.state");
         var ServiceProvider = function ServiceProvider(app) {
@@ -525,126 +922,143 @@
         }, {});
         module.exports = ServiceProvider;
     }, {
-        "Wildcat.Support.state": 20
+        "Wildcat.Support.state": 35
     } ],
-    18: [ function(require, module, exports) {
-        "use strict";
-        function keys(object) {
-            return Object.keys(object);
-        }
-        function assign(object) {
-            var $__4;
-            for (var args = [], $__2 = 1; $__2 < arguments.length; $__2++) args[$__2 - 1] = arguments[$__2];
-            return ($__4 = Object).assign.apply($__4, $traceurRuntime.spread(args));
-        }
-        function extendProtoOf(target, source) {
-            var key = arguments[2] !== void 0 ? arguments[2] : [];
-            if (isString(key)) {
-                target.prototype[key] = source.prototype[key];
-                return;
+    33: [ function(require, module, exports) {
+        (function(global) {
+            "use strict";
+            var $console = global.console;
+            var $setTimeout = global.setTimeout;
+            function keys(object) {
+                return Object.keys(object);
             }
-            var sourceKeys = keys(source.prototype);
-            for (var $__0 = sourceKeys[Symbol.iterator](), $__1; !($__1 = $__0.next()).done; ) {
-                var key = $__1.value;
-                {
+            function assign(object) {
+                var $__5;
+                for (var args = [], $__2 = 1; $__2 < arguments.length; $__2++) args[$__2 - 1] = arguments[$__2];
+                return ($__5 = Object).assign.apply($__5, $traceurRuntime.spread(args));
+            }
+            function extendProtoOf(target, source) {
+                var key = arguments[2] !== void 0 ? arguments[2] : [];
+                if (isString(key)) {
                     target.prototype[key] = source.prototype[key];
+                    return;
+                }
+                var sourceKeys = keys(source.prototype);
+                for (var $__0 = sourceKeys[Symbol.iterator](), $__1; !($__1 = $__0.next()).done; ) {
+                    var key = $__1.value;
+                    {
+                        target.prototype[key] = source.prototype[key];
+                    }
                 }
             }
-        }
-        function implementIterator(sourceClass) {
-            var $prototype = sourceClass.prototype;
-            $prototype[Symbol.iterator] = $prototype.getIterator;
-        }
-        function value(val) {
-            return typeof val === "function" ? val() : val;
-        }
-        function isNull(val) {
-            return val === null;
-        }
-        function isString(val) {
-            return typeof val === "string";
-        }
-        function isUndefined(val) {
-            return val === undefined;
-        }
-        function isDefined(val) {
-            return !isUndefined(val);
-        }
-        function defined(val, $default) {
-            return isDefined(val) ? val : $default;
-        }
-        function wait() {
-            var time = arguments[0] !== void 0 ? arguments[0] : 500;
-            return new Promise(function(resolve) {
-                setTimeout(resolve, time);
-            });
-        }
-        function log() {
-            var $__4;
-            for (var args = [], $__3 = 0; $__3 < arguments.length; $__3++) args[$__3] = arguments[$__3];
-            var console = window.console;
-            ($__4 = console).log.apply($__4, $traceurRuntime.spread(args));
-        }
-        function async(makeGenerator) {
-            return function() {
-                var $Promise = Promise;
-                var generator = makeGenerator.apply(this, arguments);
-                function handle(result) {
-                    if (result.done) return $Promise.resolve(result.value);
-                    return $Promise.resolve(result.value).then(function(res) {
-                        return handle(generator.next(res));
-                    }, function(err) {
-                        return handle(generator.throw(err));
-                    });
-                }
-                try {
-                    return handle(generator.next());
-                } catch (ex) {
-                    return $Promise.reject(ex);
-                }
+            function implementIterator(sourceClass) {
+                var $prototype = sourceClass.prototype;
+                $prototype[Symbol.iterator] = $prototype.getIterator;
+            }
+            function value(val) {
+                return typeof val === "function" ? val() : val;
+            }
+            function isNull(val) {
+                return val === null;
+            }
+            function isString(val) {
+                return typeof val === "string";
+            }
+            function isUndefined(val) {
+                return val === undefined;
+            }
+            function isDefined(val) {
+                return !isUndefined(val);
+            }
+            function defined(val, $default) {
+                return isDefined(val) ? val : $default;
+            }
+            function wait() {
+                var time = arguments[0] !== void 0 ? arguments[0] : 500;
+                return new Promise(function(resolve) {
+                    setTimeout(resolve, time);
+                });
+            }
+            function log() {
+                var $__5;
+                for (var args = [], $__3 = 0; $__3 < arguments.length; $__3++) args[$__3] = arguments[$__3];
+                ($__5 = $console).log.apply($__5, $traceurRuntime.spread(args));
+            }
+            function warn() {
+                var $__5;
+                for (var args = [], $__4 = 0; $__4 < arguments.length; $__4++) args[$__4] = arguments[$__4];
+                ($__5 = $console).warn.apply($__5, $traceurRuntime.spread(args));
+            }
+            function async(makeGenerator) {
+                return function() {
+                    var $Promise = Promise;
+                    var generator = makeGenerator.apply(this, arguments);
+                    function handle(result) {
+                        if (result.done) return $Promise.resolve(result.value);
+                        return $Promise.resolve(result.value).then(function(res) {
+                            return handle(generator.next(res));
+                        }, function(err) {
+                            return handle(generator.throw(err));
+                        });
+                    }
+                    try {
+                        return handle(generator.next());
+                    } catch (ex) {
+                        return $Promise.reject(ex);
+                    }
+                };
+            }
+            function arrayIterator() {
+                var items = arguments[0] !== void 0 ? arguments[0] : [];
+                var i = 0;
+                var len = items.length;
+                return {
+                    next: function() {
+                        var value, notDone;
+                        if (notDone = i < len) value = items[i++];
+                        return {
+                            value: value,
+                            done: !notDone
+                        };
+                    }
+                };
+            }
+            function noProto() {
+                var source = arguments[0] !== void 0 ? arguments[0] : {};
+                var empty = Object.create(null);
+                Object.assign(empty, source);
+                return empty;
+            }
+            function terminateError(error) {
+                $setTimeout(function() {
+                    warn("from [terimateError]:");
+                    warn(error.stack);
+                    throw error;
+                }, 0);
+            }
+            var helpers = {
+                keys: keys,
+                assign: assign,
+                extendProtoOf: extendProtoOf,
+                implementIterator: implementIterator,
+                value: value,
+                isNull: isNull,
+                isString: isString,
+                isUndefined: isUndefined,
+                isDefined: isDefined,
+                defined: defined,
+                wait: wait,
+                log: log,
+                warn: warn,
+                async: async,
+                arrayIterator: arrayIterator,
+                noProto: noProto,
+                terminateError: terminateError
             };
-        }
-        function arrayIterator() {
-            var items = arguments[0] !== void 0 ? arguments[0] : [];
-            var i = 0;
-            var len = items.length;
-            return {
-                next: function() {
-                    var value, notDone;
-                    if (notDone = i < len) value = items[i++];
-                    return {
-                        value: value,
-                        done: !notDone
-                    };
-                }
-            };
-        }
-        function noProto() {
-            var source = arguments[0] !== void 0 ? arguments[0] : {};
-            var empty = Object.create(null);
-            Object.assign(empty, source);
-            return empty;
-        }
-        var helpers = {
-            keys: keys,
-            assign: assign,
-            extendProtoOf: extendProtoOf,
-            implementIterator: implementIterator,
-            value: value,
-            isNull: isNull,
-            isString: isString,
-            isUndefined: isUndefined,
-            isDefined: isDefined,
-            defined: defined,
-            wait: wait,
-            log: log,
-            async: async,
-            arrayIterator: arrayIterator,
-            noProto: noProto
-        };
-        module.exports = helpers;
+            module.exports = helpers;
+        }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {} ],
-    19: [ function(require, module, exports) {
+    34: [ function(require, module, exports) {
         (function(global) {
             "use strict";
             var observeJs = require("observe-js");
@@ -661,68 +1075,137 @@
             };
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
-        "observe-js": 26
+        "observe-js": 41
     } ],
-    20: [ function(require, module, exports) {
+    35: [ function(require, module, exports) {
         (function(global) {
             "use strict";
-            var isUndefined = $traceurRuntime.assertObject(require("Wildcat.Support.helpers")).isUndefined;
+            var $__1 = $traceurRuntime.assertObject(require("Wildcat.Support.helpers")), isUndefined = $__1.isUndefined, log = $__1.log, noProto = $__1.noProto, isString = $__1.isString;
+            var observe = require("Wildcat.Support.observe");
+            var $__1 = $traceurRuntime.assertObject(observe), ObjectObserver = $__1.ObjectObserver, Platform = $__1.Platform;
             var MapConstructor = global.WeakMap || global.Map;
-            console.log("supports " + MapConstructor.name);
             var map = new MapConstructor();
-            function state(obj, val) {
-                if (isUndefined(val)) return map.get(obj);
-                map.set(obj, val);
-                return map.get(obj);
+            function state(thisArg, val, cbs) {
+                var quiet = arguments[3] !== void 0 ? arguments[3] : false;
+                if (isUndefined(val)) return map.get(thisArg);
+                if (isString(val)) {
+                    setState.call(thisArg, val, cbs, quiet);
+                    return thisArg;
+                }
+                var _ = setStateObject.call(thisArg, val);
+                if (cbs) bindObservable.call(thisArg, _, cbs);
+                return _;
+            }
+            function setState(key, value, quiet) {
+                var _ = state(this);
+                _[key] = value;
+                if (quiet) _.observer_.discardChanges();
+                Platform.performMicrotaskCheckpoint();
+            }
+            function setStateObject(val) {
+                map.set(this, val);
+                return map.get(this);
+            }
+            function bindObservable(_, cbs) {
+                _.observer_ = new ObjectObserver(_);
+                _.observer_.open(onObserve.bind(this, {
+                    _: _,
+                    cbs: cbs
+                }));
+            }
+            function onObserve($__1, added, removed, changed, getOldValueFn) {
+                var $__2 = $traceurRuntime.assertObject($__1), _ = $__2._, cbs = $__2.cbs;
+                var observed = {
+                    added: added,
+                    removed: removed,
+                    changed: changed,
+                    _: _,
+                    cbs: cbs,
+                    getOldValueFn: getOldValueFn
+                };
+                invokeObservables.call(this, observed);
+            }
+            function invokeObservables(observed) {
+                var $__0 = this;
+                [ "added", "removed", "changed" ].forEach(function(type) {
+                    var hasCallback = typeof observed.cbs[type] === "function";
+                    var isNotEmpty = Object.keys(observed[type]).length > 0;
+                    if (hasCallback && isNotEmpty) invoke.call($__0, observed, type);
+                });
+            }
+            function invoke(observed, type) {
+                var callback = observed.cbs[type];
+                var names = Object.keys(observed[type]);
+                var payload = names.map(function(name) {
+                    return noProto({
+                        name: name,
+                        type: type,
+                        newValue: observed._[name],
+                        oldValue: observed.getOldValueFn(name)
+                    });
+                });
+                callback.call(this, payload);
             }
             module.exports = state;
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
-        "Wildcat.Support.helpers": 18
+        "Wildcat.Support.helpers": 33,
+        "Wildcat.Support.observe": 34
     } ],
-    21: [ function(require, module, exports) {
+    36: [ function(require, module, exports) {
         "use strict";
         var state = require("Wildcat.Support.state");
         var observe = require("Wildcat.Support.observe");
-        var $__1 = $traceurRuntime.assertObject(observe), PathObserver = $__1.PathObserver, Platform = $__1.Platform;
-        var View = function View() {
-            var el = arguments[0] !== void 0 ? arguments[0] : null;
-            var _ = state(this, {});
-            _.el = el;
-            console.log("being constructed");
-            this.bindStateEvents();
+        var helpers = require("Wildcat.Support.helpers");
+        var CommanderTrait = require("Wildcat.Commander.CommanderTrait");
+        var $__3 = $traceurRuntime.assertObject(observe), PathObserver = $__3.PathObserver, Platform = $__3.Platform;
+        var View = function View(app, el) {
+            this.app = app;
+            var defaultState = {
+                el: null
+            };
+            state(this, defaultState, {
+                changed: changed,
+                added: added
+            });
         };
         $traceurRuntime.createClass(View, {
-            bindStateEvents: function() {
-                var _ = state(this);
-                _.elObserver = new PathObserver(_, "el");
-                _.elObserver.open(this.onElChange.bind(this));
-            },
-            onElChange: function(newValue, oldValue) {
-                console.log("newValue = " + newValue);
-                console.log("oldValue = " + oldValue);
-            },
-            setElement: function(element) {
+            setEl: function(element) {
                 var quiet = arguments[1] !== void 0 ? arguments[1] : false;
-                var _ = state(this);
-                _.el = element;
-                if (quiet) _.elObserver.discardChanges();
-                Platform.performMicrotaskCheckpoint();
+                return state(this, "el", element, quiet);
             },
             get el() {
                 return state(this).el;
             },
             set el(value) {
-                this.setElement(value);
+                this.setEl(value);
             },
             render: function() {}
         }, {});
+        function changed(changes) {
+            log("onStateChanged");
+            for (var $__1 = changes[Symbol.iterator](), $__2; !($__2 = $__1.next()).done; ) {
+                var change = $__2.value;
+                log(change);
+            }
+        }
+        function added(additions) {
+            log("onStateAdded");
+            for (var $__1 = additions[Symbol.iterator](), $__2; !($__2 = $__1.next()).done; ) {
+                var addition = $__2.value;
+                log(addition);
+            }
+        }
+        var $__3 = $traceurRuntime.assertObject(helpers), log = $__3.log, extendProtoOf = $__3.extendProtoOf;
+        extendProtoOf(View, CommanderTrait);
         module.exports = View;
     }, {
-        "Wildcat.Support.observe": 19,
-        "Wildcat.Support.state": 20
+        "Wildcat.Commander.CommanderTrait": 18,
+        "Wildcat.Support.helpers": 33,
+        "Wildcat.Support.observe": 34,
+        "Wildcat.Support.state": 35
     } ],
-    22: [ function(require, module, exports) {
+    37: [ function(require, module, exports) {
         "use strict";
         var ServiceProvider = require("Wildcat.Support.ServiceProvider");
         var View = require("Wildcat.View.View");
@@ -733,14 +1216,15 @@
         $traceurRuntime.createClass(ViewServiceProvider, {
             register: function() {
                 var app = this.app;
-                var config = app.config;
-                var views = config.get("views");
+                var views = app.config.get("views");
                 for (var $__1 = views[Symbol.iterator](), $__2; !($__2 = $__1.next()).done; ) {
                     var $__3 = $traceurRuntime.assertObject($__2.value), abstract = $__3.abstract, $constructor = $__3.$constructor, build = $__3.build;
                     {
                         switch (build) {
                           case "singleton":
-                            app.singleton(abstract, $constructor);
+                            app.bindShared(abstract, function(app) {
+                                return new $constructor(app);
+                            });
                             break;
                         }
                     }
@@ -749,10 +1233,10 @@
         }, {}, ServiceProvider);
         module.exports = ViewServiceProvider;
     }, {
-        "Wildcat.Support.ServiceProvider": 17,
-        "Wildcat.View.View": 21
+        "Wildcat.Support.ServiceProvider": 32,
+        "Wildcat.View.View": 36
     } ],
-    23: [ function(require, module, exports) {
+    38: [ function(require, module, exports) {
         function EventEmitter() {
             this._events = this._events || {};
             this._maxListeners = this._maxListeners || undefined;
@@ -925,7 +1409,7 @@
             return arg === void 0;
         }
     }, {} ],
-    24: [ function(require, module, exports) {
+    39: [ function(require, module, exports) {
         var process = module.exports = {};
         process.nextTick = function() {
             var canSetImmediate = typeof window !== "undefined" && window.setImmediate;
@@ -978,7 +1462,7 @@
             throw new Error("process.chdir is not supported");
         };
     }, {} ],
-    25: [ function(require, module, exports) {
+    40: [ function(require, module, exports) {
         (function(process, global) {
             (function(global) {
                 "use strict";
@@ -3262,9 +3746,9 @@
             System.get("traceur-runtime@0.0.55/src/runtime/polyfill-import" + "");
         }).call(this, require("_process"), typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
-        _process: 24
+        _process: 39
     } ],
-    26: [ function(require, module, exports) {
+    41: [ function(require, module, exports) {
         (function(global) {
             (function(global) {
                 "use strict";
@@ -4427,4 +4911,4 @@
             })(typeof global !== "undefined" && global && typeof module !== "undefined" && module ? global : this || window);
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {} ]
-}, {}, [ 25, 2 ]);
+}, {}, [ 40, 8 ]);

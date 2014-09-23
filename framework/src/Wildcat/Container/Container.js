@@ -24,7 +24,7 @@ class Container {
         // console.log('was not an instance');
 
         var concrete = this.getConcrete(abstract);
-        var object   = concrete(this);
+        var object   = concrete(this, ...parameters);
 
         // if (this.isShared(abstract)) {
         //     state.instances[abstract] = object;
@@ -87,10 +87,6 @@ class Container {
         }, false);
     }
     singleton(abstract, instantiable, ...args) {
-
-        // this.bindShared(abstract, function(app) {
-        //     return new instantiable(...args);
-        // });
         
         this.bindShared(abstract, app => new instantiable(...args));
     }

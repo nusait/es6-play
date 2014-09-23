@@ -5,16 +5,17 @@ class ViewServiceProvider extends ServiceProvider {
 
     register() {
 
-        var app    = this.app;
-        var config = app.config;
-        var views  = config.get('views');
+        var app   = this.app;
+        var views = app.config.get('views');
 
         for (var {abstract, $constructor, build} of views) {
             
             switch (build) {
+
                 case 'singleton':
-                    app.singleton(abstract, $constructor);
+                    app.bindShared(abstract, app => new $constructor(app));
                     break;
+                    
             }
         }
     }

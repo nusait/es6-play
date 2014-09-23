@@ -2,9 +2,10 @@ var View = require('Wildcat.View.View');
 
 class IntroView extends View {
 
-    hi() {
+    postReport(name, incident) {
 
-        console.log('I am the introview');        
+        var command = this.app.make('postReportCommand', [name, incident]);     
+        this.execute(command); 
     }
 
 }

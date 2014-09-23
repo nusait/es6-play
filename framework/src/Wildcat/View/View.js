@@ -1,34 +1,26 @@
 var state   = require('Wildcat.Support.state');
 var observe = require('Wildcat.Support.observe');
+var helpers = require('Wildcat.Support.helpers');
+var CommanderTrait = require('Wildcat.Commander.CommanderTrait');
 var {PathObserver, Platform} = observe;
 
 class View {
 
-    constructor(el = null) {
+    // use CommandTrait
 
-        var _ = state(this, {});
-        _.el = el;
-        console.log(`being constructed`);
-        this.bindStateEvents();
+    constructor(app, el) {
+
+        this.app = app;
+
+        var defaultState = {
+            el: null,
+        };
+
+        state(this, defaultState, {changed, added});
     }
-    bindStateEvents() {
+    setEl(element, quiet = false) {
 
-        var _ = state(this);
-
-        _.elObserver = new PathObserver(_, 'el');
-        _.elObserver.open(this.onElChange.bind(this));
-    }
-    onElChange(newValue, oldValue) {
-
-        console.log(`newValue = ${newValue}`);
-        console.log(`oldValue = ${oldValue}`);    
-    }
-    setElement(element, quiet = false) {
-
-        var _ = state(this);
-        _.el = element;
-        if (quiet) _.elObserver.discardChanges();
-        Platform.performMicrotaskCheckpoint();
+        return state(this, 'el', element, quiet);
     }
     get el() {
 
@@ -36,11 +28,27 @@ class View {
     }
     set el(value) {
 
-        this.setElement(value);
+        this.setEl(value);
     }
     render() {
         // noop
     }
 }
+
+function changed(changes) {
+    log(`onStateChanged`);
+    for (var change of changes) log(change);
+}
+function added(additions) {
+    log(`onStateAdded`);
+    for (var addition of additions) log(addition);
+}
+
+var {
+    log,
+    extendProtoOf,
+} = helpers;
+
+extendProtoOf(View, CommanderTrait);
 
 module.exports = View; 

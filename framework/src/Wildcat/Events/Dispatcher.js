@@ -7,7 +7,7 @@ var {extendProtoOf, isString} = require('Wildcat.Support.helpers');
 class Dispatcher {
 
     constructor(app) {
-        this._app = app;
+        this.app_ = app;
         EventEmitter.call(this);
     }
     subscribe(subscriber) {
@@ -20,7 +20,7 @@ extendProtoOf(Dispatcher, EventEmitter);
 function resolveSubscriber(subscriber) {
 
     if (isString(subscriber)) {
-        return this._app[subscriber];
+        return this.app_[subscriber];
     }
     return subscriber;
 }

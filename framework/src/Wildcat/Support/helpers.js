@@ -1,4 +1,5 @@
-/* global window */
+var $console    = global.console;
+var $setTimeout = global.setTimeout;
 
 // Object
 function keys(object) {
@@ -52,8 +53,12 @@ function wait(time = 500) {
     });
 }
 function log(...args) {
-    var console = window.console;
-    console.log(...args);
+    
+    $console.log(...args);
+}
+function warn(...args) {
+    
+    $console.warn(...args);
 }
 function async(makeGenerator) {
 
@@ -96,7 +101,14 @@ function noProto(source = {}) {
     var empty = Object.create(null);
     Object.assign(empty, source);
     return empty;
+}
+function terminateError(error) {
 
+    $setTimeout(() => {
+        warn(`from [terimateError]:`);
+        warn(error.stack);
+        throw error;    
+    }, 0);
 }
 var helpers = {
     keys,
@@ -111,9 +123,11 @@ var helpers = {
     defined,
     wait,
     log,
+    warn,
     async,
     arrayIterator,
     noProto,
+    terminateError,
 };
 
 module.exports = helpers;
