@@ -1,7 +1,6 @@
 /* global describe, expect, it, beforeEach, afterEach, jasmine */
-
 var traceur = require('traceur');
-var customMatchers = traceur.require('framework/tests/customMatchers.js');
+var customMatchers = traceur.require('./framework/tests/customMatchers.js');
 var helpers 
     = traceur.require('framework/src/Wildcat/Support/helpers.js');
 
@@ -10,6 +9,8 @@ var isString = helpers.isString;
 beforeEach(function() {
     jasmine.addMatchers(customMatchers);
 });
+
+console.log(jasmine);
 
 describe('toString helper', function() {
 

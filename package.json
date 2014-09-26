@@ -67,6 +67,8 @@
     "rsvp": "^3.0.13",
     "traceur": "*",
     "vinyl-buffer": "*",
-    "vinyl-source-stream": "*"
+    "vinyl-source-stream": "*",
+    "jasmine-node": "*",
+    "jasmine": "*"
   }
 }
