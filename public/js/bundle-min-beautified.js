@@ -1,8 +1,8 @@
 !
-function e(t, r, n) {
+function t(e, r, n) {
     function i(a, s) {
         if (!r[a]) {
-            if (!t[a]) {
+            if (!e[a]) {
                 var u = "function" == typeof require && require;
                 if (!s && u) return u(a, !0);
                 if (o) return o(a, !0);
@@ -12,72 +12,82 @@ function e(t, r, n) {
             var l = r[a] = {
                 exports: {}
             };
-            t[a][0].call(l.exports, function (e) {
-                var r = t[a][1][e];
-                return i(r ? r : e)
-            }, l, l.exports, e, t, r, n)
+            e[a][0].call(l.exports, function (t) {
+                var r = e[a][1][t];
+                return i(r ? r : t)
+            }, l, l.exports, t, e, r, n)
         }
         return r[a].exports
     }
     for (var o = "function" == typeof require && require, a = 0; a < n.length; a++) i(n[a]);
     return i
 }({
-    1: [function (e, t) {
+    1: [function (t, e) {
         "use strict";
-        var r = e("Wildcat.View.View"),
-            n = function () {
-                $traceurRuntime.defaultSuperCall(this, i.prototype, arguments)
+        var r = t("Wildcat.View.View"),
+            n = t("Wildcat.Support.helpers"),
+            i = $traceurRuntime.assertObject(n).log,
+            o = function () {
+                for (var t = [], e = 0; e < arguments.length; e++) t[e] = arguments[e];
+                $traceurRuntime.superCall(this, a.prototype, "constructor", $traceurRuntime.spread(t));
+                var r = this.app,
+                    n = $traceurRuntime.assertObject(r).events;
+                n.on("reportWasPosted", function (t) {
+                    return i(t.type, t)
+                })
             },
-            i = n;
-        $traceurRuntime.createClass(n, {
-            postReport: function (e, t) {
-                var r = this.app.make("postReportCommand", [e, t]);
-                this.execute(r)
+            a = o;
+        $traceurRuntime.createClass(o, {
+            postReport: function (t, e) {
+                var r = this.app,
+                    n = r.make("postReportCommand", [t, e]);
+                this.execute(n)
             }
-        }, {}, r), t.exports = n
+        }, {}, r), e.exports = o
     },
     {
-        "Wildcat.View.View": 36
+        "Wildcat.Support.helpers": 37,
+        "Wildcat.View.View": 40
     }],
-    2: [function (e, t) {
+    2: [function (t, e) {
         "use strict";
-        var r = function (e, t) {
-            this.name = e, this.incident = t
+        var r = function (t, e) {
+            this.name = t, this.incident = e
         };
         $traceurRuntime.createClass(r, {}, {
             getName: function () {
                 return "postReportCommand"
             }
-        }), t.exports = r
+        }), e.exports = r
     },
     {}],
-    3: [function (e, t) {
+    3: [function (t, e) {
         "use strict";
-        var r = e("Wildcat.Commander.CommandHandler"),
-            n = e("Wildcat.Support.helpers"),
+        var r = t("Wildcat.Commander.CommandHandler"),
+            n = t("Wildcat.Support.helpers"),
             i = function () {
                 $traceurRuntime.defaultSuperCall(this, o.prototype, arguments)
             },
             o = i;
         $traceurRuntime.createClass(i, {
-            handle: function (e) {
-                var t = this,
-                    r = $traceurRuntime.assertObject(e),
+            handle: function (t) {
+                var e = this,
+                    r = $traceurRuntime.assertObject(t),
                     n = r.name,
                     i = r.incident,
-                    o = $traceurRuntime.assertObject(t).app,
+                    o = $traceurRuntime.assertObject(e).app,
                     a = o.make("Report");
                 u($traceurRuntime.initGeneratorFunction(function c() {
-                    var e;
+                    var t;
                     return $traceurRuntime.createGeneratorInstance(function (r) {
                         for (;;) switch (r.state) {
                         case 0:
                             return r.state = 2, a.post(n, i);
                         case 2:
-                            e = r.sent, r.state = 4;
+                            t = r.sent, r.state = 4;
                             break;
                         case 4:
-                            t.dispatchEventsFor(e), r.state = -2;
+                            e.dispatchEventsFor(t), r.state = -2;
                             break;
                         default:
                             return r.end()
@@ -86,58 +96,94 @@ function e(t, r, n) {
                 }))().
                 catch (s)
             }
-        }, {}, r);
-        var a = $traceurRuntime.assertObject(n),
-            s = a.terminateError,
-            u = a.async;
-        t.exports = i
+        }, {}, r); {
+            var a = $traceurRuntime.assertObject(n),
+                s = a.terminateError,
+                u = a.async;
+            a.log
+        }
+        e.exports = i
     },
     {
         "Wildcat.Commander.CommandHandler": 16,
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Support.helpers": 37
     }],
-    4: [function (e, t) {
+    4: [function (t, e) {
         "use strict";
-        var r = function (e) {
-            this.report = e
+        var r = function (t) {
+            this.value = t, this.type = this.getName(), this.timeStamp = Date.now()
         };
         $traceurRuntime.createClass(r, {
             getName: function () {
                 return "reportWasPosted"
             }
-        }, {}), t.exports = r
+        }, {}), e.exports = r
     },
     {}],
-    5: [function (e, t) {
+    5: [function (t, e) {
         "use strict";
-        var r = e("Wildcat.Commander.Events.EventGenerator"),
-            n = e("Wildcat.Support.helpers"),
-            i = function (e, t) {
-                this.name = e, this.incident = t, r.call(this)
-            },
+        var r = t("Wildcat.Commander.Events.EventGenerator"),
+            n = t("Wildcat.Support.helpers"),
+            i = (t("Wildcat.Errors.ValidationError"), function (t, e) {
+                this.name = t, this.incident = e, r.call(this)
+            }),
             o = i;
         $traceurRuntime.createClass(i, {}, {
+            persist: $traceurRuntime.initGeneratorFunction(function l() {
+                var t, e;
+                return $traceurRuntime.createGeneratorInstance(function (r) {
+                    for (;;) switch (r.state) {
+                    case 0:
+                        t = this.myName(), console.log("hey report 1: " + t), r.state = 12;
+                        break;
+                    case 12:
+                        return r.state = 2, u();
+                    case 2:
+                        e = r.sent, r.state = 4;
+                        break;
+                    case 4:
+                        console.log("hey report 2"), r.state = 14;
+                        break;
+                    case 14:
+                        return r.state = 6, u();
+                    case 6:
+                        r.maybeThrow(), r.state = 8;
+                        break;
+                    case 8:
+                        console.log("hey report 3"), r.state = 16;
+                        break;
+                    case 16:
+                        r.returnValue = "i am done!", r.state = -2;
+                        break;
+                    default:
+                        return r.end()
+                    }
+                }, l, this)
+            }),
+            myName: function () {
+                return "weirdName"
+            },
             post: function () {
-                for (var e = [], t = 0; t < arguments.length; t++) e[t] = arguments[t];
+                for (var t = [], e = 0; e < arguments.length; e++) t[e] = arguments[e];
                 var r = o.getApplication(),
                     n = $traceurRuntime.assertObject(r).reportRepository;
-                return async($traceurRuntime.initGeneratorFunction(function i() {
-                    var t, o;
+                return c($traceurRuntime.initGeneratorFunction(function i() {
+                    var e, o;
                     return $traceurRuntime.createGeneratorInstance(function (i) {
                         for (;;) switch (i.state) {
                         case 0:
-                            t = r.make("report", e), i.state = 8;
+                            e = r.make("report", t), i.state = 8;
                             break;
                         case 8:
-                            return i.state = 2, n.save(t);
+                            return i.state = 2, n.save(e);
                         case 2:
-                            t = i.sent, i.state = 4;
+                            e = i.sent, i.state = 4;
                             break;
                         case 4:
-                            o = r.make("reportWasPosted", [t]), i.state = 10;
+                            o = r.make("reportWasPosted", [e]), i.state = 10;
                             break;
                         case 10:
-                            i.returnValue = t.raise(o), i.state = -2;
+                            i.returnValue = e.raise(o), i.state = -2;
                             break;
                         default:
                             return i.end()
@@ -148,44 +194,47 @@ function e(t, r, n) {
             getApplication: function () {
                 return o.app_
             },
-            setApplication: function (e) {
-                o.app_ = e
+            setApplication: function (t) {
+                o.app_ = t
             }
         });
         var a = $traceurRuntime.assertObject(n),
-            s = (a.log, a.extendProtoOf);
-        s(i, r), t.exports = i
+            s = (a.log, a.extendProtoOf),
+            u = a.wait,
+            c = a.async;
+        s(i, r), i.persist = c(i.persist), e.exports = i
     },
     {
         "Wildcat.Commander.Events.EventGenerator": 21,
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Errors.ValidationError": 28,
+        "Wildcat.Support.helpers": 37
     }],
-    6: [function (e, t) {
+    6: [function (t, e) {
         "use strict";
 
         function r() {
-            var e = this.app;
-            e.bindShared("Report", function (e) {
-                return o.setApplication(e), o
-            }), e.bind("report", function (e) {
-                for (var t = [], r = 1; r < arguments.length; r++) t[r - 1] = arguments[r];
-                return new(Function.prototype.bind.apply(e.Report, $traceurRuntime.spread([null], t)))
-            }), e.bind("reportWasPosted", function () {
-                for (var e = [], t = 1; t < arguments.length; t++) e[t - 1] = arguments[t];
-                return new(Function.prototype.bind.apply(a, $traceurRuntime.spread([null], e)))
+            var t = this.app;
+            t.bindShared("Report", function (t) {
+                return o.setApplication(t), o
+            }), t.bind("report", function (t) {
+                for (var e = [], r = 1; r < arguments.length; r++) e[r - 1] = arguments[r];
+                return new(Function.prototype.bind.apply(t.Report, $traceurRuntime.spread([null], e)))
+            }), t.bind("reportWasPosted", function () {
+                for (var t = [], e = 1; e < arguments.length; e++) t[e - 1] = arguments[e];
+                return new(Function.prototype.bind.apply(a, $traceurRuntime.spread([null], t)))
             })
         }
         function n() {
-            var e = this.app;
-            e.bindShared("reportRepository", function (e) {
-                return new s(e)
+            var t = this.app;
+            t.bindShared("reportRepository", function (t) {
+                return new s(t)
             })
         }
-        var i = e("Wildcat.Support.ServiceProvider"),
-            o = e("App.Entities.Reports.Report"),
-            a = e("App.Entities.Reports.Events.ReportWasPosted"),
-            s = e("App.Repositories.ReportRepository"),
-            u = e("Wildcat.Support.helpers"),
+        var i = t("Wildcat.Support.ServiceProvider"),
+            o = t("App.Entities.Reports.Report"),
+            a = t("App.Entities.Reports.Events.ReportWasPosted"),
+            s = t("App.Repositories.ReportRepository"),
+            u = t("Wildcat.Support.helpers"),
             c = function () {
                 $traceurRuntime.defaultSuperCall(this, l.prototype, arguments)
             },
@@ -197,54 +246,57 @@ function e(t, r, n) {
             }
         }, {}, i);
         $traceurRuntime.assertObject(u).log;
-        t.exports = c
+        e.exports = c
     },
     {
         "App.Entities.Reports.Events.ReportWasPosted": 4,
         "App.Entities.Reports.Report": 5,
         "App.Repositories.ReportRepository": 7,
-        "Wildcat.Support.ServiceProvider": 32,
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Support.ServiceProvider": 36,
+        "Wildcat.Support.helpers": 37
     }],
-    7: [function (e, t) {
+    7: [function (t, e) {
         "use strict";
-        var r = e("Wildcat.Support.helpers"),
-            n = function (e) {
-                this.app = e
-            };
+        var r = t("Wildcat.Support.helpers"),
+            n = (t("Wildcat.Errors.ValidationError"), t("Wildcat.Errors.AuthenticationError"), function (t) {
+                this.app = t
+            });
         $traceurRuntime.createClass(n, {
-            save: function (e) {
+            save: function (t) {
                 return o("saving report, please wait…"), a().then(function () {
-                    return o("report saved, thank you."), e
+                    return o("report saved, thank you."), t
                 })
             }
         }, {});
         var i = $traceurRuntime.assertObject(r),
             o = i.log,
             a = i.wait;
-        t.exports = n
+        e.exports = n
     },
     {
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Errors.AuthenticationError": 26,
+        "Wildcat.Errors.ValidationError": 28,
+        "Wildcat.Support.helpers": 37
     }],
-    8: [function (e) {
+    8: [function (t) {
         "use strict";
-        var t = e("Wildcat.Foundation.Application");
-        window.App = t
+        var e = t("Wildcat.Foundation.Application");
+        window.App = e
     },
     {
-        "Wildcat.Foundation.Application": 27
+        "Wildcat.Foundation.Application": 31
     }],
-    9: [function (e, t) {
+    9: [function (t, e) {
         "use strict";
-        var r = e("App.Providers.AppServiceProvider"),
-            n = e("Wildcat.Log.LogServiceProvider"),
-            i = e("Wildcat.DOM.WindowServiceProvider"),
-            o = e("Wildcat.View.ViewServiceProvider"),
-            a = e("Wildcat.Commander.CommandServiceProvider");
-        t.exports = {
+        var r = t("App.Providers.AppServiceProvider"),
+            n = t("Wildcat.Log.LogServiceProvider"),
+            i = t("Wildcat.DOM.WindowServiceProvider"),
+            o = t("Wildcat.Errors.ErrorServiceProvider"),
+            a = t("Wildcat.View.ViewServiceProvider"),
+            s = t("Wildcat.Commander.CommandServiceProvider");
+        e.exports = {
             debug: !1,
-            providers: [r, n, i, o, a],
+            providers: [r, n, i, o, a, s],
             locale: "en",
             get browser() {
                 return window.navigator.userAgent
@@ -255,13 +307,14 @@ function e(t, r, n) {
         "App.Providers.AppServiceProvider": 6,
         "Wildcat.Commander.CommandServiceProvider": 17,
         "Wildcat.DOM.WindowServiceProvider": 25,
-        "Wildcat.Log.LogServiceProvider": 31,
-        "Wildcat.View.ViewServiceProvider": 37
+        "Wildcat.Errors.ErrorServiceProvider": 27,
+        "Wildcat.Log.LogServiceProvider": 35,
+        "Wildcat.View.ViewServiceProvider": 41
     }],
-    10: [function (e, t) {
+    10: [function (t, e) {
         "use strict";
-        var r = e("App.Commands.PostReportCommand");
-        t.exports = [{
+        var r = t("App.Commands.PostReportCommand");
+        e.exports = [{
             "abstract": "postReportCommand",
             command: r
         }]
@@ -269,14 +322,14 @@ function e(t, r, n) {
     {
         "App.Commands.PostReportCommand": 2
     }],
-    11: [function (e, t) {
+    11: [function (t, e) {
         "use strict";
-        t.exports = {
-            app: e("./app"),
-            "local.app": e("./local/app"),
-            commands: e("./commands"),
-            handlers: e("./handlers"),
-            views: e("./views")
+        e.exports = {
+            app: t("./app"),
+            "local.app": t("./local/app"),
+            commands: t("./commands"),
+            handlers: t("./handlers"),
+            views: t("./views")
         }
     },
     {
@@ -286,10 +339,10 @@ function e(t, r, n) {
         "./local/app": 13,
         "./views": 14
     }],
-    12: [function (e, t) {
+    12: [function (t, e) {
         "use strict";
-        var r = e("App.Commands.PostReportCommandHandler");
-        t.exports = [{
+        var r = t("App.Commands.PostReportCommandHandler");
+        e.exports = [{
             "abstract": "postReportCommandHandler",
             handler: r
         }]
@@ -297,17 +350,17 @@ function e(t, r, n) {
     {
         "App.Commands.PostReportCommandHandler": 3
     }],
-    13: [function (e, t) {
+    13: [function (t, e) {
         "use strict";
-        t.exports = {
+        e.exports = {
             debug: !0
         }
     },
     {}],
-    14: [function (e, t) {
+    14: [function (t, e) {
         "use strict";
-        var r = e("App.Browser.Views.IntroView");
-        t.exports = [{
+        var r = t("App.Browser.Views.IntroView");
+        e.exports = [{
             "abstract": "introView",
             $constructor: r,
             build: "singleton"
@@ -316,78 +369,78 @@ function e(t, r, n) {
     {
         "App.Browser.Views.IntroView": 1
     }],
-    15: [function (e, t) {
+    15: [function (t, e) {
         "use strict";
-        var r = function (e) {
-            this.app = e
+        var r = function (t) {
+            this.app = t
         };
         $traceurRuntime.createClass(r, {
-            execute: function (e) {
-                var t = e.constructor.getName(),
-                    r = t + "Handler",
+            execute: function (t) {
+                var e = t.constructor.getName(),
+                    r = e + "Handler",
                     n = this.app.make(r);
-                n.handle(e)
+                n.handle(t)
             }
-        }, {}), t.exports = r
+        }, {}), e.exports = r
     },
     {}],
-    16: [function (e, t) {
+    16: [function (t, e) {
         "use strict";
-        var r = e("Wildcat.Commander.Events.DispatchableTrait"),
-            n = e("Wildcat.Support.helpers"),
-            i = function (e) {
-                this.app = e
+        var r = t("Wildcat.Commander.Events.DispatchableTrait"),
+            n = t("Wildcat.Support.helpers"),
+            i = function (t) {
+                this.app = t
             };
         $traceurRuntime.createClass(i, {}, {});
         var o = $traceurRuntime.assertObject(n).extendProtoOf;
-        o(i, r), t.exports = i
+        o(i, r), e.exports = i
     },
     {
         "Wildcat.Commander.Events.DispatchableTrait": 19,
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Support.helpers": 37
     }],
-    17: [function (e, t) {
+    17: [function (t, e) {
         "use strict";
 
         function r() {
-            this.app.bindShared("commandBus", function (e) {
-                return new s(e)
+            this.app.bindShared("commandBus", function (t) {
+                return new s(t)
             })
         }
         function n() {
-            for (var e, t = this.app, r = t.config.get("commands"), n = r[Symbol.iterator](); !(e = n.next()).done;) {
-                var i = $traceurRuntime.assertObject(e.value),
+            for (var t, e = this.app, r = e.config.get("commands"), n = r[Symbol.iterator](); !(t = n.next()).done;) {
+                var i = $traceurRuntime.assertObject(t.value),
                     o = i.abstract,
                     a = i.command;
-                t.bind(o, function () {
-                    for (var e = [], t = 1; t < arguments.length; t++) e[t - 1] = arguments[t];
-                    return new(Function.prototype.bind.apply(a, $traceurRuntime.spread([null], e)))
+                e.bind(o, function () {
+                    for (var t = [], e = 1; e < arguments.length; e++) t[e - 1] = arguments[e];
+                    return new(Function.prototype.bind.apply(a, $traceurRuntime.spread([null], t)))
                 })
             }
         }
         function i() {
-            for (var e, t = this.app, r = t.config.get("handlers"), n = r[Symbol.iterator](); !(e = n.next()).done;) {
-                var i = $traceurRuntime.assertObject(e.value),
+            for (var t, e = this.app, r = e.config.get("handlers"), n = r[Symbol.iterator](); !(t = n.next()).done;) {
+                var i = $traceurRuntime.assertObject(t.value),
                     o = i.abstract,
                     a = i.handler;
-                t.bind(o, function (e) {
-                    for (var t = [], r = 1; r < arguments.length; r++) t[r - 1] = arguments[r];
-                    return new(Function.prototype.bind.apply(a, $traceurRuntime.spread([null, e], t)))
+                e.bind(o, function (t) {
+                    for (var e = [], r = 1; r < arguments.length; r++) e[r - 1] = arguments[r];
+                    return new(Function.prototype.bind.apply(a, $traceurRuntime.spread([null, t], e)))
                 })
             }
         }
         function o() {
-            var e = this.app,
-                t = $traceurRuntime.assertObject(e),
-                r = t.events,
-                n = t.log;
-            e.bind("eventDispatcher", function () {
+            var t = this.app,
+                e = $traceurRuntime.assertObject(t),
+                r = e.events,
+                n = e.logger;
+            t.bind("eventDispatcher", function () {
                 return new u(r, n)
             })
         }
-        var a = ($traceurRuntime.assertObject(e("Wildcat.Support.helpers")).log, e("Wildcat.Support.ServiceProvider")),
-            s = e("Wildcat.Commander.CommandBus"),
-            u = e("Wildcat.Commander.Events.EventDispatcher"),
+        var a = ($traceurRuntime.assertObject(t("Wildcat.Support.helpers")).log, t("Wildcat.Support.ServiceProvider")),
+            s = t("Wildcat.Commander.CommandBus"),
+            u = t("Wildcat.Commander.Events.EventDispatcher"),
             c = function () {
                 $traceurRuntime.defaultSuperCall(this, l.prototype, arguments)
             },
@@ -396,193 +449,193 @@ function e(t, r, n) {
             register: function () {
                 r.call(this), n.call(this), i.call(this), o.call(this)
             }
-        }, {}, a), t.exports = c
+        }, {}, a), e.exports = c
     },
     {
         "Wildcat.Commander.CommandBus": 15,
         "Wildcat.Commander.Events.EventDispatcher": 20,
-        "Wildcat.Support.ServiceProvider": 32,
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Support.ServiceProvider": 36,
+        "Wildcat.Support.helpers": 37
     }],
-    18: [function (e, t) {
+    18: [function (t, e) {
         "use strict";
-        var r = e("Wildcat.Support.helpers"),
+        var r = t("Wildcat.Support.helpers"),
             n = function () {};
         $traceurRuntime.createClass(n, {
-            execute: function (e) {
-                var t = this.getCommandBus();
-                t.execute(e)
+            execute: function (t) {
+                var e = this.getCommandBus();
+                e.execute(t)
             },
             getCommandBus: function () {
                 return this.app.make("commandBus")
             }
         }, {});
         $traceurRuntime.assertObject(r).log;
-        t.exports = n
+        e.exports = n
     },
     {
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Support.helpers": 37
     }],
-    19: [function (e, t) {
+    19: [function (t, e) {
         "use strict";
         var r = function () {};
         $traceurRuntime.createClass(r, {
-            dispatchEventsFor: function (e) {
-                var t = this.getDispatcher(),
-                    r = e.releaseEvents();
-                t.dispatch(r)
+            dispatchEventsFor: function (t) {
+                var e = this.getDispatcher(),
+                    r = t.releaseEvents();
+                e.dispatch(r)
             },
             getDispatcher: function () {
                 return this.app.eventDispatcher
             }
-        }, {}), t.exports = r
+        }, {}), e.exports = r
     },
     {}],
-    20: [function (e, t) {
+    20: [function (t, e) {
         "use strict";
 
-        function r(e) {
-            return e.getName()
+        function r(t) {
+            return t.getName()
         }
-        var n = function (e, t) {
-            this.event_ = e, this.log_ = t
+        var n = function (t, e) {
+            this.events_ = t, this.log_ = e
         };
         $traceurRuntime.createClass(n, {
-            dispatch: function (e) {
-                for (var t, n = e[Symbol.iterator](); !(t = n.next()).done;) {
-                    var i = t.value,
+            dispatch: function (t) {
+                for (var e, n = t[Symbol.iterator](); !(e = n.next()).done;) {
+                    var i = e.value,
                         o = r.call(this, i);
-                    this.event_.emit(o, i), this.log_.log(o + " was fired.")
+                    this.events_.emit(o, i), this.log_.log(o + " was fired.")
                 }
             }
-        }, {}), t.exports = n
+        }, {}), e.exports = n
     },
     {}],
-    21: [function (e, t) {
+    21: [function (t, e) {
         "use strict";
         var r = function () {
             this.pendingEvents_ = []
         };
         $traceurRuntime.createClass(r, {
-            raise: function (e) {
-                return this.pendingEvents_.push(e), this
+            raise: function (t) {
+                return this.pendingEvents_.push(t), this
             },
             releaseEvents: function () {
-                var e = this.pendingEvents_;
-                return this.pendingEvents_ = [], e
+                var t = this.pendingEvents_;
+                return this.pendingEvents_ = [], t
             }
-        }, {}), t.exports = r
+        }, {}), e.exports = r
     },
     {}],
-    22: [function (e, t) {
+    22: [function (t, e) {
         "use strict";
-        var r = e("Wildcat.Support.state"),
+        var r = t("Wildcat.Support.state"),
             n = function () {
-                var e = void 0 !== arguments[0] ? arguments[0] : {},
-                    t = r(this, {});
-                t.configObj = e
+                var t = void 0 !== arguments[0] ? arguments[0] : {},
+                    e = r(this, {});
+                e.configObj = t
             };
         $traceurRuntime.createClass(n, {
-            load: function (e, t) {
+            load: function (t, e) {
                 var n = (void 0 !== arguments[2] ? arguments[2] : null, r(this)),
                     i = n.configObj,
                     o = {};
-                return this.exists(t) && (o = i[t]), i[e + "." + t] && Object.assign(o, i[e + "." + t]), o
+                return this.exists(e) && (o = i[e]), i[t + "." + e] && Object.assign(o, i[t + "." + e]), o
             },
-            exists: function (e) {
-                var t = (void 0 !== arguments[1] ? arguments[1] : null, r(this)),
-                    n = t.configObj;
-                return n[e] ? !0 : !1
+            exists: function (t) {
+                var e = (void 0 !== arguments[1] ? arguments[1] : null, r(this)),
+                    n = e.configObj;
+                return n[t] ? !0 : !1
             }
-        }, {}), t.exports = n
+        }, {}), e.exports = n
     },
     {
-        "Wildcat.Support.state": 35
+        "Wildcat.Support.state": 39
     }],
-    23: [function (e, t) {
+    23: [function (t, e) {
         "use strict";
 
-        function r(e) {
-            var t = e.split(".");
-            return n(t)
+        function r(t) {
+            var e = t.split(".");
+            return n(e)
         }
-        function n(e) {
-            var t = e[0];
-            return 1 === e.length ? [null, t, null] : [null, t, e[1]]
+        function n(t) {
+            var e = t[0];
+            return 1 === t.length ? [null, e, null] : [null, e, t[1]]
         }
-        var i = e("Wildcat.Support.state"),
-            o = function (e, t) {
+        var i = t("Wildcat.Support.state"),
+            o = function (t, e) {
                 var r = i(this, {});
-                r.loader = e, r.environment = t
+                r.loader = t, r.environment = e
             };
         $traceurRuntime.createClass(o, {
             has: function () {},
-            get: function (e, t) {
+            get: function (t, e) {
                 var n = i(this),
                     o = $traceurRuntime.assertObject(n).environment,
-                    a = $traceurRuntime.assertObject(r(e)),
+                    a = $traceurRuntime.assertObject(r(t)),
                     s = a[0],
                     u = a[1],
                     c = a[2],
                     l = n.loader.load(o, u, s);
-                return c ? void 0 !== l[c] ? l[c] : t : l
+                return c ? void 0 !== l[c] ? l[c] : e : l
             },
             set: function () {}
-        }, {}), t.exports = o
+        }, {}), e.exports = o
     },
     {
-        "Wildcat.Support.state": 35
+        "Wildcat.Support.state": 39
     }],
-    24: [function (e, t) {
+    24: [function (t, e) {
         "use strict";
-        var r = e("Wildcat.Support.state"),
-            n = e("events").EventEmitter,
-            i = e("Wildcat.Support.helpers"),
+        var r = t("Wildcat.Support.state"),
+            n = t("events").EventEmitter,
+            i = t("Wildcat.Support.helpers"),
             o = function () {
                 n.call(this);
-                var e = r(this, {});
-                e.bindings = {}, e.instances = {}
+                var t = r(this, {});
+                t.bindings = {}, t.instances = {}
             };
         $traceurRuntime.createClass(o, {
-            make: function (e) {
-                var t = void 0 !== arguments[1] ? arguments[1] : [],
-                    r = this.getConcrete(e),
-                    n = r.apply(null, $traceurRuntime.spread([this], t));
+            make: function (t) {
+                var e = void 0 !== arguments[1] ? arguments[1] : [],
+                    r = this.getConcrete(t),
+                    n = r.apply(null, $traceurRuntime.spread([this], e));
                 return n
             },
-            bind: function (e) {
-                var t = void 0 !== arguments[1] ? arguments[1] : null,
+            bind: function (t) {
+                var e = void 0 !== arguments[1] ? arguments[1] : null,
                     n = void 0 !== arguments[2] ? arguments[2] : !1,
                     i = "bind",
                     o = this;
-                r(this).bindings[e] = {
-                    concrete: t,
+                r(this).bindings[t] = {
+                    concrete: e,
                     shared: n
-                }, this.makeAccessorProperty(e), this.emit("bind." + e, h({
-                    type: i + "." + e,
+                }, this.makeAccessorProperty(t), this.emit("bind." + t, h({
+                    type: i + "." + t,
                     target: o,
-                    "abstract": e,
+                    "abstract": t,
                     shared: n
                 })), this.emit("bind", h({
                     type: i,
                     target: o,
-                    "abstract": e,
+                    "abstract": t,
                     shared: n
                 }))
             },
-            bindShared: function (e, t) {
+            bindShared: function (t, e) {
                 for (var r, n, i = [], o = 2; o < arguments.length; o++) i[o - 2] = arguments[o];
-                if (Array.isArray(e)) for (var a, s = e[Symbol.iterator](); !(a = s.next()).done;) {
+                if (Array.isArray(t)) for (var a, s = t[Symbol.iterator](); !(a = s.next()).done;) {
                     var u = a.value;
                     (r = this).bindShared.apply(r, $traceurRuntime.spread(u))
-                } else this.bind(e, (n = this).share.apply(n, $traceurRuntime.spread([t], i)), !0)
+                } else this.bind(t, (n = this).share.apply(n, $traceurRuntime.spread([e], i)), !0)
             },
-            getConcrete: function (e) {
-                return r(this).bindings[e].concrete
+            getConcrete: function (t) {
+                return r(this).bindings[t].concrete
             },
-            isShared: function (e) {
-                var t = r(this);
-                return t.instances[e] ? !0 : t.bindings[e] ? r.bindings[e].shared : !1
+            isShared: function (t) {
+                var e = r(this);
+                return e.instances[t] ? !0 : e.bindings[t] ? r.bindings[t].shared : !1
             },
             getBindings: function () {
                 return r(this).bindings
@@ -590,32 +643,32 @@ function e(t, r, n) {
             getBindingsKeys: function () {
                 return s(this.getBindings())
             },
-            newInstanceOf: function (e, t) {
+            newInstanceOf: function (t, e) {
                 for (var r = [], n = 2; n < arguments.length; n++) r[n - 2] = arguments[n];
-                this.bind(e, function () {
-                    return new(Function.prototype.bind.apply(t, $traceurRuntime.spread([null], r)))
+                this.bind(t, function () {
+                    return new(Function.prototype.bind.apply(e, $traceurRuntime.spread([null], r)))
                 }, !1)
             },
-            singleton: function (e, t) {
+            singleton: function (t, e) {
                 for (var r = [], n = 2; n < arguments.length; n++) r[n - 2] = arguments[n];
-                this.bindShared(e, function () {
-                    return new(Function.prototype.bind.apply(t, $traceurRuntime.spread([null], r)))
+                this.bindShared(t, function () {
+                    return new(Function.prototype.bind.apply(e, $traceurRuntime.spread([null], r)))
                 })
             },
-            share: function (e) {
-                for (var t = [], r = 1; r < arguments.length; r++) t[r - 1] = arguments[r];
+            share: function (t) {
+                for (var e = [], r = 1; r < arguments.length; r++) e[r - 1] = arguments[r];
                 var n;
                 return function (r) {
-                    return void 0 === n && (n = e.apply(null, $traceurRuntime.spread([r], t))), n
+                    return void 0 === n && (n = t.apply(null, $traceurRuntime.spread([r], e))), n
                 }
             },
-            forgetInstance: function (e) {
-                delete r(this).instances[e]
+            forgetInstance: function (t) {
+                delete r(this).instances[t]
             },
-            makeAccessorProperty: function (e) {
-                this.abstract || Object.defineProperty(this, e, {
+            makeAccessorProperty: function (t) {
+                this.abstract || Object.defineProperty(this, t, {
                     get: function () {
-                        return this.make(e)
+                        return this.make(t)
                     }
                 })
             },
@@ -625,22 +678,22 @@ function e(t, r, n) {
             getItems: function () {
                 return this.getBindingsKeys()
             },
-            forEach: function (e, t) {
+            forEach: function (t, e) {
                 var r = this;
-                return t = c(t, this), this.getItems().forEach(function (n, i) {
-                    return e.call(t, n, i, r)
+                return e = c(e, this), this.getItems().forEach(function (n, i) {
+                    return t.call(e, n, i, r)
                 })
             },
-            map: function (e, t) {
+            map: function (t, e) {
                 var r = this;
-                return t = c(t, this), this.getItems().map(function (n, i) {
-                    return e.call(t, n, i, r)
+                return e = c(e, this), this.getItems().map(function (n, i) {
+                    return t.call(e, n, i, r)
                 })
             },
-            filter: function (e, t) {
+            filter: function (t, e) {
                 var r = this;
-                return t = c(t, this), this.getItems().filter(function (n, i) {
-                    return e.call(t, n, i, r)
+                return e = c(e, this), this.getItems().filter(function (n, i) {
+                    return t.call(e, n, i, r)
                 })
             },
             getIterator: function () {
@@ -654,99 +707,191 @@ function e(t, r, n) {
             l = a.arrayIterator,
             f = a.extendProtoOf,
             h = a.noProto;
-        f(o, n), u(o), t.exports = o
+        f(o, n), u(o), e.exports = o
     },
     {
-        "Wildcat.Support.helpers": 33,
-        "Wildcat.Support.state": 35,
-        events: 38
+        "Wildcat.Support.helpers": 37,
+        "Wildcat.Support.state": 39,
+        events: 42
     }],
-    25: [function (e, t) {
+    25: [function (t, e) {
         (function (r) {
             "use strict";
-            var n = e("Wildcat.Support.ServiceProvider"),
+            var n = t("Wildcat.Support.ServiceProvider"),
                 i = function () {
                     $traceurRuntime.defaultSuperCall(this, o.prototype, arguments)
                 },
                 o = i;
             $traceurRuntime.createClass(i, {
                 register: function () {
-                    var e = this.app;
-                    e.bindShared("window", function () {
+                    var t = this.app;
+                    t.bindShared("window", function () {
                         return r
                     })
                 },
                 provides: function () {
                     return ["window"]
                 }
-            }, {}, n), t.exports = i
+            }, {}, n), e.exports = i
         }).call(this, "undefined" != typeof global ? global : "undefined" != typeof self ? self : "undefined" != typeof window ? window : {})
     },
     {
-        "Wildcat.Support.ServiceProvider": 32
+        "Wildcat.Support.ServiceProvider": 36
     }],
-    26: [function (e, t) {
+    26: [function (t, e) {
         "use strict";
-
-        function r(e) {
-            return a(e) ? this.app_[e] : e
-        }
-        var n = e("events").EventEmitter,
-            i = $traceurRuntime.assertObject(e("Wildcat.Support.helpers")),
-            o = i.extendProtoOf,
-            a = i.isString,
-            s = function (e) {
-                this.app_ = e, n.call(this)
-            };
-        $traceurRuntime.createClass(s, {
-            subscribe: function (e) {
-                e = r.call(this), e.subscribe(this)
-            }
-        }, {}), o(s, n), t.exports = s
+        var r = t("Wildcat.Errors.errorConstructor"),
+            n = r("AuthenticationError", "no way! authenticated");
+        e.exports = n
     },
     {
-        "Wildcat.Support.helpers": 33,
-        events: 38
+        "Wildcat.Errors.errorConstructor": 29
     }],
-    27: [function (e, t) {
+    27: [function (t, e) {
         "use strict";
-        var r = e("Wildcat.Container.Container"),
-            n = e("Wildcat.Config.Repository"),
-            i = e("Wildcat.Config.ModuleLoader"),
-            o = e("Wildcat.Events.Dispatcher"),
-            a = e("Wildcat.Foundation.start"),
-            s = e("Wildcat.Foundation.ProviderRepository"),
-            u = e("config.config"),
-            c = $traceurRuntime.assertObject(e("Wildcat.Support.helpers")).value,
+        var r = t("Wildcat.Support.ServiceProvider"),
+            n = t("Wildcat.Errors.ValidationError"),
+            i = t("Wildcat.Errors.AuthenticationError"),
+            o = function () {
+                $traceurRuntime.defaultSuperCall(this, a.prototype, arguments)
+            },
+            a = o;
+        $traceurRuntime.createClass(o, {
+            register: function () {
+                var t = this.app;
+                t.bindShared("ValidationError", function () {
+                    return n
+                }), t.bindShared("AuthenticationError", function () {
+                    return i
+                })
+            },
+            provides: function () {
+                return ["ValidationError", "AuthenticationError"]
+            }
+        }, {}, r), e.exports = o
+    },
+    {
+        "Wildcat.Errors.AuthenticationError": 26,
+        "Wildcat.Errors.ValidationError": 28,
+        "Wildcat.Support.ServiceProvider": 36
+    }],
+    28: [function (t, e) {
+        "use strict";
+        var r = t("Wildcat.Errors.errorConstructor"),
+            n = r("ValidationError", "no way! validated");
+        e.exports = n
+    },
+    {
+        "Wildcat.Errors.errorConstructor": 29
+    }],
+    29: [function (t, e) {
+        "use strict";
+
+        function r(t) {
+            var e = !0,
+                r = !1,
+                n = !0;
+            return t = a(t) ? t : [t], t.reduce(function (t, i) {
+                var o = u(i)[0],
+                    a = i[o];
+                return t[o] = {
+                    value: a,
+                    writable: e,
+                    enumerable: r,
+                    configurable: n
+                }, t
+            }, {})
+        }
+        function n(t, e) {
+            var r = $traceurRuntime.assertObject(o).captureStackTrace;
+            return r ? r(t, e) : t.stack = (new o).stack || "", t
+        }
+        function i() {
+            var t = void 0 !== arguments[0] ? arguments[0] : "CustomError",
+                e = void 0 !== arguments[1] ? arguments[1] : "",
+                i = function (t) {
+                    void 0 !== t && c(this, r({
+                        message: t
+                    })), n(this, a)
+                },
+                a = i;
+            return $traceurRuntime.createClass(i, {}, {}, o), c(i.prototype, r([{
+                name: t
+            },
+            {
+                message: e
+            }])), i
+        }
+        var o = Error,
+            a = $traceurRuntime.assertObject(Array).isArray,
+            s = $traceurRuntime.assertObject(Object),
+            u = s.keys,
+            c = s.defineProperties;
+        e.exports = i
+    },
+    {}],
+    30: [function (t, e) {
+        "use strict";
+
+        function r(t) {
+            return a(t) ? this.app_[t] : t
+        }
+        var n = t("events").EventEmitter,
+            i = $traceurRuntime.assertObject(t("Wildcat.Support.helpers")),
+            o = i.extendProtoOf,
+            a = i.isString,
+            s = function (t) {
+                this.app_ = t, n.call(this)
+            };
+        $traceurRuntime.createClass(s, {
+            subscribe: function (t) {
+                t = r.call(this), t.subscribe(this)
+            }
+        }, {}), o(s, n), e.exports = s
+    },
+    {
+        "Wildcat.Support.helpers": 37,
+        events: 42
+    }],
+    31: [function (t, e) {
+        "use strict";
+        var r = t("Wildcat.Container.Container"),
+            n = t("Wildcat.Config.Repository"),
+            i = t("Wildcat.Config.ModuleLoader"),
+            o = t("Wildcat.Events.Dispatcher"),
+            a = t("Wildcat.Foundation.start"),
+            s = t("Wildcat.Foundation.ProviderRepository"),
+            u = t("config.config"),
+            c = $traceurRuntime.assertObject(t("Wildcat.Support.helpers")).value,
             l = {},
             f = function () {
                 $traceurRuntime.defaultSuperCall(this, h.prototype, arguments)
             },
             h = f;
         $traceurRuntime.createClass(f, {
-            detectEnvironment: function (e) {
-                return l.env = c(e)
+            detectEnvironment: function (t) {
+                return l.env = c(t)
             },
             isLocal: function () {
                 return this.environment("local")
             },
             environment: function () {
-                for (var e = [], t = 0; t < arguments.length; t++) e[t] = arguments[t];
-                return e.length ? -1 !== e.indexOf(l.env) : l.env
+                for (var t = [], e = 0; e < arguments.length; e++) t[e] = arguments[e];
+                return t.length ? -1 !== t.indexOf(l.env) : l.env
             },
             getConfigLoader: function () {
                 return new i(u)
             },
             registerCoreContainerBindings: function () {
-                var e = this,
-                    t = e.getConfigLoader(),
-                    r = e.environment();
-                e.bindShared([
+                var t = this,
+                    e = t.getConfigLoader(),
+                    r = t.environment();
+                t.bindShared([
                     ["config", function () {
-                        return new n(t, r)
+                        return new n(e, r)
                     }],
-                    ["events", function (e) {
-                        return new o(e)
+                    ["events", function (t) {
+                        return new o(t)
                     }]
                 ])
             },
@@ -759,222 +904,238 @@ function e(t, r, n) {
             run: function () {
                 console.log("app running!")
             },
-            register: function (e) {
-                return e.register(), e
+            register: function (t) {
+                return t.register(), t
             }
-        }, {}, r), t.exports = f
+        }, {}, r), e.exports = f
     },
     {
         "Wildcat.Config.ModuleLoader": 22,
         "Wildcat.Config.Repository": 23,
         "Wildcat.Container.Container": 24,
-        "Wildcat.Events.Dispatcher": 26,
-        "Wildcat.Foundation.ProviderRepository": 28,
-        "Wildcat.Foundation.start": 29,
-        "Wildcat.Support.helpers": 33,
+        "Wildcat.Events.Dispatcher": 30,
+        "Wildcat.Foundation.ProviderRepository": 32,
+        "Wildcat.Foundation.start": 33,
+        "Wildcat.Support.helpers": 37,
         "config.config": 11
     }],
-    28: [function (e, t) {
+    32: [function (t, e) {
         "use strict";
         var r = function () {};
         $traceurRuntime.createClass(r, {
-            load: function (e, t) {
-                for (var r, n = t[Symbol.iterator](); !(r = n.next()).done;) {
+            load: function (t, e) {
+                for (var r, n = e[Symbol.iterator](); !(r = n.next()).done;) {
                     var i = r.value;
-                    e.register(this.createProvider(e, i))
+                    t.register(this.createProvider(t, i))
                 }
             },
-            createProvider: function (e, t) {
-                return new t(e)
+            createProvider: function (t, e) {
+                return new e(t)
             }
-        }, {}), t.exports = r
+        }, {}), e.exports = r
     },
     {}],
-    29: [function (e, t) {
+    33: [function (t, e) {
         "use strict";
 
         function r() {
             {
-                var e, t, r = this;
+                var t, e, r = this;
                 r.environment()
             }
             r.bindShared("app", function () {
                 return r
-            }), r.registerCoreContainerBindings(), t = r.config, e = t.get("app").providers, r.getProviderRepository().load(r, e)
+            }), r.registerCoreContainerBindings(), e = r.config, t = e.get("app").providers, r.getProviderRepository().load(r, t)
         }
-        e("Wildcat.Config.Repository");
-        t.exports = r
+        t("Wildcat.Config.Repository");
+        e.exports = r
     },
     {
         "Wildcat.Config.Repository": 23
     }],
-    30: [function (e, t) {
+    34: [function (t, e) {
         (function (r) {
             "use strict";
-            var n = e("Wildcat.Support.state"),
+            var n = t("Wildcat.Support.state"),
                 i = function () {
-                    var e = void 0 !== arguments[0] ? arguments[0] : r,
-                        t = n(this, {});
-                    t.window = e, t.console = e.console
+                    var t = void 0 !== arguments[0] ? arguments[0] : r,
+                        e = n(this, {});
+                    e.window = t, e.console = t.console
                 };
             $traceurRuntime.createClass(i, {
                 log: function () {
-                    for (var e, t = [], r = 0; r < arguments.length; r++) t[r] = arguments[r];
-                    (e = n(this).console).log.apply(e, $traceurRuntime.spread(t))
+                    for (var t, e = [], r = 0; r < arguments.length; r++) e[r] = arguments[r];
+                    (t = n(this).console).log.apply(t, $traceurRuntime.spread(e))
                 },
                 error: function () {
-                    for (var e, t = [], r = 0; r < arguments.length; r++) t[r] = arguments[r];
-                    (e = n(this).console).error.apply(e, $traceurRuntime.spread(t))
+                    for (var t, e = [], r = 0; r < arguments.length; r++) e[r] = arguments[r];
+                    (t = n(this).console).error.apply(t, $traceurRuntime.spread(e))
                 },
                 dir: function () {
-                    for (var e, t = [], r = 0; r < arguments.length; r++) t[r] = arguments[r];
-                    (e = n(this).console).dir.apply(e, $traceurRuntime.spread(t))
+                    for (var t, e = [], r = 0; r < arguments.length; r++) e[r] = arguments[r];
+                    (t = n(this).console).dir.apply(t, $traceurRuntime.spread(e))
+                },
+                get state_() {
+                    return n(this)
                 }
-            }, {}), t.exports = i
+            }, {}), e.exports = i
         }).call(this, "undefined" != typeof global ? global : "undefined" != typeof self ? self : "undefined" != typeof window ? window : {})
     },
     {
-        "Wildcat.Support.state": 35
+        "Wildcat.Support.state": 39
     }],
-    31: [function (e, t) {
+    35: [function (t, e) {
         "use strict";
-        var r = e("Wildcat.Support.ServiceProvider"),
-            n = e("Wildcat.Log.ConsoleLogger"),
+        var r = t("Wildcat.Support.ServiceProvider"),
+            n = t("Wildcat.Log.ConsoleLogger"),
             i = function () {
                 $traceurRuntime.defaultSuperCall(this, o.prototype, arguments)
             },
             o = i;
         $traceurRuntime.createClass(i, {
             register: function () {
-                this.app.singleton("log", n)
+                this.app.singleton("logger", n)
             },
             provides: function () {
                 return ["log"]
             }
-        }, {}, r), t.exports = i
+        }, {}, r), e.exports = i
     },
     {
-        "Wildcat.Log.ConsoleLogger": 30,
-        "Wildcat.Support.ServiceProvider": 32
+        "Wildcat.Log.ConsoleLogger": 34,
+        "Wildcat.Support.ServiceProvider": 36
     }],
-    32: [function (e, t) {
+    36: [function (t, e) {
         "use strict";
-        var r = e("Wildcat.Support.state"),
-            n = function (e) {
-                var t = r(this, {});
-                t.app = e
+        var r = t("Wildcat.Support.state"),
+            n = function (t) {
+                var e = r(this, {});
+                e.app = t
             };
         $traceurRuntime.createClass(n, {
             register: function () {},
             get app() {
                 return r(this).app
             }
-        }, {}), t.exports = n
+        }, {}), e.exports = n
     },
     {
-        "Wildcat.Support.state": 35
+        "Wildcat.Support.state": 39
     }],
-    33: [function (e, t) {
-        (function (e) {
+    37: [function (t, e) {
+        (function (t) {
             "use strict";
 
-            function r(e) {
-                return Object.keys(e)
+            function r(t) {
+                return Object.keys(t)
             }
             function n() {
-                for (var e, t = [], r = 1; r < arguments.length; r++) t[r - 1] = arguments[r];
-                return (e = Object).assign.apply(e, $traceurRuntime.spread(t))
+                for (var t, e = [], r = 1; r < arguments.length; r++) e[r - 1] = arguments[r];
+                return (t = Object).assign.apply(t, $traceurRuntime.spread(e))
             }
-            function i(e, t) {
+            function i(t, e) {
                 var n = void 0 !== arguments[2] ? arguments[2] : [];
-                if (u(n)) return void(e.prototype[n] = t.prototype[n]);
-                for (var i, o = r(t.prototype), a = o[Symbol.iterator](); !(i = a.next()).done;) {
+                if (u(n)) return void(t.prototype[n] = e.prototype[n]);
+                for (var i, o = r(e.prototype), a = o[Symbol.iterator](); !(i = a.next()).done;) {
                     var n = i.value;
-                    e.prototype[n] = t.prototype[n]
+                    t.prototype[n] = e.prototype[n]
                 }
             }
-            function o(e) {
-                var t = e.prototype;
-                t[Symbol.iterator] = t.getIterator
+            function o(t) {
+                var e = t.prototype;
+                e[Symbol.iterator] = e.getIterator
             }
-            function a(e) {
-                return "function" == typeof e ? e() : e
+            function a(t) {
+                return "function" == typeof t ? t() : t
             }
-            function s(e) {
-                return null === e
+            function s(t) {
+                return null === t
             }
-            function u(e) {
-                return "string" == typeof e
+            function u(t) {
+                return "string" == typeof t
             }
-            function c(e) {
-                return void 0 === e
+            function c(t) {
+                return void 0 === t
             }
-            function l(e) {
-                return !c(e)
+            function l(t) {
+                return !c(t)
             }
-            function f(e, t) {
-                return l(e) ? e : t
+            function f(t) {
+                return Array.isArray(t)
             }
-            function h() {
-                var e = void 0 !== arguments[0] ? arguments[0] : 500;
-                return new Promise(function (t) {
-                    setTimeout(t, e)
-                })
+            function h(t, e) {
+                return l(t) ? t : e
             }
             function p() {
-                for (var e, t = [], r = 0; r < arguments.length; r++) t[r] = arguments[r];
-                (e = y).log.apply(e, $traceurRuntime.spread(t))
+                var t = void 0 !== arguments[0] ? arguments[0] : 500;
+                return new Promise(function (e) {
+                    setTimeout(e, t)
+                })
             }
             function d() {
-                for (var e, t = [], r = 0; r < arguments.length; r++) t[r] = arguments[r];
-                (e = y).warn.apply(e, $traceurRuntime.spread(t))
+                for (var t, e = [], r = 0; r < arguments.length; r++) e[r] = arguments[r];
+                (t = O).log.apply(t, $traceurRuntime.spread(e))
             }
-            function v(e) {
+            function v() {
+                for (var t, e = [], r = 0; r < arguments.length; r++) e[r] = arguments[r];
+                (t = O).error.apply(t, $traceurRuntime.spread(e))
+            }
+            function m() {
+                for (var t, e = [], r = 0; r < arguments.length; r++) e[r] = arguments[r];
+                (t = O).warn.apply(t, $traceurRuntime.spread(e))
+            }
+            function g(t) {
+                var e = b(t);
+                e().then(d, w)
+            }
+            function b(t) {
                 return function () {
-                    function t(e) {
-                        return e.done ? r.resolve(e.value) : r.resolve(e.value).then(function (e) {
-                            return t(n.next(e))
-                        }, function (e) {
-                            return t(n.
-                            throw (e))
+                    function e(t) {
+                        var i = t.done,
+                            o = t.value;
+                        return i ? r.resolve(o) : r.resolve(o).then(function (t) {
+                            return e(n.next(t))
+                        }, function (t) {
+                            return e(n.
+                            throw (t))
                         })
                     }
                     var r = Promise,
-                        n = e.apply(this, arguments);
+                        n = t.apply(this, arguments);
                     try {
-                        return t(n.next())
+                        return e(n.next())
                     } catch (i) {
                         return r.reject(i)
                     }
                 }
             }
-            function m() {
-                var e = void 0 !== arguments[0] ? arguments[0] : [],
-                    t = 0,
-                    r = e.length;
+            function y() {
+                var t = void 0 !== arguments[0] ? arguments[0] : [],
+                    e = 0,
+                    r = t.length;
                 return {
                     next: function () {
                         var n, i;
-                        return (i = r > t) && (n = e[t++]), {
+                        return (i = r > e) && (n = t[e++]), {
                             value: n,
                             done: !i
                         }
                     }
                 }
             }
-            function g() {
-                var e = void 0 !== arguments[0] ? arguments[0] : {},
-                    t = Object.create(null);
-                return Object.assign(t, e), t
+            function _() {
+                var t = void 0 !== arguments[0] ? arguments[0] : {},
+                    e = Object.create(null);
+                return Object.assign(e, t), e
             }
-            function b(e) {
-                _(function () {
-                    throw d("from [terimateError]:"), d(e.stack), e
+            function w(t) {
+                j(function () {
+                    throw m("from [terimateError]:"), m(t.stack), t
                 }, 0)
             }
-            var y = e.console,
-                _ = e.setTimeout,
-                w = {
+            var O = t.console,
+                j = t.setTimeout,
+                S = {
                     keys: r,
                     assign: n,
                     extendProtoOf: i,
@@ -984,24 +1145,27 @@ function e(t, r, n) {
                     isString: u,
                     isUndefined: c,
                     isDefined: l,
-                    defined: f,
-                    wait: h,
-                    log: p,
-                    warn: d,
-                    async: v,
-                    arrayIterator: m,
-                    noProto: g,
-                    terminateError: b
+                    isArray: f,
+                    defined: h,
+                    wait: p,
+                    log: d,
+                    error: v,
+                    warn: m,
+                    spawn: g,
+                    async: b,
+                    arrayIterator: y,
+                    noProto: _,
+                    terminateError: w
                 };
-            t.exports = w
+            e.exports = S
         }).call(this, "undefined" != typeof global ? global : "undefined" != typeof self ? self : "undefined" != typeof window ? window : {})
     },
     {}],
-    34: [function (e, t) {
+    38: [function (t, e) {
         (function (r) {
             "use strict";
-            e("observe-js");
-            t.exports = {
+            t("observe-js");
+            e.exports = {
                 Observer: r.Observer,
                 ArrayObserver: r.ArrayObserver,
                 ArraySplice: r.ArraySplice,
@@ -1015,38 +1179,38 @@ function e(t, r, n) {
         }).call(this, "undefined" != typeof global ? global : "undefined" != typeof self ? self : "undefined" != typeof window ? window : {})
     },
     {
-        "observe-js": 41
+        "observe-js": 45
     }],
-    35: [function (e, t) {
+    39: [function (t, e) {
         (function (r) {
             "use strict";
 
-            function n(e, t, r) {
+            function n(t, e, r) {
                 var n = void 0 !== arguments[3] ? arguments[3] : !1;
-                if (f(t)) return b.get(e);
-                if (p(t)) return i.call(e, t, r, n), e;
-                var s = o.call(e, t);
-                return r && a.call(e, s, r), s
+                if (f(e)) return b.get(t);
+                if (p(e)) return i.call(t, e, r, n), t;
+                var s = o.call(t, e);
+                return r && a.call(t, s, r), s
             }
-            function i(e, t, r) {
+            function i(t, e, r) {
                 var i = n(this);
-                i[e] = t, r && i.observer_.discardChanges(), m.performMicrotaskCheckpoint()
+                i[t] = e, r && i.observer_.discardChanges(), m.performMicrotaskCheckpoint()
             }
-            function o(e) {
-                return b.set(this, e), b.get(this)
+            function o(t) {
+                return b.set(this, t), b.get(this)
             }
-            function a(e, t) {
-                e.observer_ = new v(e), e.observer_.open(s.bind(this, {
-                    _: e,
-                    cbs: t
+            function a(t, e) {
+                t.observer_ = new v(t), t.observer_.open(s.bind(this, {
+                    _: t,
+                    cbs: e
                 }))
             }
-            function s(e, t, r, n, i) {
-                var o = $traceurRuntime.assertObject(e),
+            function s(t, e, r, n, i) {
+                var o = $traceurRuntime.assertObject(t),
                     a = o._,
                     s = o.cbs,
                     c = {
-                        added: t,
+                        added: e,
                         removed: r,
                         changed: n,
                         _: a,
@@ -1055,154 +1219,154 @@ function e(t, r, n) {
                     };
                 u.call(this, c)
             }
-            function u(e) {
-                var t = this;
+            function u(t) {
+                var e = this;
                 ["added", "removed", "changed"].forEach(function (r) {
-                    var n = "function" == typeof e.cbs[r],
-                        i = Object.keys(e[r]).length > 0;
-                    n && i && c.call(t, e, r)
+                    var n = "function" == typeof t.cbs[r],
+                        i = Object.keys(t[r]).length > 0;
+                    n && i && c.call(e, t, r)
                 })
             }
-            function c(e, t) {
-                var r = e.cbs[t],
-                    n = Object.keys(e[t]),
+            function c(t, e) {
+                var r = t.cbs[e],
+                    n = Object.keys(t[e]),
                     i = n.map(function (r) {
                         return h({
                             name: r,
-                            type: t,
-                            newValue: e._[r],
-                            oldValue: e.getOldValueFn(r)
+                            type: e,
+                            newValue: t._[r],
+                            oldValue: t.getOldValueFn(r)
                         })
                     });
                 r.call(this, i)
             }
-            var l = $traceurRuntime.assertObject(e("Wildcat.Support.helpers")),
+            var l = $traceurRuntime.assertObject(t("Wildcat.Support.helpers")),
                 f = l.isUndefined,
                 h = (l.log, l.noProto),
                 p = l.isString,
-                d = e("Wildcat.Support.observe"),
+                d = t("Wildcat.Support.observe"),
                 l = $traceurRuntime.assertObject(d),
                 v = l.ObjectObserver,
                 m = l.Platform,
                 g = r.WeakMap || r.Map,
                 b = new g;
-            t.exports = n
+            e.exports = n
         }).call(this, "undefined" != typeof global ? global : "undefined" != typeof self ? self : "undefined" != typeof window ? window : {})
     },
     {
-        "Wildcat.Support.helpers": 33,
-        "Wildcat.Support.observe": 34
+        "Wildcat.Support.helpers": 37,
+        "Wildcat.Support.observe": 38
     }],
-    36: [function (e, t) {
+    40: [function (t, e) {
         "use strict";
 
-        function r(e) {
+        function r(t) {
             l("onStateChanged");
-            for (var t, r = e[Symbol.iterator](); !(t = r.next()).done;) {
-                var n = t.value;
+            for (var e, r = t[Symbol.iterator](); !(e = r.next()).done;) {
+                var n = e.value;
                 l(n)
             }
         }
-        function n(e) {
+        function n(t) {
             l("onStateAdded");
-            for (var t, r = e[Symbol.iterator](); !(t = r.next()).done;) {
-                var n = t.value;
+            for (var e, r = t[Symbol.iterator](); !(e = r.next()).done;) {
+                var n = e.value;
                 l(n)
             }
         }
-        var i = e("Wildcat.Support.state"),
-            o = e("Wildcat.Support.observe"),
-            a = e("Wildcat.Support.helpers"),
-            s = e("Wildcat.Commander.CommanderTrait"),
+        var i = t("Wildcat.Support.state"),
+            o = t("Wildcat.Support.observe"),
+            a = t("Wildcat.Support.helpers"),
+            s = t("Wildcat.Commander.CommanderTrait"),
             u = $traceurRuntime.assertObject(o),
-            c = (u.PathObserver, u.Platform, function (e) {
-                this.app = e;
-                var t = {
+            c = (u.PathObserver, u.Platform, function (t) {
+                this.app = t;
+                var e = {
                     el: null
                 };
-                i(this, t, {
+                i(this, e, {
                     changed: r,
                     added: n
                 })
             });
         $traceurRuntime.createClass(c, {
-            setEl: function (e) {
-                var t = void 0 !== arguments[1] ? arguments[1] : !1;
-                return i(this, "el", e, t)
+            setEl: function (t) {
+                var e = void 0 !== arguments[1] ? arguments[1] : !1;
+                return i(this, "el", t, e)
             },
             get el() {
                 return i(this).el
             },
-            set el(e) {
-                this.setEl(e)
+            set el(t) {
+                this.setEl(t)
             },
             render: function () {}
         }, {});
         var u = $traceurRuntime.assertObject(a),
             l = u.log,
             f = u.extendProtoOf;
-        f(c, s), t.exports = c
+        f(c, s), e.exports = c
     },
     {
         "Wildcat.Commander.CommanderTrait": 18,
-        "Wildcat.Support.helpers": 33,
-        "Wildcat.Support.observe": 34,
-        "Wildcat.Support.state": 35
+        "Wildcat.Support.helpers": 37,
+        "Wildcat.Support.observe": 38,
+        "Wildcat.Support.state": 39
     }],
-    37: [function (e, t) {
+    41: [function (t, e) {
         "use strict";
-        var r = e("Wildcat.Support.ServiceProvider"),
-            n = (e("Wildcat.View.View"), function () {
+        var r = t("Wildcat.Support.ServiceProvider"),
+            n = (t("Wildcat.View.View"), function () {
                 $traceurRuntime.defaultSuperCall(this, i.prototype, arguments)
             }),
             i = n;
         $traceurRuntime.createClass(n, {
             register: function () {
-                for (var e, t = this.app, r = t.config.get("views"), n = r[Symbol.iterator](); !(e = n.next()).done;) {
-                    var i = $traceurRuntime.assertObject(e.value),
+                for (var t, e = this.app, r = e.config.get("views"), n = r[Symbol.iterator](); !(t = n.next()).done;) {
+                    var i = $traceurRuntime.assertObject(t.value),
                         o = i.abstract,
                         a = i.$constructor,
                         s = i.build;
                     switch (s) {
                     case "singleton":
-                        t.bindShared(o, function (e) {
-                            return new a(e)
+                        e.bindShared(o, function (t) {
+                            return new a(t)
                         })
                     }
                 }
             }
-        }, {}, r), t.exports = n
+        }, {}, r), e.exports = n
     },
     {
-        "Wildcat.Support.ServiceProvider": 32,
-        "Wildcat.View.View": 36
+        "Wildcat.Support.ServiceProvider": 36,
+        "Wildcat.View.View": 40
     }],
-    38: [function (e, t) {
+    42: [function (t, e) {
         function r() {
             this._events = this._events || {}, this._maxListeners = this._maxListeners || void 0
         }
-        function n(e) {
-            return "function" == typeof e
+        function n(t) {
+            return "function" == typeof t
         }
-        function i(e) {
-            return "number" == typeof e
+        function i(t) {
+            return "number" == typeof t
         }
-        function o(e) {
-            return "object" == typeof e && null !== e
+        function o(t) {
+            return "object" == typeof t && null !== t
         }
-        function a(e) {
-            return void 0 === e
+        function a(t) {
+            return void 0 === t
         }
-        t.exports = r, r.EventEmitter = r, r.prototype._events = void 0, r.prototype._maxListeners = void 0, r.defaultMaxListeners = 10, r.prototype.setMaxListeners = function (e) {
-            if (!i(e) || 0 > e || isNaN(e)) throw TypeError("n must be a positive number");
-            return this._maxListeners = e, this
-        }, r.prototype.emit = function (e) {
-            var t, r, i, s, u, c;
-            if (this._events || (this._events = {}), "error" === e && (!this._events.error || o(this._events.error) && !this._events.error.length)) {
-                if (t = arguments[1], t instanceof Error) throw t;
+        e.exports = r, r.EventEmitter = r, r.prototype._events = void 0, r.prototype._maxListeners = void 0, r.defaultMaxListeners = 10, r.prototype.setMaxListeners = function (t) {
+            if (!i(t) || 0 > t || isNaN(t)) throw TypeError("n must be a positive number");
+            return this._maxListeners = t, this
+        }, r.prototype.emit = function (t) {
+            var e, r, i, s, u, c;
+            if (this._events || (this._events = {}), "error" === t && (!this._events.error || o(this._events.error) && !this._events.error.length)) {
+                if (e = arguments[1], e instanceof Error) throw e;
                 throw TypeError('Uncaught, unspecified "error" event.')
             }
-            if (r = this._events[e], a(r)) return !1;
+            if (r = this._events[t], a(r)) return !1;
             if (n(r)) switch (arguments.length) {
             case 1:
                 r.call(this);
@@ -1221,78 +1385,78 @@ function e(t, r, n) {
                 for (c = r.slice(), i = c.length, u = 0; i > u; u++) c[u].apply(this, s)
             }
             return !0
-        }, r.prototype.addListener = function (e, t) {
+        }, r.prototype.addListener = function (t, e) {
             var i;
-            if (!n(t)) throw TypeError("listener must be a function");
-            if (this._events || (this._events = {}), this._events.newListener && this.emit("newListener", e, n(t.listener) ? t.listener : t), this._events[e] ? o(this._events[e]) ? this._events[e].push(t) : this._events[e] = [this._events[e], t] : this._events[e] = t, o(this._events[e]) && !this._events[e].warned) {
+            if (!n(e)) throw TypeError("listener must be a function");
+            if (this._events || (this._events = {}), this._events.newListener && this.emit("newListener", t, n(e.listener) ? e.listener : e), this._events[t] ? o(this._events[t]) ? this._events[t].push(e) : this._events[t] = [this._events[t], e] : this._events[t] = e, o(this._events[t]) && !this._events[t].warned) {
                 var i;
-                i = a(this._maxListeners) ? r.defaultMaxListeners : this._maxListeners, i && i > 0 && this._events[e].length > i && (this._events[e].warned = !0, console.error("(node) warning: possible EventEmitter memory leak detected. %d listeners added. Use emitter.setMaxListeners() to increase limit.", this._events[e].length), "function" == typeof console.trace && console.trace())
+                i = a(this._maxListeners) ? r.defaultMaxListeners : this._maxListeners, i && i > 0 && this._events[t].length > i && (this._events[t].warned = !0, console.error("(node) warning: possible EventEmitter memory leak detected. %d listeners added. Use emitter.setMaxListeners() to increase limit.", this._events[t].length), "function" == typeof console.trace && console.trace())
             }
             return this
-        }, r.prototype.on = r.prototype.addListener, r.prototype.once = function (e, t) {
+        }, r.prototype.on = r.prototype.addListener, r.prototype.once = function (t, e) {
             function r() {
-                this.removeListener(e, r), i || (i = !0, t.apply(this, arguments))
+                this.removeListener(t, r), i || (i = !0, e.apply(this, arguments))
             }
-            if (!n(t)) throw TypeError("listener must be a function");
+            if (!n(e)) throw TypeError("listener must be a function");
             var i = !1;
-            return r.listener = t, this.on(e, r), this
-        }, r.prototype.removeListener = function (e, t) {
+            return r.listener = e, this.on(t, r), this
+        }, r.prototype.removeListener = function (t, e) {
             var r, i, a, s;
-            if (!n(t)) throw TypeError("listener must be a function");
-            if (!this._events || !this._events[e]) return this;
-            if (r = this._events[e], a = r.length, i = -1, r === t || n(r.listener) && r.listener === t) delete this._events[e], this._events.removeListener && this.emit("removeListener", e, t);
+            if (!n(e)) throw TypeError("listener must be a function");
+            if (!this._events || !this._events[t]) return this;
+            if (r = this._events[t], a = r.length, i = -1, r === e || n(r.listener) && r.listener === e) delete this._events[t], this._events.removeListener && this.emit("removeListener", t, e);
             else if (o(r)) {
-                for (s = a; s-- > 0;) if (r[s] === t || r[s].listener && r[s].listener === t) {
+                for (s = a; s-- > 0;) if (r[s] === e || r[s].listener && r[s].listener === e) {
                     i = s;
                     break
                 }
                 if (0 > i) return this;
-                1 === r.length ? (r.length = 0, delete this._events[e]) : r.splice(i, 1), this._events.removeListener && this.emit("removeListener", e, t)
+                1 === r.length ? (r.length = 0, delete this._events[t]) : r.splice(i, 1), this._events.removeListener && this.emit("removeListener", t, e)
             }
             return this
-        }, r.prototype.removeAllListeners = function (e) {
-            var t, r;
+        }, r.prototype.removeAllListeners = function (t) {
+            var e, r;
             if (!this._events) return this;
-            if (!this._events.removeListener) return 0 === arguments.length ? this._events = {} : this._events[e] && delete this._events[e], this;
+            if (!this._events.removeListener) return 0 === arguments.length ? this._events = {} : this._events[t] && delete this._events[t], this;
             if (0 === arguments.length) {
-                for (t in this._events)"removeListener" !== t && this.removeAllListeners(t);
+                for (e in this._events)"removeListener" !== e && this.removeAllListeners(e);
                 return this.removeAllListeners("removeListener"), this._events = {}, this
             }
-            if (r = this._events[e], n(r)) this.removeListener(e, r);
-            else for (; r.length;) this.removeListener(e, r[r.length - 1]);
-            return delete this._events[e], this
-        }, r.prototype.listeners = function (e) {
-            var t;
-            return t = this._events && this._events[e] ? n(this._events[e]) ? [this._events[e]] : this._events[e].slice() : []
-        }, r.listenerCount = function (e, t) {
+            if (r = this._events[t], n(r)) this.removeListener(t, r);
+            else for (; r.length;) this.removeListener(t, r[r.length - 1]);
+            return delete this._events[t], this
+        }, r.prototype.listeners = function (t) {
+            var e;
+            return e = this._events && this._events[t] ? n(this._events[t]) ? [this._events[t]] : this._events[t].slice() : []
+        }, r.listenerCount = function (t, e) {
             var r;
-            return r = e._events && e._events[t] ? n(e._events[t]) ? 1 : e._events[t].length : 0
+            return r = t._events && t._events[e] ? n(t._events[e]) ? 1 : t._events[e].length : 0
         }
     },
     {}],
-    39: [function (e, t) {
+    43: [function (t, e) {
         function r() {}
-        var n = t.exports = {};
+        var n = e.exports = {};
         n.nextTick = function () {
-            var e = "undefined" != typeof window && window.setImmediate,
-                t = "undefined" != typeof window && window.postMessage && window.addEventListener;
-            if (e) return function (e) {
-                return window.setImmediate(e)
+            var t = "undefined" != typeof window && window.setImmediate,
+                e = "undefined" != typeof window && window.postMessage && window.addEventListener;
+            if (t) return function (t) {
+                return window.setImmediate(t)
             };
-            if (t) {
+            if (e) {
                 var r = [];
-                return window.addEventListener("message", function (e) {
-                    var t = e.source;
-                    if ((t === window || null === t) && "process-tick" === e.data && (e.stopPropagation(), r.length > 0)) {
+                return window.addEventListener("message", function (t) {
+                    var e = t.source;
+                    if ((e === window || null === e) && "process-tick" === t.data && (t.stopPropagation(), r.length > 0)) {
                         var n = r.shift();
                         n()
                     }
-                }, !0), function (e) {
-                    r.push(e), window.postMessage("process-tick", "*")
+                }, !0), function (t) {
+                    r.push(t), window.postMessage("process-tick", "*")
                 }
             }
-            return function (e) {
-                setTimeout(e, 0)
+            return function (t) {
+                setTimeout(t, 0)
             }
         }(), n.title = "browser", n.browser = !0, n.env = {}, n.argv = [], n.on = r, n.addListener = r, n.once = r, n.off = r, n.removeListener = r, n.removeAllListeners = r, n.emit = r, n.binding = function () {
             throw new Error("process.binding is not supported")
@@ -1303,17 +1467,17 @@ function e(t, r, n) {
         }
     },
     {}],
-    40: [function (e) {
-        (function (e, t) {
+    44: [function (t) {
+        (function (t, e) {
             !
-            function (e) {
+            function (t) {
                 "use strict";
 
-                function t(e) {
+                function e(t) {
                     return {
                         configurable: !0,
                         enumerable: !1,
-                        value: e,
+                        value: t,
                         writable: !0
                     }
                 }
@@ -1321,144 +1485,144 @@ function e(t, r, n) {
                     return "__$" + Math.floor(1e9 * Math.random()) + "$" + ++G + "$__"
                 }
                 function n() {
-                    var e = r();
-                    return Q[e] = !0, e
+                    var t = r();
+                    return Q[t] = !0, t
                 }
-                function i(e) {
-                    return "object" == typeof e && e instanceof s
+                function i(t) {
+                    return "object" == typeof t && t instanceof s
                 }
-                function o(e) {
-                    return i(e) ? "symbol" : typeof e
+                function o(t) {
+                    return i(t) ? "symbol" : typeof t
                 }
-                function a(e) {
-                    var t = new s(e);
-                    if (!(this instanceof a)) return t;
+                function a(t) {
+                    var e = new s(t);
+                    if (!(this instanceof a)) return e;
                     throw new TypeError("Symbol cannot be new'ed")
                 }
-                function s(e) {
-                    var t = r();
+                function s(t) {
+                    var e = r();
                     k(this, B, {
                         value: this
                     }), k(this, H, {
-                        value: t
-                    }), k(this, U, {
                         value: e
-                    }), c(this), z[t] = this
+                    }), k(this, U, {
+                        value: t
+                    }), c(this), z[e] = this
                 }
-                function u(e) {
-                    var t = e[q];
-                    return t && t.self === e ? t : V(e) ? (Z.hash.value = X++, Z.self.value = e, K.value = P(null, Z), k(e, q, K), K.value) : void 0
+                function u(t) {
+                    var e = t[q];
+                    return e && e.self === t ? e : V(t) ? (Z.hash.value = X++, Z.self.value = t, K.value = P(null, Z), k(t, q, K), K.value) : void 0
                 }
-                function c(e) {
-                    return u(e), W.apply(this, arguments)
+                function c(t) {
+                    return u(t), W.apply(this, arguments)
                 }
-                function l(e) {
-                    return u(e), N.apply(this, arguments)
+                function l(t) {
+                    return u(t), N.apply(this, arguments)
                 }
-                function f(e) {
-                    return u(e), F.apply(this, arguments)
+                function f(t) {
+                    return u(t), F.apply(this, arguments)
                 }
-                function h(e) {
-                    return i(e) ? e[H] : e
+                function h(t) {
+                    return i(t) ? t[H] : t
                 }
-                function p(e) {
-                    for (var t = [], r = I(e), n = 0; n < r.length; n++) {
+                function p(t) {
+                    for (var e = [], r = I(t), n = 0; n < r.length; n++) {
                         var i = r[n];
-                        z[i] || Q[i] || t.push(i)
+                        z[i] || Q[i] || e.push(i)
                     }
-                    return t
+                    return e
                 }
-                function d(e, t) {
-                    return A(e, h(t))
+                function d(t, e) {
+                    return A(t, h(e))
                 }
-                function v(e) {
-                    for (var t = [], r = I(e), n = 0; n < r.length; n++) {
+                function v(t) {
+                    for (var e = [], r = I(t), n = 0; n < r.length; n++) {
                         var i = z[r[n]];
-                        i && t.push(i)
+                        i && e.push(i)
                     }
-                    return t
+                    return e
                 }
-                function m(e) {
-                    return M.call(this, h(e))
+                function m(t) {
+                    return M.call(this, h(t))
                 }
-                function g(t) {
-                    return e.traceur && e.traceur.options[t]
+                function g(e) {
+                    return t.traceur && t.traceur.options[e]
                 }
-                function b(e, t, r) {
+                function b(t, e, r) {
                     var n, o;
-                    return i(t) && (n = t, t = t[H]), e[t] = r, n && (o = A(e, t)) && k(e, t, {
+                    return i(e) && (n = e, e = e[H]), t[e] = r, n && (o = A(t, e)) && k(t, e, {
                         enumerable: !1
                     }), r
                 }
-                function y(e, t, r) {
-                    return i(t) && (r.enumerable && (r = P(r, {
+                function y(t, e, r) {
+                    return i(e) && (r.enumerable && (r = P(r, {
                         enumerable: {
                             value: !1
                         }
-                    })), t = t[H]), k(e, t, r), e
+                    })), e = e[H]), k(t, e, r), t
                 }
-                function _(e) {
-                    k(e, "defineProperty", {
+                function _(t) {
+                    k(t, "defineProperty", {
                         value: y
-                    }), k(e, "getOwnPropertyNames", {
+                    }), k(t, "getOwnPropertyNames", {
                         value: p
-                    }), k(e, "getOwnPropertyDescriptor", {
+                    }), k(t, "getOwnPropertyDescriptor", {
                         value: d
-                    }), k(e.prototype, "hasOwnProperty", {
+                    }), k(t.prototype, "hasOwnProperty", {
                         value: m
-                    }), k(e, "freeze", {
+                    }), k(t, "freeze", {
                         value: c
-                    }), k(e, "preventExtensions", {
+                    }), k(t, "preventExtensions", {
                         value: l
-                    }), k(e, "seal", {
+                    }), k(t, "seal", {
                         value: f
-                    }), e.getOwnPropertySymbols = v
+                    }), t.getOwnPropertySymbols = v
                 }
-                function w(e) {
-                    for (var t = 1; t < arguments.length; t++) for (var r = I(arguments[t]), n = 0; n < r.length; n++) {
+                function w(t) {
+                    for (var e = 1; e < arguments.length; e++) for (var r = I(arguments[e]), n = 0; n < r.length; n++) {
                         var i = r[n];
                         Q[i] || !
-                        function (t, r) {
-                            k(e, r, {
+                        function (e, r) {
+                            k(t, r, {
                                 get: function () {
-                                    return t[r]
+                                    return e[r]
                                 },
                                 enumerable: !0
                             })
-                        }(arguments[t], r[n])
+                        }(arguments[e], r[n])
                     }
-                    return e
+                    return t
                 }
-                function O(e) {
-                    return null != e && ("object" == typeof e || "function" == typeof e)
+                function O(t) {
+                    return null != t && ("object" == typeof t || "function" == typeof t)
                 }
-                function j(e) {
-                    if (null == e) throw E();
-                    return x(e)
+                function j(t) {
+                    if (null == t) throw x();
+                    return C(t)
                 }
-                function S(e) {
-                    if (!O(e)) throw E(e + " is not an Object");
-                    return e
+                function S(t) {
+                    if (!O(t)) throw x(t + " is not an Object");
+                    return t
                 }
-                function R(e) {
-                    if (null == e) throw new TypeError("Value cannot be converted to an Object");
-                    return e
+                function R(t) {
+                    if (null == t) throw new TypeError("Value cannot be converted to an Object");
+                    return t
                 }
-                function C(e) {
-                    e.Symbol = a, e.Reflect = e.Reflect || {}, e.Reflect.global = e.Reflect.global || e, _(e.Object)
+                function E(t) {
+                    t.Symbol = a, t.Reflect = t.Reflect || {}, t.Reflect.global = t.Reflect.global || t, _(t.Object)
                 }
-                if (!e.$traceurRuntime) {
-                    var x = Object,
-                        E = TypeError,
-                        P = x.create,
-                        $ = x.defineProperties,
-                        k = x.defineProperty,
-                        W = x.freeze,
-                        A = x.getOwnPropertyDescriptor,
-                        I = x.getOwnPropertyNames,
-                        T = x.keys,
-                        M = x.prototype.hasOwnProperty,
-                        N = (x.prototype.toString, Object.preventExtensions),
+                if (!t.$traceurRuntime) {
+                    var C = Object,
+                        x = TypeError,
+                        P = C.create,
+                        $ = C.defineProperties,
+                        k = C.defineProperty,
+                        W = C.freeze,
+                        A = C.getOwnPropertyDescriptor,
+                        I = C.getOwnPropertyNames,
+                        T = C.keys,
+                        M = C.prototype.hasOwnProperty,
+                        N = (C.prototype.toString, Object.preventExtensions),
                         F = Object.seal,
                         V = Object.isExtensible,
                         L = {
@@ -1468,24 +1632,24 @@ function e(t, r, n) {
                             number: function () {},
                             "boolean": function () {}
                         },
-                        D = t,
+                        D = e,
                         G = 0,
                         H = r(),
                         U = r(),
                         B = r(),
                         z = P(null),
                         Q = P(null);
-                    k(a.prototype, "constructor", t(a)), k(a.prototype, "toString", D(function () {
-                        var e = this[B];
-                        if (!g("symbols")) return e[H];
-                        if (!e) throw TypeError("Conversion from symbol to string");
-                        var t = e[U];
-                        return void 0 === t && (t = ""), "Symbol(" + t + ")"
+                    k(a.prototype, "constructor", e(a)), k(a.prototype, "toString", D(function () {
+                        var t = this[B];
+                        if (!g("symbols")) return t[H];
+                        if (!t) throw TypeError("Conversion from symbol to string");
+                        var e = t[U];
+                        return void 0 === e && (e = ""), "Symbol(" + e + ")"
                     })), k(a.prototype, "valueOf", D(function () {
-                        var e = this[B];
-                        if (!e) throw TypeError("Conversion from symbol to string");
-                        return g("symbols") ? e : e[H]
-                    })), k(s.prototype, "constructor", t(a)), k(s.prototype, "toString", {
+                        var t = this[B];
+                        if (!t) throw TypeError("Conversion from symbol to string");
+                        return g("symbols") ? t : t[H]
+                    })), k(s.prototype, "constructor", e(a)), k(s.prototype, "toString", {
                         value: a.prototype.toString,
                         enumerable: !1
                     }), k(s.prototype, "valueOf", {
@@ -1505,22 +1669,22 @@ function e(t, r, n) {
                             }
                         },
                         X = 0;
-                    a.iterator = a(), c(s.prototype), C(e), e.$traceurRuntime = {
+                    a.iterator = a(), c(s.prototype), E(t), t.$traceurRuntime = {
                         assertObject: S,
                         createPrivateName: n,
                         exportStar: w,
                         getOwnHashObject: u,
                         privateNames: Q,
                         setProperty: b,
-                        setupGlobals: C,
+                        setupGlobals: E,
                         toObject: j,
                         isObject: O,
                         toProperty: h,
                         type: L,
                         "typeof": o,
                         checkObjectCoercible: R,
-                        hasOwnProperty: function (e, t) {
-                            return m.call(e, t)
+                        hasOwnProperty: function (t, e) {
+                            return m.call(t, e)
                         },
                         defineProperties: $,
                         defineProperty: k,
@@ -1529,71 +1693,71 @@ function e(t, r, n) {
                         keys: T
                     }
                 }
-            }("undefined" != typeof t ? t : this), function () {
+            }("undefined" != typeof e ? e : this), function () {
                 "use strict";
 
-                function e() {
-                    for (var e, t = [], r = 0, n = 0; n < arguments.length; n++) {
+                function t() {
+                    for (var t, e = [], r = 0, n = 0; n < arguments.length; n++) {
                         var i = $traceurRuntime.checkObjectCoercible(arguments[n]);
                         if ("function" != typeof i[$traceurRuntime.toProperty(Symbol.iterator)]) throw new TypeError("Cannot spread non-iterable object.");
-                        for (var o = i[$traceurRuntime.toProperty(Symbol.iterator)](); !(e = o.next()).done;) t[r++] = e.value
+                        for (var o = i[$traceurRuntime.toProperty(Symbol.iterator)](); !(t = o.next()).done;) e[r++] = t.value
                     }
-                    return t
+                    return e
                 }
-                $traceurRuntime.spread = e
+                $traceurRuntime.spread = t
             }(), function () {
                 "use strict";
 
-                function e(e, t) {
-                    var r = v(e);
+                function t(t, e) {
+                    var r = v(t);
                     do {
-                        var n = p(r, t);
+                        var n = p(r, e);
                         if (n) return n;
                         r = v(r)
                     } while (r);
                     return void 0
                 }
-                function t(e, t, n, i) {
-                    return r(e, t, n).apply(e, i)
+                function e(t, e, n, i) {
+                    return r(t, e, n).apply(t, i)
                 }
-                function r(t, r, n) {
-                    var i = e(r, n);
-                    return i ? i.get ? i.get.call(t) : i.value : void 0
+                function r(e, r, n) {
+                    var i = t(r, n);
+                    return i ? i.get ? i.get.call(e) : i.value : void 0
                 }
-                function n(t, r, n, i) {
-                    var o = e(r, n);
-                    if (o && o.set) return o.set.call(t, i), i;
+                function n(e, r, n, i) {
+                    var o = t(r, n);
+                    if (o && o.set) return o.set.call(e, i), i;
                     throw c("super has no setter '" + n + "'.")
                 }
-                function i(e) {
-                    for (var t, r = {}, n = d(e), i = 0; i < n.length; i++) {
-                        var t = n[i];
-                        r[t] = p(e, t)
+                function i(t) {
+                    for (var e, r = {}, n = d(t), i = 0; i < n.length; i++) {
+                        var e = n[i];
+                        r[e] = p(t, e)
                     }
                     return r
                 }
-                function o(e, t, r, n) {
-                    return h(t, "constructor", {
-                        value: e,
+                function o(t, e, r, n) {
+                    return h(e, "constructor", {
+                        value: t,
                         configurable: !0,
                         enumerable: !1,
                         writable: !0
-                    }), arguments.length > 3 ? ("function" == typeof n && (e.__proto__ = n), e.prototype = l(a(n), i(t))) : e.prototype = t, h(e, "prototype", {
+                    }), arguments.length > 3 ? ("function" == typeof n && (t.__proto__ = n), t.prototype = l(a(n), i(e))) : t.prototype = e, h(t, "prototype", {
                         configurable: !1,
                         writable: !1
-                    }), f(e, i(r))
+                    }), f(t, i(r))
                 }
-                function a(e) {
-                    if ("function" == typeof e) {
-                        var t = e.prototype;
-                        if (u(t) === t || null === t) return e.prototype;
+                function a(t) {
+                    if ("function" == typeof t) {
+                        var e = t.prototype;
+                        if (u(e) === e || null === e) return t.prototype;
                         throw new c("super prototype must be an Object or null")
                     }
-                    if (null === e) return null;
+                    if (null === t) return null;
                     throw new c("Super expression must either be null or a function")
                 }
-                function s(e, r, n) {
-                    null !== v(r) && t(e, r, "constructor", n)
+                function s(t, r, n) {
+                    null !== v(r) && e(t, r, "constructor", n)
                 }
                 var u = Object,
                     c = TypeError,
@@ -1603,26 +1767,26 @@ function e(t, r, n) {
                     p = $traceurRuntime.getOwnPropertyDescriptor,
                     d = $traceurRuntime.getOwnPropertyNames,
                     v = Object.getPrototypeOf;
-                $traceurRuntime.createClass = o, $traceurRuntime.defaultSuperCall = s, $traceurRuntime.superCall = t, $traceurRuntime.superGet = r, $traceurRuntime.superSet = n
+                $traceurRuntime.createClass = o, $traceurRuntime.defaultSuperCall = s, $traceurRuntime.superCall = e, $traceurRuntime.superGet = r, $traceurRuntime.superSet = n
             }(), function () {
                 "use strict";
 
-                function e(e) {
+                function t(t) {
                     return {
                         configurable: !0,
                         enumerable: !1,
-                        value: e,
+                        value: t,
                         writable: !0
                     }
                 }
-                function t(e) {
-                    return new Error("Traceur compiler bug: invalid state in state machine: " + e)
+                function e(t) {
+                    return new Error("Traceur compiler bug: invalid state in state machine: " + t)
                 }
                 function r() {
                     this.state = 0, this.GState = g, this.storedException = void 0, this.finallyFallThrough = void 0, this.sent_ = void 0, this.returnValue = void 0, this.tryStack_ = []
                 }
-                function n(e, t, r, n) {
-                    switch (e.GState) {
+                function n(t, e, r, n) {
+                    switch (t.GState) {
                     case b:
                         throw new Error('"' + r + '" on executing generator');
                     case _:
@@ -1632,13 +1796,13 @@ function e(t, r, n) {
                         };
                         throw n;
                     case g:
-                        if ("throw" === r) throw e.GState = _, n;
+                        if ("throw" === r) throw t.GState = _, n;
                         if (void 0 !== n) throw m("Sent value to newborn generator");
                     case y:
-                        e.GState = b, e.action = r, e.sent = n;
-                        var i = t(e),
-                            o = i === e;
-                        return o && (i = e.returnValue), e.GState = o ? _ : y, {
+                        t.GState = b, t.action = r, t.sent = n;
+                        var i = e(t),
+                            o = i === t;
+                        return o && (i = t.returnValue), t.GState = o ? _ : y, {
                             value: i,
                             done: o
                         }
@@ -1646,49 +1810,49 @@ function e(t, r, n) {
                 }
                 function i() {}
                 function o() {}
-                function a(e, t, n) {
-                    var i = l(e, n),
+                function a(t, e, n) {
+                    var i = l(t, n),
                         o = new r,
-                        a = v(t.prototype);
+                        a = v(e.prototype);
                     return a[j] = o, a[S] = i, a
                 }
-                function s(e) {
-                    return e.prototype = v(o.prototype), e.__proto__ = o, e
+                function s(t) {
+                    return t.prototype = v(o.prototype), t.__proto__ = o, t
                 }
                 function u() {
                     r.call(this), this.err = void 0;
-                    var e = this;
-                    e.result = new Promise(function (t, r) {
-                        e.resolve = t, e.reject = r
+                    var t = this;
+                    t.result = new Promise(function (e, r) {
+                        t.resolve = e, t.reject = r
                     })
                 }
-                function c(e, t) {
-                    var r = l(e, t),
+                function c(t, e) {
+                    var r = l(t, e),
                         n = new u;
-                    return n.createCallback = function (e) {
-                        return function (t) {
-                            n.state = e, n.value = t, r(n)
+                    return n.createCallback = function (t) {
+                        return function (e) {
+                            n.state = t, n.value = e, r(n)
                         }
-                    }, n.errback = function (e) {
-                        f(n, e), r(n)
+                    }, n.errback = function (t) {
+                        f(n, t), r(n)
                     }, r(n), n.result
                 }
-                function l(e, t) {
+                function l(t, e) {
                     return function (r) {
                         for (;;) try {
-                            return e.call(t, r)
+                            return t.call(e, r)
                         } catch (n) {
                             f(r, n)
                         }
                     }
                 }
-                function f(e, t) {
-                    e.storedException = t;
-                    var r = e.tryStack_[e.tryStack_.length - 1];
-                    return r ? (e.state = void 0 !== r.
+                function f(t, e) {
+                    t.storedException = e;
+                    var r = t.tryStack_[t.tryStack_.length - 1];
+                    return r ? (t.state = void 0 !== r.
                     catch ? r.
                     catch : r.
-                    finally, void(void 0 !== r.finallyFallThrough && (e.finallyFallThrough = r.finallyFallThrough))) : void e.handleException(t)
+                    finally, void(void 0 !== r.finallyFallThrough && (t.finallyFallThrough = r.finallyFallThrough))) : void t.handleException(e)
                 }
                 var h = $traceurRuntime.createPrivateName,
                     p = $traceurRuntime.defineProperties,
@@ -1702,8 +1866,8 @@ function e(t, r, n) {
                     w = -2,
                     O = -3;
                 r.prototype = {
-                    pushTry: function (e, t) {
-                        if (null !== t) {
+                    pushTry: function (t, e) {
+                        if (null !== e) {
                             for (var r = null, n = this.tryStack_.length - 1; n >= 0; n--) if (void 0 !== this.tryStack_[n].
                             catch) {
                                 r = this.tryStack_[n].
@@ -1711,12 +1875,12 @@ function e(t, r, n) {
                                 break
                             }
                             null === r && (r = O), this.tryStack_.push({
-                                "finally": t,
+                                "finally": e,
                                 finallyFallThrough: r
                             })
                         }
-                        null !== e && this.tryStack_.push({
-                            "catch": e
+                        null !== t && this.tryStack_.push({
+                            "catch": t
                         })
                     },
                     popTry: function () {
@@ -1725,8 +1889,8 @@ function e(t, r, n) {
                     get sent() {
                         return this.maybeThrow(), this.sent_
                     },
-                    set sent(e) {
-                        this.sent_ = e
+                    set sent(t) {
+                        this.sent_ = t
                     },
                     get sentIgnoreThrow() {
                         return this.sent_
@@ -1741,22 +1905,22 @@ function e(t, r, n) {
                         case O:
                             throw this.storedException;
                         default:
-                            throw t(this.state)
+                            throw e(this.state)
                         }
                     },
-                    handleException: function (e) {
-                        throw this.GState = _, this.state = w, e
+                    handleException: function (t) {
+                        throw this.GState = _, this.state = w, t
                     }
                 };
                 var j = h(),
                     S = h();
-                i.prototype = o, d(o, "constructor", e(i)), o.prototype = {
+                i.prototype = o, d(o, "constructor", t(i)), o.prototype = {
                     constructor: o,
-                    next: function (e) {
-                        return n(this[j], this[S], "next", e)
+                    next: function (t) {
+                        return n(this[j], this[S], "next", t)
                     },
-                    "throw": function (e) {
-                        return n(this[j], this[S], "throw", e)
+                    "throw": function (t) {
+                        return n(this[j], this[S], "throw", t)
                     }
                 }, p(o.prototype, {
                     constructor: {
@@ -1768,7 +1932,7 @@ function e(t, r, n) {
                     "throw": {
                         enumerable: !1
                     }
-                }), Object.defineProperty(o.prototype, Symbol.iterator, e(function () {
+                }), Object.defineProperty(o.prototype, Symbol.iterator, t(function () {
                     return this
                 })), u.prototype = v(r.prototype), u.prototype.end = function () {
                     switch (this.state) {
@@ -1779,22 +1943,22 @@ function e(t, r, n) {
                         this.reject(this.storedException);
                         break;
                     default:
-                        this.reject(t(this.state))
+                        this.reject(e(this.state))
                     }
                 }, u.prototype.handleException = function () {
                     this.state = O
                 }, $traceurRuntime.asyncWrap = c, $traceurRuntime.initGeneratorFunction = s, $traceurRuntime.createGeneratorInstance = a
             }(), function () {
-                function e(e, t, r, n, i, o, a) {
+                function t(t, e, r, n, i, o, a) {
                     var s = [];
-                    return e && s.push(e, ":"), r && (s.push("//"), t && s.push(t, "@"), s.push(r), n && s.push(":", n)), i && s.push(i), o && s.push("?", o), a && s.push("#", a), s.join("")
+                    return t && s.push(t, ":"), r && (s.push("//"), e && s.push(e, "@"), s.push(r), n && s.push(":", n)), i && s.push(i), o && s.push("?", o), a && s.push("#", a), s.join("")
                 }
-                function t(e) {
-                    return e.match(s)
+                function e(t) {
+                    return t.match(s)
                 }
-                function r(e) {
-                    if ("/" === e) return "/";
-                    for (var t = "/" === e[0] ? "/" : "", r = "/" === e.slice(-1) ? "/" : "", n = e.split("/"), i = [], o = 0, a = 0; a < n.length; a++) {
+                function r(t) {
+                    if ("/" === t) return "/";
+                    for (var e = "/" === t[0] ? "/" : "", r = "/" === t.slice(-1) ? "/" : "", n = t.split("/"), i = [], o = 0, a = 0; a < n.length; a++) {
                         var s = n[a];
                         switch (s) {
                         case "":
@@ -1807,23 +1971,23 @@ function e(t, r, n) {
                             i.push(s)
                         }
                     }
-                    if (!t) {
+                    if (!e) {
                         for (; o-- > 0;) i.unshift("..");
                         0 === i.length && i.push(".")
                     }
-                    return t + i.join("/") + r
+                    return e + i.join("/") + r
                 }
-                function n(t) {
-                    var n = t[u.PATH] || "";
-                    return n = r(n), t[u.PATH] = n, e(t[u.SCHEME], t[u.USER_INFO], t[u.DOMAIN], t[u.PORT], t[u.PATH], t[u.QUERY_DATA], t[u.FRAGMENT])
+                function n(e) {
+                    var n = e[u.PATH] || "";
+                    return n = r(n), e[u.PATH] = n, t(e[u.SCHEME], e[u.USER_INFO], e[u.DOMAIN], e[u.PORT], e[u.PATH], e[u.QUERY_DATA], e[u.FRAGMENT])
                 }
-                function i(e) {
-                    var r = t(e);
+                function i(t) {
+                    var r = e(t);
                     return n(r)
                 }
-                function o(e, r) {
-                    var i = t(r),
-                        o = t(e);
+                function o(t, r) {
+                    var i = e(r),
+                        o = e(t);
                     if (i[u.SCHEME]) return n(i);
                     i[u.SCHEME] = o[u.SCHEME];
                     for (var a = u.SCHEME; a <= u.PORT; a++) i[a] || (i[a] = o[a]);
@@ -1832,10 +1996,10 @@ function e(t, r, n) {
                         c = s.lastIndexOf("/");
                     return s = s.slice(0, c + 1) + i[u.PATH], i[u.PATH] = s, n(i)
                 }
-                function a(e) {
-                    if (!e) return !1;
-                    if ("/" === e[0]) return !0;
-                    var r = t(e);
+                function a(t) {
+                    if (!t) return !1;
+                    if ("/" === t[0]) return !0;
+                    var r = e(t);
                     return r[u.SCHEME] ? !0 : !1
                 }
                 var s = new RegExp("^(?:([^:/?#.]+):)?(?://(?:([^/?#]*)@)?([\\w\\d\\-\\u0100-\\uffff.%]*)(?::([0-9]+))?)?([^?#]+)?(?:\\?([^#]*))?(?:#(.*))?$"),
@@ -1849,25 +2013,25 @@ function e(t, r, n) {
                         FRAGMENT: 7
                     };
                 $traceurRuntime.canonicalizeUrl = i, $traceurRuntime.isAbsolute = a, $traceurRuntime.removeDotSegments = r, $traceurRuntime.resolveUrl = o
-            }(), function (e) {
+            }(), function (t) {
                 "use strict";
 
-                function t(e) {
-                    if (e) {
-                        var t = v.normalize(e);
-                        return u[t]
+                function e(t) {
+                    if (t) {
+                        var e = v.normalize(t);
+                        return u[e]
                     }
                 }
-                function r(e) {
-                    var t = arguments[1],
+                function r(t) {
+                    var e = arguments[1],
                         r = Object.create(null);
-                    return Object.getOwnPropertyNames(e).forEach(function (n) {
+                    return Object.getOwnPropertyNames(t).forEach(function (n) {
                         var i, o;
-                        if (t === d) {
-                            var a = Object.getOwnPropertyDescriptor(e, n);
+                        if (e === d) {
+                            var a = Object.getOwnPropertyDescriptor(t, n);
                             a.get && (i = a.get)
                         }
-                        i || (o = e[n], i = function () {
+                        i || (o = t[n], i = function () {
                             return o
                         }), Object.defineProperty(r, n, {
                             get: i,
@@ -1880,138 +2044,138 @@ function e(t, r, n) {
                     a = i.resolveUrl,
                     s = i.isAbsolute,
                     u = Object.create(null);
-                n = e.location && e.location.href ? a(e.location.href, "./") : "";
-                var c = function (e, t) {
-                    this.url = e, this.value_ = t
+                n = t.location && t.location.href ? a(t.location.href, "./") : "";
+                var c = function (t, e) {
+                    this.url = t, this.value_ = e
                 };
                 $traceurRuntime.createClass(c, {}, {});
-                var l = function (e, t) {
-                    this.message = this.constructor.name + (t ? ": '" + t + "'" : "") + " in " + e
+                var l = function (t, e) {
+                    this.message = this.constructor.name + (e ? ": '" + e + "'" : "") + " in " + t
                 };
                 $traceurRuntime.createClass(l, {
-                    loadedBy: function (e) {
-                        this.message += "\n loaded by " + e
+                    loadedBy: function (t) {
+                        this.message += "\n loaded by " + t
                     }
                 }, {}, Error);
-                var f = function (e, t) {
-                    $traceurRuntime.superCall(this, h.prototype, "constructor", [e, null]), this.func = t
+                var f = function (t, e) {
+                    $traceurRuntime.superCall(this, h.prototype, "constructor", [t, null]), this.func = e
                 },
                     h = f;
                 $traceurRuntime.createClass(f, {
                     getUncoatedModule: function () {
                         if (this.value_) return this.value_;
                         try {
-                            return this.value_ = this.func.call(e)
-                        } catch (t) {
-                            if (t instanceof l) throw t.loadedBy(this.url), t;
-                            throw new l(this.url, t)
+                            return this.value_ = this.func.call(t)
+                        } catch (e) {
+                            if (e instanceof l) throw e.loadedBy(this.url), e;
+                            throw new l(this.url, e)
                         }
                     }
                 }, {}, c);
                 var p = Object.create(null),
                     d = {},
                     v = {
-                        normalize: function (e, t) {
-                            if ("string" != typeof e) throw new TypeError("module name must be a string, not " + typeof e);
-                            if (s(e)) return o(e);
-                            if (/[^\.]\/\.\.\//.test(e)) throw new Error("module name embeds /../: " + e);
-                            return "." === e[0] && t ? a(t, e) : o(e)
+                        normalize: function (t, e) {
+                            if ("string" != typeof t) throw new TypeError("module name must be a string, not " + typeof t);
+                            if (s(t)) return o(t);
+                            if (/[^\.]\/\.\.\//.test(t)) throw new Error("module name embeds /../: " + t);
+                            return "." === t[0] && e ? a(e, t) : o(t)
                         },
-                        get: function (e) {
-                            var n = t(e);
+                        get: function (t) {
+                            var n = e(t);
                             if (!n) return void 0;
                             var i = p[n.url];
                             return i ? i : (i = r(n.getUncoatedModule(), d), p[n.url] = i)
                         },
-                        set: function (e, t) {
-                            e = String(e), u[e] = new f(e, function () {
-                                return t
-                            }), p[e] = t
+                        set: function (t, e) {
+                            t = String(t), u[t] = new f(t, function () {
+                                return e
+                            }), p[t] = e
                         },
                         get baseURL() {
                             return n
                         },
-                        set baseURL(e) {
-                            n = String(e)
+                        set baseURL(t) {
+                            n = String(t)
                         },
-                        registerModule: function (e, t) {
-                            var r = v.normalize(e);
+                        registerModule: function (t, e) {
+                            var r = v.normalize(t);
                             if (u[r]) throw new Error("duplicate module named " + r);
-                            u[r] = new f(r, t)
+                            u[r] = new f(r, e)
                         },
                         bundleStore: Object.create(null),
-                        register: function (e, t, r) {
-                            t && (t.length || r.length) ? this.bundleStore[e] = {
-                                deps: t,
+                        register: function (t, e, r) {
+                            e && (e.length || r.length) ? this.bundleStore[t] = {
+                                deps: e,
                                 execute: function () {
-                                    var e = arguments,
+                                    var t = arguments,
                                         n = {};
-                                    t.forEach(function (t, r) {
-                                        return n[t] = e[r]
+                                    e.forEach(function (e, r) {
+                                        return n[e] = t[r]
                                     });
                                     var i = r.call(this, n);
                                     return i.execute.call(this), i.exports
                                 }
-                            } : this.registerModule(e, r)
+                            } : this.registerModule(t, r)
                         },
-                        getAnonymousModule: function (t) {
-                            return new r(t.call(e), d)
+                        getAnonymousModule: function (e) {
+                            return new r(e.call(t), d)
                         },
-                        getForTesting: function (e) {
-                            var t = this;
-                            return this.testingPrefix_ || Object.keys(p).some(function (e) {
-                                var r = /(traceur@[^\/]*\/)/.exec(e);
-                                return r ? (t.testingPrefix_ = r[1], !0) : void 0
-                            }), this.get(this.testingPrefix_ + e)
+                        getForTesting: function (t) {
+                            var e = this;
+                            return this.testingPrefix_ || Object.keys(p).some(function (t) {
+                                var r = /(traceur@[^\/]*\/)/.exec(t);
+                                return r ? (e.testingPrefix_ = r[1], !0) : void 0
+                            }), this.get(this.testingPrefix_ + t)
                         }
                     };
                 v.set("@traceur/src/runtime/ModuleStore", new r({
                     ModuleStore: v
                 }));
                 var m = $traceurRuntime.setupGlobals;
-                $traceurRuntime.setupGlobals = function (e) {
-                    m(e)
-                }, $traceurRuntime.ModuleStore = v, e.System = {
+                $traceurRuntime.setupGlobals = function (t) {
+                    m(t)
+                }, $traceurRuntime.ModuleStore = v, t.System = {
                     register: v.register.bind(v),
                     get: v.get,
                     set: v.set,
                     normalize: v.normalize
-                }, $traceurRuntime.getModuleImpl = function (e) {
-                    var r = t(e);
+                }, $traceurRuntime.getModuleImpl = function (t) {
+                    var r = e(t);
                     return r && r.getUncoatedModule()
                 }
-            }("undefined" != typeof t ? t : this), System.register("traceur-runtime@0.0.55/src/runtime/polyfills/utils", [], function () {
+            }("undefined" != typeof e ? e : this), System.register("traceur-runtime@0.0.55/src/runtime/polyfills/utils", [], function () {
                 "use strict";
 
-                function e(e) {
-                    return e >>> 0
+                function t(t) {
+                    return t >>> 0
                 }
-                function t(e) {
-                    return e && ("object" == typeof e || "function" == typeof e)
+                function e(t) {
+                    return t && ("object" == typeof t || "function" == typeof t)
                 }
-                function r(e) {
-                    return "function" == typeof e
+                function r(t) {
+                    return "function" == typeof t
                 }
-                function n(e) {
-                    return "number" == typeof e
+                function n(t) {
+                    return "number" == typeof t
                 }
-                function i(e) {
-                    return e = +e, h(e) ? 0 : 0 !== e && f(e) ? e > 0 ? l(e) : c(e) : e
+                function i(t) {
+                    return t = +t, h(t) ? 0 : 0 !== t && f(t) ? t > 0 ? l(t) : c(t) : t
                 }
-                function o(e) {
-                    var t = i(e);
-                    return 0 > t ? 0 : d(t, m)
+                function o(t) {
+                    var e = i(t);
+                    return 0 > e ? 0 : d(e, m)
                 }
-                function a(e) {
-                    return t(e) ? e[Symbol.iterator] : void 0
+                function a(t) {
+                    return e(t) ? t[Symbol.iterator] : void 0
                 }
-                function s(e) {
-                    return r(e)
+                function s(t) {
+                    return r(t)
                 }
-                function u(e, t) {
+                function u(t, e) {
                     return {
-                        value: e,
-                        done: t
+                        value: t,
+                        done: e
                     }
                 }
                 var c = Math.ceil,
@@ -2026,9 +2190,9 @@ function e(t, r, n) {
                     get toObject() {
                         return v
                     }, get toUint32() {
-                        return e
-                    }, get isObject() {
                         return t
+                    }, get isObject() {
+                        return e
                     }, get isCallable() {
                         return r
                     }, get isNumber() {
@@ -2048,52 +2212,52 @@ function e(t, r, n) {
             }), System.register("traceur-runtime@0.0.55/src/runtime/polyfills/Array", [], function () {
                 "use strict";
 
-                function e(e) {
-                    var t, r, n = arguments[1],
+                function t(t) {
+                    var e, r, n = arguments[1],
                         i = arguments[2],
                         o = this,
-                        c = f(e),
+                        c = f(t),
                         h = void 0 !== n,
                         p = 0;
                     if (h && !a(n)) throw TypeError();
                     if (u(c)) {
-                        t = s(o) ? new o : [];
+                        e = s(o) ? new o : [];
                         for (var d, v = c[Symbol.iterator](); !(d = v.next()).done;) {
                             var m = d.value;
-                            t[p] = h ? n.call(i, m, p) : m, p++
+                            e[p] = h ? n.call(i, m, p) : m, p++
                         }
-                        return t.length = p, t
+                        return e.length = p, e
                     }
-                    for (r = l(c.length), t = s(o) ? new o(r) : new Array(r); r > p; p++) t[p] = h ? "undefined" == typeof i ? n(c[p], p) : n.call(i, c[p], p) : c[p];
-                    return t.length = r, t
+                    for (r = l(c.length), e = s(o) ? new o(r) : new Array(r); r > p; p++) e[p] = h ? "undefined" == typeof i ? n(c[p], p) : n.call(i, c[p], p) : c[p];
+                    return e.length = r, e
                 }
-                function t(e) {
-                    var t = void 0 !== arguments[1] ? arguments[1] : 0,
+                function e(t) {
+                    var e = void 0 !== arguments[1] ? arguments[1] : 0,
                         r = arguments[2],
                         n = f(this),
                         i = l(n.length),
-                        o = c(t),
+                        o = c(e),
                         a = void 0 !== r ? c(r) : i;
-                    for (o = 0 > o ? Math.max(i + o, 0) : Math.min(o, i), a = 0 > a ? Math.max(i + a, 0) : Math.min(a, i); a > o;) n[o] = e, o++;
+                    for (o = 0 > o ? Math.max(i + o, 0) : Math.min(o, i), a = 0 > a ? Math.max(i + a, 0) : Math.min(a, i); a > o;) n[o] = t, o++;
                     return n
                 }
-                function r(e) {
-                    var t = arguments[1];
-                    return i(this, e, t)
+                function r(t) {
+                    var e = arguments[1];
+                    return i(this, t, e)
                 }
-                function n(e) {
-                    var t = arguments[1];
-                    return i(this, e, t, !0)
+                function n(t) {
+                    var e = arguments[1];
+                    return i(this, t, e, !0)
                 }
-                function i(e, t) {
+                function i(t, e) {
                     var r = arguments[2],
                         n = void 0 !== arguments[3] ? arguments[3] : !1,
-                        i = f(e),
+                        i = f(t),
                         o = l(i.length);
-                    if (!a(t)) throw TypeError();
+                    if (!a(e)) throw TypeError();
                     for (var s = 0; o > s; s++) if (s in i) {
                         var u = i[s];
-                        if (t.call(r, u, s, i)) return n ? s : u
+                        if (e.call(r, u, s, i)) return n ? s : u
                     }
                     return n ? -1 : void 0
                 }
@@ -2106,9 +2270,9 @@ function e(t, r, n) {
                     f = o.toObject;
                 return {
                     get from() {
-                        return e
-                    }, get fill() {
                         return t
+                    }, get fill() {
+                        return e
                     }, get find() {
                         return r
                     }, get findIndex() {
@@ -2118,19 +2282,19 @@ function e(t, r, n) {
             }), System.register("traceur-runtime@0.0.55/src/runtime/polyfills/ArrayIterator", [], function () {
                 "use strict";
 
-                function e(e, t) {
-                    var r = a(e),
+                function t(t, e) {
+                    var r = a(t),
                         n = new h;
-                    return n.iteratorObject_ = r, n.arrayIteratorNextIndex_ = 0, n.arrayIterationKind_ = t, n
+                    return n.iteratorObject_ = r, n.arrayIteratorNextIndex_ = 0, n.arrayIterationKind_ = e, n
                 }
-                function t() {
-                    return e(this, f)
+                function e() {
+                    return t(this, f)
                 }
                 function r() {
-                    return e(this, c)
+                    return t(this, c)
                 }
                 function n() {
-                    return e(this, l)
+                    return t(this, l)
                 }
                 var i, o = System.get("traceur-runtime@0.0.55/src/runtime/polyfills/utils"),
                     a = o.toObject,
@@ -2142,13 +2306,13 @@ function e(t, r, n) {
                     h = function () {};
                 return $traceurRuntime.createClass(h, (i = {}, Object.defineProperty(i, "next", {
                     value: function () {
-                        var e = a(this),
-                            t = e.iteratorObject_;
-                        if (!t) throw new TypeError("Object is not an ArrayIterator");
-                        var r = e.arrayIteratorNextIndex_,
-                            n = e.arrayIterationKind_,
-                            i = s(t.length);
-                        return r >= i ? (e.arrayIteratorNextIndex_ = 1 / 0, u(void 0, !0)) : (e.arrayIteratorNextIndex_ = r + 1, n == l ? u(t[r], !1) : n == f ? u([r, t[r]], !1) : u(r, !1))
+                        var t = a(this),
+                            e = t.iteratorObject_;
+                        if (!e) throw new TypeError("Object is not an ArrayIterator");
+                        var r = t.arrayIteratorNextIndex_,
+                            n = t.arrayIterationKind_,
+                            i = s(e.length);
+                        return r >= i ? (t.arrayIteratorNextIndex_ = 1 / 0, u(void 0, !0)) : (t.arrayIteratorNextIndex_ = r + 1, n == l ? u(e[r], !1) : n == f ? u([r, e[r]], !1) : u(r, !1))
                     },
                     configurable: !0,
                     enumerable: !0,
@@ -2162,7 +2326,7 @@ function e(t, r, n) {
                     writable: !0
                 }), i), {}), {
                     get entries() {
-                        return t
+                        return e
                     }, get keys() {
                         return r
                     }, get values() {
@@ -2172,25 +2336,25 @@ function e(t, r, n) {
             }), System.register("traceur-runtime@0.0.55/src/runtime/polyfills/Map", [], function () {
                 "use strict";
 
-                function e(e, t) {
-                    if (r(t)) {
-                        var i = n(t);
-                        return i && e.objectIndex_[i.hash]
+                function t(t, e) {
+                    if (r(e)) {
+                        var i = n(e);
+                        return i && t.objectIndex_[i.hash]
                     }
-                    return "string" == typeof t ? e.stringIndex_[t] : e.primitiveIndex_[t]
+                    return "string" == typeof e ? t.stringIndex_[e] : t.primitiveIndex_[e]
                 }
-                function t(e) {
-                    e.entries_ = [], e.objectIndex_ = Object.create(null), e.stringIndex_ = Object.create(null), e.primitiveIndex_ = Object.create(null), e.deletedCount_ = 0
+                function e(t) {
+                    t.entries_ = [], t.objectIndex_ = Object.create(null), t.stringIndex_ = Object.create(null), t.primitiveIndex_ = Object.create(null), t.deletedCount_ = 0
                 }
                 var r = System.get("traceur-runtime@0.0.55/src/runtime/polyfills/utils").isObject,
                     n = $traceurRuntime.getOwnHashObject,
                     i = Object.prototype.hasOwnProperty,
                     o = {},
                     a = function () {
-                        var e = arguments[0];
+                        var t = arguments[0];
                         if (!r(this)) throw new TypeError("Map called on incompatible type");
                         if (i.call(this, "entries_")) throw new TypeError("Map can not be reentrantly initialised");
-                        if (t(this), null !== e && void 0 !== e) for (var n, o = e[Symbol.iterator](); !(n = o.next()).done;) {
+                        if (e(this), null !== t && void 0 !== t) for (var n, o = t[Symbol.iterator](); !(n = o.next()).done;) {
                             var a = $traceurRuntime.assertObject(n.value),
                                 s = a[0],
                                 u = a[1];
@@ -2200,59 +2364,59 @@ function e(t, r, n) {
                 return $traceurRuntime.createClass(a, {
                     get size() {
                         return this.entries_.length / 2 - this.deletedCount_
-                    }, get: function (t) {
-                        var r = e(this, t);
+                    }, get: function (e) {
+                        var r = t(this, e);
                         return void 0 !== r ? this.entries_[r + 1] : void 0
                     },
-                    set: function (t, i) {
-                        var o = r(t),
-                            a = "string" == typeof t,
-                            s = e(this, t);
+                    set: function (e, i) {
+                        var o = r(e),
+                            a = "string" == typeof e,
+                            s = t(this, e);
                         if (void 0 !== s) this.entries_[s + 1] = i;
-                        else if (s = this.entries_.length, this.entries_[s] = t, this.entries_[s + 1] = i, o) {
-                            var u = n(t),
+                        else if (s = this.entries_.length, this.entries_[s] = e, this.entries_[s + 1] = i, o) {
+                            var u = n(e),
                                 c = u.hash;
                             this.objectIndex_[c] = s
-                        } else a ? this.stringIndex_[t] = s : this.primitiveIndex_[t] = s;
+                        } else a ? this.stringIndex_[e] = s : this.primitiveIndex_[e] = s;
                         return this
                     },
-                    has: function (t) {
-                        return void 0 !== e(this, t)
+                    has: function (e) {
+                        return void 0 !== t(this, e)
                     },
-                    "delete": function (e) {
-                        var t, i, a = r(e),
-                            s = "string" == typeof e;
+                    "delete": function (t) {
+                        var e, i, a = r(t),
+                            s = "string" == typeof t;
                         if (a) {
-                            var u = n(e);
-                            u && (t = this.objectIndex_[i = u.hash], delete this.objectIndex_[i])
-                        } else s ? (t = this.stringIndex_[e], delete this.stringIndex_[e]) : (t = this.primitiveIndex_[e], delete this.primitiveIndex_[e]);
-                        void 0 !== t && (this.entries_[t] = o, this.entries_[t + 1] = void 0, this.deletedCount_++)
+                            var u = n(t);
+                            u && (e = this.objectIndex_[i = u.hash], delete this.objectIndex_[i])
+                        } else s ? (e = this.stringIndex_[t], delete this.stringIndex_[t]) : (e = this.primitiveIndex_[t], delete this.primitiveIndex_[t]);
+                        void 0 !== e && (this.entries_[e] = o, this.entries_[e + 1] = void 0, this.deletedCount_++)
                     },
                     clear: function () {
-                        t(this)
+                        e(this)
                     },
-                    forEach: function (e) {
-                        for (var t = arguments[1], r = 0, n = this.entries_.length; n > r; r += 2) {
+                    forEach: function (t) {
+                        for (var e = arguments[1], r = 0, n = this.entries_.length; n > r; r += 2) {
                             var i = this.entries_[r],
                                 a = this.entries_[r + 1];
-                            i !== o && e.call(t, a, i, this)
+                            i !== o && t.call(e, a, i, this)
                         }
                     },
                     entries: $traceurRuntime.initGeneratorFunction(function s() {
-                        var e, t, r, n;
+                        var t, e, r, n;
                         return $traceurRuntime.createGeneratorInstance(function (i) {
                             for (;;) switch (i.state) {
                             case 0:
-                                e = 0, t = this.entries_.length, i.state = 12;
+                                t = 0, e = this.entries_.length, i.state = 12;
                                 break;
                             case 12:
-                                i.state = t > e ? 8 : -2;
+                                i.state = e > t ? 8 : -2;
                                 break;
                             case 4:
-                                e += 2, i.state = 12;
+                                t += 2, i.state = 12;
                                 break;
                             case 8:
-                                r = this.entries_[e], n = this.entries_[e + 1], i.state = 9;
+                                r = this.entries_[t], n = this.entries_[t + 1], i.state = 9;
                                 break;
                             case 9:
                                 i.state = r === o ? 4 : 6;
@@ -2268,20 +2432,20 @@ function e(t, r, n) {
                         }, s, this)
                     }),
                     keys: $traceurRuntime.initGeneratorFunction(function u() {
-                        var e, t, r, n;
+                        var t, e, r, n;
                         return $traceurRuntime.createGeneratorInstance(function (i) {
                             for (;;) switch (i.state) {
                             case 0:
-                                e = 0, t = this.entries_.length, i.state = 12;
+                                t = 0, e = this.entries_.length, i.state = 12;
                                 break;
                             case 12:
-                                i.state = t > e ? 8 : -2;
+                                i.state = e > t ? 8 : -2;
                                 break;
                             case 4:
-                                e += 2, i.state = 12;
+                                t += 2, i.state = 12;
                                 break;
                             case 8:
-                                r = this.entries_[e], n = this.entries_[e + 1], i.state = 9;
+                                r = this.entries_[t], n = this.entries_[t + 1], i.state = 9;
                                 break;
                             case 9:
                                 i.state = r === o ? 4 : 6;
@@ -2297,20 +2461,20 @@ function e(t, r, n) {
                         }, u, this)
                     }),
                     values: $traceurRuntime.initGeneratorFunction(function c() {
-                        var e, t, r, n;
+                        var t, e, r, n;
                         return $traceurRuntime.createGeneratorInstance(function (i) {
                             for (;;) switch (i.state) {
                             case 0:
-                                e = 0, t = this.entries_.length, i.state = 12;
+                                t = 0, e = this.entries_.length, i.state = 12;
                                 break;
                             case 12:
-                                i.state = t > e ? 8 : -2;
+                                i.state = e > t ? 8 : -2;
                                 break;
                             case 4:
-                                e += 2, i.state = 12;
+                                t += 2, i.state = 12;
                                 break;
                             case 8:
-                                r = this.entries_[e], n = this.entries_[e + 1], i.state = 9;
+                                r = this.entries_[t], n = this.entries_[t + 1], i.state = 9;
                                 break;
                             case 9:
                                 i.state = r === o ? 4 : 6;
@@ -2337,19 +2501,19 @@ function e(t, r, n) {
             }), System.register("traceur-runtime@0.0.55/src/runtime/polyfills/Number", [], function () {
                 "use strict";
 
-                function e(e) {
-                    return o(e) && u(e)
-                }
                 function t(t) {
-                    return e(t) && a(t) === t
+                    return o(t) && u(t)
                 }
-                function r(e) {
-                    return o(e) && c(e)
+                function e(e) {
+                    return t(e) && a(e) === e
                 }
-                function n(t) {
-                    if (e(t)) {
-                        var r = a(t);
-                        if (r === t) return s(r) <= l
+                function r(t) {
+                    return o(t) && c(t)
+                }
+                function n(e) {
+                    if (t(e)) {
+                        var r = a(e);
+                        if (r === e) return s(r) <= l
                     }
                     return !1
                 }
@@ -2370,9 +2534,9 @@ function e(t, r, n) {
                     }, get EPSILON() {
                         return h
                     }, get isFinite() {
-                        return e
-                    }, get isInteger() {
                         return t
+                    }, get isInteger() {
+                        return e
                     }, get isNaN() {
                         return r
                     }, get isSafeInteger() {
@@ -2382,29 +2546,29 @@ function e(t, r, n) {
             }), System.register("traceur-runtime@0.0.55/src/runtime/polyfills/Object", [], function () {
                 "use strict";
 
-                function e(e, t) {
-                    return e === t ? 0 !== e || 1 / e === 1 / t : e !== e && t !== t
+                function t(t, e) {
+                    return t === e ? 0 !== t || 1 / t === 1 / e : t !== t && e !== e
                 }
-                function t(e) {
-                    for (var t = 1; t < arguments.length; t++) {
-                        var r, n = arguments[t],
+                function e(t) {
+                    for (var e = 1; e < arguments.length; e++) {
+                        var r, n = arguments[e],
                             i = s(n),
                             o = i.length;
                         for (r = 0; o > r; r++) {
                             var a = i[r];
-                            u[a] || (e[a] = n[a])
+                            u[a] || (t[a] = n[a])
                         }
                     }
-                    return e
+                    return t
                 }
-                function r(e, t) {
-                    var r, n, s = a(t),
+                function r(t, e) {
+                    var r, n, s = a(e),
                         c = s.length;
                     for (r = 0; c > r; r++) {
                         var l = s[r];
-                        u[l] || (n = o(t, s[r]), i(e, s[r], n))
+                        u[l] || (n = o(e, s[r]), i(t, s[r], n))
                     }
-                    return e
+                    return t
                 }
                 var n = $traceurRuntime.assertObject($traceurRuntime),
                     i = n.defineProperty,
@@ -2414,9 +2578,9 @@ function e(t, r, n) {
                     u = n.privateNames;
                 return {
                     get is() {
-                        return e
-                    }, get assign() {
                         return t
+                    }, get assign() {
+                        return e
                     }, get mixin() {
                         return r
                     }
@@ -2424,28 +2588,28 @@ function e(t, r, n) {
             }), System.register("traceur-runtime@0.0.55/node_modules/rsvp/lib/rsvp/asap", [], function () {
                 "use strict";
 
-                function t(e, t) {
-                    p[u] = e, p[u + 1] = t, u += 2, 2 === u && s()
+                function e(t, e) {
+                    p[u] = t, p[u + 1] = e, u += 2, 2 === u && s()
                 }
                 function r() {
                     return function () {
-                        e.nextTick(a)
+                        t.nextTick(a)
                     }
                 }
                 function n() {
-                    var e = 0,
-                        t = new f(a),
+                    var t = 0,
+                        e = new f(a),
                         r = document.createTextNode("");
-                    return t.observe(r, {
+                    return e.observe(r, {
                         characterData: !0
                     }), function () {
-                        r.data = e = ++e % 2
+                        r.data = t = ++t % 2
                     }
                 }
                 function i() {
-                    var e = new MessageChannel;
-                    return e.port1.onmessage = a, function () {
-                        e.port2.postMessage(0)
+                    var t = new MessageChannel;
+                    return t.port1.onmessage = a, function () {
+                        t.port2.postMessage(0)
                     }
                 }
                 function o() {
@@ -2454,20 +2618,20 @@ function e(t, r, n) {
                     }
                 }
                 function a() {
-                    for (var e = 0; u > e; e += 2) {
-                        var t = p[e],
-                            r = p[e + 1];
-                        t(r), p[e] = void 0, p[e + 1] = void 0
+                    for (var t = 0; u > t; t += 2) {
+                        var e = p[t],
+                            r = p[t + 1];
+                        e(r), p[t] = void 0, p[t + 1] = void 0
                     }
                     u = 0
                 }
                 var s, u = 0,
-                    c = t,
+                    c = e,
                     l = "undefined" != typeof window ? window : {},
                     f = l.MutationObserver || l.WebKitMutationObserver,
                     h = "undefined" != typeof Uint8ClampedArray && "undefined" != typeof importScripts && "undefined" != typeof MessageChannel,
                     p = new Array(1e3);
-                return s = "undefined" != typeof e && "[object process]" === {}.toString.call(e) ? r() : f ? n() : h ? i() : o(), {
+                return s = "undefined" != typeof t && "[object process]" === {}.toString.call(t) ? r() : f ? n() : h ? i() : o(), {
                     get
                 default () {
                         return c
@@ -2476,98 +2640,98 @@ function e(t, r, n) {
             }), System.register("traceur-runtime@0.0.55/src/runtime/polyfills/Promise", [], function () {
                 "use strict";
 
-                function e(e) {
-                    return e && "object" == typeof e && void 0 !== e.status_
+                function t(t) {
+                    return t && "object" == typeof t && void 0 !== t.status_
                 }
-                function t(e) {
-                    return e
+                function e(t) {
+                    return t
                 }
-                function r(e) {
-                    throw e
+                function r(t) {
+                    throw t
                 }
-                function n(e) {
-                    var n = void 0 !== arguments[1] ? arguments[1] : t,
+                function n(t) {
+                    var n = void 0 !== arguments[1] ? arguments[1] : e,
                         o = void 0 !== arguments[2] ? arguments[2] : r,
-                        a = i(e.constructor);
-                    switch (e.status_) {
+                        a = i(t.constructor);
+                    switch (t.status_) {
                     case void 0:
                         throw TypeError;
                     case 0:
-                        e.onResolve_.push(n, a), e.onReject_.push(o, a);
+                        t.onResolve_.push(n, a), t.onReject_.push(o, a);
                         break;
                     case 1:
-                        l(e.value_, [n, a]);
+                        l(t.value_, [n, a]);
                         break;
                     case -1:
-                        l(e.value_, [o, a])
+                        l(t.value_, [o, a])
                     }
                     return a.promise
                 }
-                function i(e) {
+                function i(t) {
                     if (this === g) {
-                        var t = a(new g(v));
+                        var e = a(new g(v));
                         return {
-                            promise: t,
-                            resolve: function (e) {
-                                s(t, e)
+                            promise: e,
+                            resolve: function (t) {
+                                s(e, t)
                             },
-                            reject: function (e) {
-                                u(t, e)
+                            reject: function (t) {
+                                u(e, t)
                             }
                         }
                     }
                     var r = {};
-                    return r.promise = new e(function (e, t) {
-                        r.resolve = e, r.reject = t
+                    return r.promise = new t(function (t, e) {
+                        r.resolve = t, r.reject = e
                     }), r
                 }
-                function o(e, t, r, n, i) {
-                    return e.status_ = t, e.value_ = r, e.onResolve_ = n, e.onReject_ = i, e
+                function o(t, e, r, n, i) {
+                    return t.status_ = e, t.value_ = r, t.onResolve_ = n, t.onReject_ = i, t
                 }
-                function a(e) {
-                    return o(e, 0, void 0, [], [])
+                function a(t) {
+                    return o(t, 0, void 0, [], [])
                 }
-                function s(e, t) {
-                    c(e, 1, t, e.onResolve_)
+                function s(t, e) {
+                    c(t, 1, e, t.onResolve_)
                 }
-                function u(e, t) {
-                    c(e, -1, t, e.onReject_)
+                function u(t, e) {
+                    c(t, -1, e, t.onReject_)
                 }
-                function c(e, t, r, n) {
-                    0 === e.status_ && (l(r, n), o(e, t, r))
+                function c(t, e, r, n) {
+                    0 === t.status_ && (l(r, n), o(t, e, r))
                 }
-                function l(e, t) {
+                function l(t, e) {
                     d(function () {
-                        for (var r = 0; r < t.length; r += 2) f(e, t[r], t[r + 1])
+                        for (var r = 0; r < e.length; r += 2) f(t, e[r], e[r + 1])
                     })
                 }
-                function f(t, r, i) {
+                function f(e, r, i) {
                     try {
-                        var o = r(t);
+                        var o = r(e);
                         if (o === i.promise) throw new TypeError;
-                        e(o) ? n(o, i.resolve, i.reject) : i.resolve(o)
+                        t(o) ? n(o, i.resolve, i.reject) : i.resolve(o)
                     } catch (a) {
                         try {
                             i.reject(a)
                         } catch (a) {}
                     }
                 }
-                function h(e) {
-                    return e && ("object" == typeof e || "function" == typeof e)
+                function h(t) {
+                    return t && ("object" == typeof t || "function" == typeof t)
                 }
-                function p(t, r) {
-                    if (!e(r) && h(r)) {
+                function p(e, r) {
+                    if (!t(r) && h(r)) {
                         var n;
                         try {
                             n = r.then
                         } catch (o) {
-                            var a = b.call(t, o);
+                            var a = b.call(e, o);
                             return r[y] = a, a
                         }
                         if ("function" == typeof n) {
                             var s = r[y];
                             if (s) return s;
-                            var u = i(t);
+                            var u = i(e);
                             r[y] = u.promise;
                             try {
                                 n.call(r, u.resolve, u.reject)
@@ -2582,80 +2746,80 @@ function e(t, r, n) {
                 var d = System.get("traceur-runtime@0.0.55/node_modules/rsvp/lib/rsvp/asap").
             default,
                     v = {},
-                    m = function (e) {
-                        if (e !== v) {
-                            if ("function" != typeof e) throw new TypeError;
-                            var t = a(this);
+                    m = function (t) {
+                        if (t !== v) {
+                            if ("function" != typeof t) throw new TypeError;
+                            var e = a(this);
                             try {
-                                e(function (e) {
-                                    s(t, e)
-                                }, function (e) {
-                                    u(t, e)
+                                t(function (t) {
+                                    s(e, t)
+                                }, function (t) {
+                                    u(e, t)
                                 })
                             } catch (r) {
-                                u(t, r)
+                                u(e, r)
                             }
                         }
                     };
                 $traceurRuntime.createClass(m, {
-                    "catch": function (e) {
-                        return this.then(void 0, e)
+                    "catch": function (t) {
+                        return this.then(void 0, t)
                     },
                     then: function (i, o) {
-                        "function" != typeof i && (i = t), "function" != typeof o && (o = r);
+                        "function" != typeof i && (i = e), "function" != typeof o && (o = r);
                         var a = this,
                             s = this.constructor;
-                        return n(this, function (t) {
-                            return t = p(s, t), t === a ? o(new TypeError) : e(t) ? t.then(i, o) : i(t)
+                        return n(this, function (e) {
+                            return e = p(s, e), e === a ? o(new TypeError) : t(e) ? e.then(i, o) : i(e)
                         }, o)
                     }
                 }, {
-                    resolve: function (e) {
-                        return this === g ? o(new g(v), 1, e) : new this(function (t) {
-                            t(e)
+                    resolve: function (t) {
+                        return this === g ? o(new g(v), 1, t) : new this(function (e) {
+                            e(t)
                         })
                     },
-                    reject: function (e) {
-                        return this === g ? o(new g(v), -1, e) : new this(function (t, r) {
-                            r(e)
+                    reject: function (t) {
+                        return this === g ? o(new g(v), -1, t) : new this(function (e, r) {
+                            r(t)
                         })
                     },
-                    cast: function (t) {
-                        if (t instanceof this) return t;
-                        if (e(t)) {
+                    cast: function (e) {
+                        if (e instanceof this) return e;
+                        if (t(e)) {
                             var r = i(this);
-                            return n(t, r.resolve, r.reject), r.promise
+                            return n(e, r.resolve, r.reject), r.promise
                         }
-                        return this.resolve(t)
+                        return this.resolve(e)
                     },
-                    all: function (e) {
-                        var t = i(this),
+                    all: function (t) {
+                        var e = i(this),
                             r = [];
                         try {
-                            var n = e.length;
-                            if (0 === n) t.resolve(r);
-                            else for (var o = 0; o < e.length; o++) this.resolve(e[o]).then(function (e, i) {
-                                r[e] = i, 0 === --n && t.resolve(r)
-                            }.bind(void 0, o), function (e) {
-                                t.reject(e)
+                            var n = t.length;
+                            if (0 === n) e.resolve(r);
+                            else for (var o = 0; o < t.length; o++) this.resolve(t[o]).then(function (t, i) {
+                                r[t] = i, 0 === --n && e.resolve(r)
+                            }.bind(void 0, o), function (t) {
+                                e.reject(t)
                             })
                         } catch (a) {
-                            t.reject(a)
+                            e.reject(a)
                         }
-                        return t.promise
+                        return e.promise
                     },
-                    race: function (e) {
-                        var t = i(this);
+                    race: function (t) {
+                        var e = i(this);
                         try {
-                            for (var r = 0; r < e.length; r++) this.resolve(e[r]).then(function (e) {
-                                t.resolve(e)
-                            }, function (e) {
-                                t.reject(e)
+                            for (var r = 0; r < t.length; r++) this.resolve(t[r]).then(function (t) {
+                                e.resolve(t)
+                            }, function (t) {
+                                e.reject(t)
                             })
                         } catch (n) {
-                            t.reject(n)
+                            e.reject(n)
                         }
-                        return t.promise
+                        return e.promise
                     }
                 });
                 var g = m,
@@ -2669,17 +2833,17 @@ function e(t, r, n) {
             }), System.register("traceur-runtime@0.0.55/src/runtime/polyfills/Set", [], function () {
                 "use strict";
 
-                function e(e) {
-                    e.map_ = new r
+                function t(t) {
+                    t.map_ = new r
                 }
-                var t = System.get("traceur-runtime@0.0.55/src/runtime/polyfills/utils").isObject,
+                var e = System.get("traceur-runtime@0.0.55/src/runtime/polyfills/utils").isObject,
                     r = System.get("traceur-runtime@0.0.55/src/runtime/polyfills/Map").Map,
                     n = ($traceurRuntime.getOwnHashObject, Object.prototype.hasOwnProperty),
                     i = function () {
                         var r = arguments[0];
-                        if (!t(this)) throw new TypeError("Set called on incompatible type");
+                        if (!e(this)) throw new TypeError("Set called on incompatible type");
                         if (n.call(this, "map_")) throw new TypeError("Set can not be reentrantly initialised");
-                        if (e(this), null !== r && void 0 !== r) for (var i, o = r[Symbol.iterator](); !(i = o.next()).done;) {
+                        if (t(this), null !== r && void 0 !== r) for (var i, o = r[Symbol.iterator](); !(i = o.next()).done;) {
                             var a = i.value;
                             this.add(a)
                         }
@@ -2687,66 +2851,66 @@ function e(t, r, n) {
                 return $traceurRuntime.createClass(i, {
                     get size() {
                         return this.map_.size
-                    }, has: function (e) {
-                        return this.map_.has(e)
+                    }, has: function (t) {
+                        return this.map_.has(t)
                     },
-                    add: function (e) {
-                        return this.map_.set(e, e)
+                    add: function (t) {
+                        return this.map_.set(t, t)
                     },
-                    "delete": function (e) {
-                        return this.map_.delete(e)
+                    "delete": function (t) {
+                        return this.map_.delete(t)
                     },
                     clear: function () {
                         return this.map_.clear()
                     },
-                    forEach: function (e) {
-                        var t = arguments[1],
+                    forEach: function (t) {
+                        var e = arguments[1],
                             r = this;
                         return this.map_.forEach(function (n, i) {
-                            e.call(t, i, i, r)
+                            t.call(e, i, i, r)
                         })
                     },
                     values: $traceurRuntime.initGeneratorFunction(function o() {
-                        var e, t;
+                        var t, e;
                         return $traceurRuntime.createGeneratorInstance(function (r) {
                             for (;;) switch (r.state) {
                             case 0:
-                                e = this.map_.keys()[Symbol.iterator](), r.sent = void 0, r.action = "next", r.state = 12;
+                                t = this.map_.keys()[Symbol.iterator](), r.sent = void 0, r.action = "next", r.state = 12;
                                 break;
                             case 12:
-                                t = e[r.action](r.sentIgnoreThrow), r.state = 9;
+                                e = t[r.action](r.sentIgnoreThrow), r.state = 9;
                                 break;
                             case 9:
-                                r.state = t.done ? 3 : 2;
+                                r.state = e.done ? 3 : 2;
                                 break;
                             case 3:
-                                r.sent = t.value, r.state = -2;
+                                r.sent = e.value, r.state = -2;
                                 break;
                             case 2:
-                                return r.state = 12, t.value;
+                                return r.state = 12, e.value;
                             default:
                                 return r.end()
                             }
                         }, o, this)
                     }),
                     entries: $traceurRuntime.initGeneratorFunction(function a() {
-                        var e, t;
+                        var t, e;
                         return $traceurRuntime.createGeneratorInstance(function (r) {
                             for (;;) switch (r.state) {
                             case 0:
-                                e = this.map_.entries()[Symbol.iterator](), r.sent = void 0, r.action = "next", r.state = 12;
+                                t = this.map_.entries()[Symbol.iterator](), r.sent = void 0, r.action = "next", r.state = 12;
                                 break;
                             case 12:
-                                t = e[r.action](r.sentIgnoreThrow), r.state = 9;
+                                e = t[r.action](r.sentIgnoreThrow), r.state = 9;
                                 break;
                             case 9:
-                                r.state = t.done ? 3 : 2;
+                                r.state = e.done ? 3 : 2;
                                 break;
                             case 3:
-                                r.sent = t.value, r.state = -2;
+                                r.sent = e.value, r.state = -2;
                                 break;
                             case 2:
-                                return r.state = 12, t.value;
+                                return r.state = 12, e.value;
                             default:
                                 return r.end()
                             }
@@ -2768,12 +2932,12 @@ function e(t, r, n) {
             }), System.register("traceur-runtime@0.0.55/src/runtime/polyfills/StringIterator", [], function () {
                 "use strict";
 
-                function e(e) {
-                    var t = String(e),
+                function t(t) {
+                    var e = String(t),
                         r = Object.create(l.prototype);
-                    return r[s(u)] = t, r[s(c)] = 0, r
+                    return r[s(u)] = e, r[s(c)] = 0, r
                 }
-                var t, r = System.get("traceur-runtime@0.0.55/src/runtime/polyfills/utils"),
+                var e, r = System.get("traceur-runtime@0.0.55/src/runtime/polyfills/utils"),
                     n = r.createIteratorResultObject,
                     i = r.isObject,
                     o = $traceurRuntime.assertObject($traceurRuntime),
@@ -2782,57 +2946,57 @@ function e(t, r, n) {
                     u = Symbol("iteratedString"),
                     c = Symbol("stringIteratorNextIndex"),
                     l = function () {};
-                return $traceurRuntime.createClass(l, (t = {}, Object.defineProperty(t, "next", {
+                return $traceurRuntime.createClass(l, (e = {}, Object.defineProperty(e, "next", {
                     value: function () {
-                        var e = this;
-                        if (!i(e) || !a(e, u)) throw new TypeError("this must be a StringIterator object");
-                        var t = e[s(u)];
-                        if (void 0 === t) return n(void 0, !0);
-                        var r = e[s(c)],
-                            o = t.length;
-                        if (r >= o) return e[s(u)] = void 0, n(void 0, !0);
-                        var l, f = t.charCodeAt(r);
+                        var t = this;
+                        if (!i(t) || !a(t, u)) throw new TypeError("this must be a StringIterator object");
+                        var e = t[s(u)];
+                        if (void 0 === e) return n(void 0, !0);
+                        var r = t[s(c)],
+                            o = e.length;
+                        if (r >= o) return t[s(u)] = void 0, n(void 0, !0);
+                        var l, f = e.charCodeAt(r);
                         if (55296 > f || f > 56319 || r + 1 === o) l = String.fromCharCode(f);
                         else {
-                            var h = t.charCodeAt(r + 1);
+                            var h = e.charCodeAt(r + 1);
                             l = 56320 > h || h > 57343 ? String.fromCharCode(f) : String.fromCharCode(f) + String.fromCharCode(h)
                         }
-                        return e[s(c)] = r + l.length, n(l, !1)
+                        return t[s(c)] = r + l.length, n(l, !1)
                     },
                     configurable: !0,
                     enumerable: !0,
                     writable: !0
-                }), Object.defineProperty(t, Symbol.iterator, {
+                }), Object.defineProperty(e, Symbol.iterator, {
                     value: function () {
                         return this
                     },
                     configurable: !0,
                     enumerable: !0,
                     writable: !0
-                }), t), {}), {
+                }), e), {}), {
                     get createStringIterator() {
-                        return e
+                        return t
                     }
                 }
             }), System.register("traceur-runtime@0.0.55/src/runtime/polyfills/String", [], function () {
                 "use strict";
 
-                function e(e) {
-                    var t = String(this);
-                    if (null == this || "[object RegExp]" == c.call(e)) throw TypeError();
-                    var r = t.length,
-                        n = String(e),
+                function t(t) {
+                    var e = String(this);
+                    if (null == this || "[object RegExp]" == c.call(t)) throw TypeError();
+                    var r = e.length,
+                        n = String(t),
                         i = (n.length, arguments.length > 1 ? arguments[1] : void 0),
                         o = i ? Number(i) : 0;
                     isNaN(o) && (o = 0);
                     var a = Math.min(Math.max(o, 0), r);
-                    return l.call(t, n, o) == a
+                    return l.call(e, n, o) == a
                 }
-                function t(e) {
-                    var t = String(this);
-                    if (null == this || "[object RegExp]" == c.call(e)) throw TypeError();
-                    var r = t.length,
-                        n = String(e),
+                function e(t) {
+                    var e = String(this);
+                    if (null == this || "[object RegExp]" == c.call(t)) throw TypeError();
+                    var r = e.length,
+                        n = String(t),
                         i = n.length,
                         o = r;
                     if (arguments.length > 1) {
@@ -2841,48 +3005,48 @@ function e(t, r, n) {
                     }
                     var s = Math.min(Math.max(o, 0), r),
                         u = s - i;
-                    return 0 > u ? !1 : f.call(t, n, u) == u
+                    return 0 > u ? !1 : f.call(e, n, u) == u
                 }
-                function r(e) {
+                function r(t) {
                     if (null == this) throw TypeError();
-                    var t = String(this),
-                        r = t.length,
-                        n = String(e),
+                    var e = String(this),
+                        r = e.length,
+                        n = String(t),
                         i = (n.length, arguments.length > 1 ? arguments[1] : void 0),
                         o = i ? Number(i) : 0;
                     isNaN(o) && (o = 0);
                     Math.min(Math.max(o, 0), r);
-                    return -1 != l.call(t, n, o)
+                    return -1 != l.call(e, n, o)
                 }
-                function n(e) {
+                function n(t) {
                     if (null == this) throw TypeError();
-                    var t = String(this),
-                        r = e ? Number(e) : 0;
+                    var e = String(this),
+                        r = t ? Number(t) : 0;
                     if (isNaN(r) && (r = 0), 0 > r || 1 / 0 == r) throw RangeError();
                     if (0 == r) return "";
-                    for (var n = ""; r--;) n += t;
+                    for (var n = ""; r--;) n += e;
                     return n
                 }
-                function i(e) {
+                function i(t) {
                     if (null == this) throw TypeError();
-                    var t = String(this),
-                        r = t.length,
-                        n = e ? Number(e) : 0;
+                    var e = String(this),
+                        r = e.length,
+                        n = t ? Number(t) : 0;
                     if (isNaN(n) && (n = 0), 0 > n || n >= r) return void 0;
-                    var i, o = t.charCodeAt(n);
-                    return o >= 55296 && 56319 >= o && r > n + 1 && (i = t.charCodeAt(n + 1), i >= 56320 && 57343 >= i) ? 1024 * (o - 55296) + i - 56320 + 65536 : o
+                    var i, o = e.charCodeAt(n);
+                    return o >= 55296 && 56319 >= o && r > n + 1 && (i = e.charCodeAt(n + 1), i >= 56320 && 57343 >= i) ? 1024 * (o - 55296) + i - 56320 + 65536 : o
                 }
-                function o(e) {
-                    var t = e.raw,
-                        r = t.length >>> 0;
+                function o(t) {
+                    var e = t.raw,
+                        r = e.length >>> 0;
                     if (0 === r) return "";
                     for (var n = "", i = 0;;) {
-                        if (n += t[i], i + 1 === r) return n;
+                        if (n += e[i], i + 1 === r) return n;
                         n += arguments[++i]
                     }
                 }
                 function a() {
-                    var e, t, r = [],
+                    var t, e, r = [],
                         n = Math.floor,
                         i = -1,
                         o = arguments.length;
@@ -2890,14 +3054,14 @@ function e(t, r, n) {
                     for (; ++i < o;) {
                         var a = Number(arguments[i]);
                         if (!isFinite(a) || 0 > a || a > 1114111 || n(a) != a) throw RangeError("Invalid code point: " + a);
-                        65535 >= a ? r.push(a) : (a -= 65536, e = (a >> 10) + 55296, t = a % 1024 + 56320, r.push(e, t))
+                        65535 >= a ? r.push(a) : (a -= 65536, t = (a >> 10) + 55296, e = a % 1024 + 56320, r.push(t, e))
                     }
                     return String.fromCharCode.apply(null, r)
                 }
                 function s() {
-                    var e = $traceurRuntime.checkObjectCoercible(this),
-                        t = String(e);
-                    return u(t)
+                    var t = $traceurRuntime.checkObjectCoercible(this),
+                        e = String(t);
+                    return u(e)
                 }
                 var u = System.get("traceur-runtime@0.0.55/src/runtime/polyfills/StringIterator").createStringIterator,
                     c = Object.prototype.toString,
@@ -2905,9 +3069,9 @@ function e(t, r, n) {
                     f = String.prototype.lastIndexOf;
                 return {
                     get startsWith() {
-                        return e
-                    }, get endsWith() {
                         return t
+                    }, get endsWith() {
+                        return e
                     }, get contains() {
                         return r
                     }, get repeat() {
@@ -2925,77 +3089,77 @@ function e(t, r, n) {
             }), System.register("traceur-runtime@0.0.55/src/runtime/polyfills/polyfills", [], function () {
                 "use strict";
 
-                function e(e, t, r) {
-                    t in e || Object.defineProperty(e, t, r)
+                function t(t, e, r) {
+                    e in t || Object.defineProperty(t, e, r)
                 }
-                function t(t, r, n) {
-                    e(t, r, {
+                function e(e, r, n) {
+                    t(e, r, {
                         value: n,
                         configurable: !0,
                         enumerable: !1,
                         writable: !0
                     })
                 }
-                function r(t, r, n) {
-                    e(t, r, {
+                function r(e, r, n) {
+                    t(e, r, {
                         value: n,
                         configurable: !1,
                         enumerable: !1,
                         writable: !1
                     })
                 }
-                function n(e, r) {
+                function n(t, r) {
                     for (var n = 0; n < r.length; n += 2) {
                         var i = r[n],
                             o = r[n + 1];
-                        t(e, i, o)
+                        e(t, i, o)
                     }
                 }
-                function i(e, t) {
-                    for (var n = 0; n < t.length; n += 2) {
-                        var i = t[n],
-                            o = t[n + 1];
-                        r(e, i, o)
+                function i(t, e) {
+                    for (var n = 0; n < e.length; n += 2) {
+                        var i = e[n],
+                            o = e[n + 1];
+                        r(t, i, o)
                     }
                 }
-                function o(e, t, r) {
-                    r && r.iterator && !e[r.iterator] && (e["@@iterator"] && (t = e["@@iterator"]), Object.defineProperty(e, r.iterator, {
-                        value: t,
+                function o(t, e, r) {
+                    r && r.iterator && !t[r.iterator] && (t["@@iterator"] && (e = t["@@iterator"]), Object.defineProperty(t, r.iterator, {
+                        value: e,
                         configurable: !0,
                         enumerable: !1,
                         writable: !0
                     }))
                 }
-                function a(e) {
-                    e.Promise || (e.Promise = v)
+                function a(t) {
+                    t.Promise || (t.Promise = v)
                 }
-                function s(e, t) {
-                    e.Map || (e.Map = p);
-                    var r = e.Map.prototype;
-                    r.entries && (o(r, r.entries, t), o(z((new e.Map).entries()), function () {
+                function s(t, e) {
+                    t.Map || (t.Map = p);
+                    var r = t.Map.prototype;
+                    r.entries && (o(r, r.entries, e), o(z((new t.Map).entries()), function () {
                         return this
-                    }, t)), e.Set || (e.Set = d);
-                    var n = e.Set.prototype;
-                    n.values && (o(n, n.values, t), o(z((new e.Set).values()), function () {
+                    }, e)), t.Set || (t.Set = d);
+                    var n = t.Set.prototype;
+                    n.values && (o(n, n.values, e), o(z((new t.Set).values()), function () {
                         return this
-                    }, t))
+                    }, e))
                 }
-                function u(e) {
-                    n(e.prototype, ["codePointAt", g, "contains", b, "endsWith", y, "startsWith", j, "repeat", w]), n(e, ["fromCodePoint", _, "raw", O]), o(e.prototype, S, Symbol)
+                function u(t) {
+                    n(t.prototype, ["codePointAt", g, "contains", b, "endsWith", y, "startsWith", j, "repeat", w]), n(t, ["fromCodePoint", _, "raw", O]), o(t.prototype, S, Symbol)
                 }
-                function c(e, t) {
-                    n(e.prototype, ["entries", k, "keys", W, "values", A, "fill", C, "find", x, "findIndex", E]), n(e, ["from", P]), o(e.prototype, A, t), o(z([].values()), function () {
+                function c(t, e) {
+                    n(t.prototype, ["entries", k, "keys", W, "values", A, "fill", E, "find", C, "findIndex", x]), n(t, ["from", P]), o(t.prototype, A, e), o(z([].values()), function () {
                         return this
-                    }, t)
+                    }, e)
                 }
-                function l(e) {
-                    n(e, ["assign", T, "is", M, "mixin", N])
+                function l(t) {
+                    n(t, ["assign", T, "is", M, "mixin", N])
                 }
-                function f(e) {
-                    i(e, ["MAX_SAFE_INTEGER", V, "MIN_SAFE_INTEGER", L, "EPSILON", D]), n(e, ["isFinite", G, "isInteger", H, "isNaN", U, "isSafeInteger", B])
+                function f(t) {
+                    i(t, ["MAX_SAFE_INTEGER", V, "MIN_SAFE_INTEGER", L, "EPSILON", D]), n(t, ["isFinite", G, "isInteger", H, "isNaN", U, "isSafeInteger", B])
                 }
-                function h(e) {
-                    a(e), s(e, e.Symbol), u(e.String), c(e.Array, e.Symbol), l(e.Object), f(e.Number)
+                function h(t) {
+                    a(t), s(t, t.Symbol), u(t.String), c(t.Array, t.Symbol), l(t.Object), f(t.Number)
                 }
                 var p = System.get("traceur-runtime@0.0.55/src/runtime/polyfills/Map").Map,
                     d = System.get("traceur-runtime@0.0.55/src/runtime/polyfills/Set").Set,
@@ -3010,9 +3174,9 @@ function e(t, r, n) {
                     j = m.startsWith,
                     S = m.stringPrototypeIterator,
                     R = System.get("traceur-runtime@0.0.55/src/runtime/polyfills/Array"),
-                    C = R.fill,
-                    x = R.find,
-                    E = R.findIndex,
+                    E = R.fill,
+                    C = R.find,
+                    x = R.findIndex,
                     P = R.from,
                     $ = System.get("traceur-runtime@0.0.55/src/runtime/polyfills/ArrayIterator"),
                     k = $.entries,
@@ -3033,67 +3197,67 @@ function e(t, r, n) {
                     z = $traceurRuntime.assertObject(Object).getPrototypeOf;
                 h(this);
                 var Q = $traceurRuntime.setupGlobals;
-                return $traceurRuntime.setupGlobals = function (e) {
-                    Q(e), h(e)
+                return $traceurRuntime.setupGlobals = function (t) {
+                    Q(t), h(t)
                 }, {}
             }), System.register("traceur-runtime@0.0.55/src/runtime/polyfill-import", [], function () {
                 "use strict";
                 return System.get("traceur-runtime@0.0.55/src/runtime/polyfills/polyfills"), {}
             }), System.get("traceur-runtime@0.0.55/src/runtime/polyfill-import")
-        }).call(this, e("_process"), "undefined" != typeof global ? global : "undefined" != typeof self ? self : "undefined" != typeof window ? window : {})
+        }).call(this, t("_process"), "undefined" != typeof global ? global : "undefined" != typeof self ? self : "undefined" != typeof window ? window : {})
     },
     {
-        _process: 39
+        _process: 43
     }],
-    41: [function (e, t) {
-        (function (e) {
+    45: [function (t, e) {
+        (function (t) {
             !
-            function (e) {
+            function (t) {
                 "use strict";
 
-                function t() {
-                    function e(e) {
-                        t = e
+                function e() {
+                    function t(t) {
+                        e = t
                     }
                     if ("function" != typeof Object.observe || "function" != typeof Array.observe) return !1;
-                    var t = [],
+                    var e = [],
                         r = {},
                         n = [];
-                    return Object.observe(r, e), Array.observe(n, e), r.id = 1, r.id = 2, delete r.id, n.push(1, 2), n.length = 0, Object.deliverChangeRecords(e), 5 !== t.length ? !1 : "add" != t[0].type || "update" != t[1].type || "delete" != t[2].type || "splice" != t[3].type || "splice" != t[4].type ? !1 : (Object.unobserve(r, e), Array.unobserve(n, e), !0)
+                    return Object.observe(r, t), Array.observe(n, t), r.id = 1, r.id = 2, delete r.id, n.push(1, 2), n.length = 0, Object.deliverChangeRecords(t), 5 !== e.length ? !1 : "add" != e[0].type || "update" != e[1].type || "delete" != e[2].type || "splice" != e[3].type || "splice" != e[4].type ? !1 : (Object.unobserve(r, t), Array.unobserve(n, t), !0)
                 }
                 function r() {
                     if ("undefined" != typeof chrome && chrome.app && chrome.app.runtime) return !1;
                     if ("undefined" != typeof navigator && navigator.getDeviceStorage) return !1;
                     try {
-                        var e = new Function("", "return true;");
-                        return e()
-                    } catch (t) {
+                        var t = new Function("", "return true;");
+                        return t()
+                    } catch (e) {
                         return !1
                     }
                 }
-                function n(e) {
-                    return +e === e >>> 0 && "" !== e
+                function n(t) {
+                    return +t === t >>> 0 && "" !== t
                 }
-                function i(e) {
-                    return +e
+                function i(t) {
+                    return +t
                 }
-                function o(e) {
-                    return e === Object(e)
+                function o(t) {
+                    return t === Object(t)
                 }
-                function a(e, t) {
-                    return e === t ? 0 !== e || 1 / e === 1 / t : H(e) && H(t) ? !0 : e !== e && t !== t
+                function a(t, e) {
+                    return t === e ? 0 !== t || 1 / t === 1 / e : H(t) && H(e) ? !0 : t !== t && e !== e
                 }
-                function s(e) {
-                    if (void 0 === e) return "eof";
-                    var t = e.charCodeAt(0);
-                    switch (t) {
+                function s(t) {
+                    if (void 0 === t) return "eof";
+                    var e = t.charCodeAt(0);
+                    switch (e) {
                     case 91:
                     case 93:
                     case 46:
                     case 34:
                     case 39:
                     case 48:
-                        return e;
+                        return t;
                     case 95:
                     case 36:
                         return "ident";
@@ -3107,14 +3271,14 @@ function e(t, r, n) {
                     case 8233:
                         return "ws"
                     }
-                    return t >= 97 && 122 >= t || t >= 65 && 90 >= t ? "ident" : t >= 49 && 57 >= t ? "number" : "else"
+                    return e >= 97 && 122 >= e || e >= 65 && 90 >= e ? "ident" : e >= 49 && 57 >= e ? "number" : "else"
                 }
                 function u() {}
-                function c(e) {
-                    function t() {
-                        if (!(h >= e.length)) {
-                            var t = e[h + 1];
-                            return "inSingleQuote" == p && "'" == t || "inDoubleQuote" == p && '"' == t ? (h++, n = t, d.append(), !0) : void 0
+                function c(t) {
+                    function e() {
+                        if (!(h >= t.length)) {
+                            var e = t[h + 1];
+                            return "inSingleQuote" == p && "'" == e || "inDoubleQuote" == p && '"' == e ? (h++, n = e, d.append(), !0) : void 0
                         }
                     }
                     for (var r, n, i, o, a, c, l, f = [], h = -1, p = "beforePath", d = {
@@ -3124,107 +3288,107 @@ function e(t, r, n) {
                         append: function () {
                             void 0 === i ? i = n : i += n
                         }
-                    }; p;) if (h++, r = e[h], "\\" != r || !t(p)) {
+                    }; p;) if (h++, r = t[h], "\\" != r || !e(p)) {
                         if (o = s(r), l = q[p], a = l[o] || l["else"] || "error", "error" == a) return;
                         if (p = a[0], c = d[a[1]] || u, n = void 0 === a[2] ? r : a[2], c(), "afterPath" === p) return f
                     }
                 }
-                function l(e) {
-                    return Q.test(e)
+                function l(t) {
+                    return Q.test(t)
                 }
-                function f(e, t) {
-                    if (t !== K) throw Error("Use Path.get to retrieve path objects");
-                    for (var r = 0; r < e.length; r++) this.push(String(e[r]));
+                function f(t, e) {
+                    if (e !== K) throw Error("Use Path.get to retrieve path objects");
+                    for (var r = 0; r < t.length; r++) this.push(String(t[r]));
                     G && this.length && (this.getValueFrom = this.compiledGetValueFromFn())
                 }
-                function h(e) {
-                    if (e instanceof f) return e;
-                    if ((null == e || 0 == e.length) && (e = ""), "string" != typeof e) {
-                        if (n(e.length)) return new f(e, K);
-                        e = String(e)
+                function h(t) {
+                    if (t instanceof f) return t;
+                    if ((null == t || 0 == t.length) && (t = ""), "string" != typeof t) {
+                        if (n(t.length)) return new f(t, K);
+                        t = String(t)
                     }
-                    var t = Z[e];
-                    if (t) return t;
-                    var r = c(e);
+                    var e = Z[t];
+                    if (e) return e;
+                    var r = c(t);
                     if (!r) return X;
-                    var t = new f(r, K);
-                    return Z[e] = t, t
+                    var e = new f(r, K);
+                    return Z[t] = e, e
                 }
-                function p(e) {
-                    return n(e) ? "[" + e + "]" : '["' + e.replace(/"/g, '\\"') + '"]'
+                function p(t) {
+                    return n(t) ? "[" + t + "]" : '["' + t.replace(/"/g, '\\"') + '"]'
                 }
-                function d(t) {
-                    for (var r = 0; J > r && t.check_();) r++;
-                    return L && (e.dirtyCheckCycleCount = r), r > 0
+                function d(e) {
+                    for (var r = 0; J > r && e.check_();) r++;
+                    return L && (t.dirtyCheckCycleCount = r), r > 0
                 }
-                function v(e) {
-                    for (var t in e) return !1;
+                function v(t) {
+                    for (var e in t) return !1;
                     return !0
                 }
-                function m(e) {
-                    return v(e.added) && v(e.removed) && v(e.changed)
+                function m(t) {
+                    return v(t.added) && v(t.removed) && v(t.changed)
                 }
-                function g(e, t) {
+                function g(t, e) {
                     var r = {},
                         n = {},
                         i = {};
-                    for (var o in t) {
-                        var a = e[o];
-                        (void 0 === a || a !== t[o]) && (o in e ? a !== t[o] && (i[o] = a) : n[o] = void 0)
+                    for (var o in e) {
+                        var a = t[o];
+                        (void 0 === a || a !== e[o]) && (o in t ? a !== e[o] && (i[o] = a) : n[o] = void 0)
                     }
-                    for (var o in e) o in t || (r[o] = e[o]);
-                    return Array.isArray(e) && e.length !== t.length && (i.length = e.length), {
+                    for (var o in t) o in e || (r[o] = t[o]);
+                    return Array.isArray(t) && t.length !== e.length && (i.length = t.length), {
                         added: r,
                         removed: n,
                         changed: i
                     }
                 }
                 function b() {
-                    if (!et.length) return !1;
-                    for (var e = 0; e < et.length; e++) et[e]();
-                    return et.length = 0, !0
+                    if (!te.length) return !1;
+                    for (var t = 0; t < te.length; t++) te[t]();
+                    return te.length = 0, !0
                 }
                 function y() {
-                    function e(e) {
-                        t && t.state_ === ot && !n && t.check_(e)
+                    function t(t) {
+                        e && e.state_ === oe && !n && e.check_(t)
                     }
-                    var t, r, n = !1,
+                    var e, r, n = !1,
                         i = !0;
                     return {
                         open: function (r) {
-                            if (t) throw Error("ObservedObject in use");
-                            i || Object.deliverChangeRecords(e), t = r, i = !1
+                            if (e) throw Error("ObservedObject in use");
+                            i || Object.deliverChangeRecords(t), e = r, i = !1
                         },
-                        observe: function (t, n) {
-                            r = t, n ? Array.observe(r, e) : Object.observe(r, e)
+                        observe: function (e, n) {
+                            r = e, n ? Array.observe(r, t) : Object.observe(r, t)
                         },
-                        deliver: function (t) {
-                            n = t, Object.deliverChangeRecords(e), n = !1
+                        deliver: function (e) {
+                            n = e, Object.deliverChangeRecords(t), n = !1
                         },
                         close: function () {
-                            t = void 0, Object.unobserve(r, e), rt.push(this)
+                            e = void 0, Object.unobserve(r, t), re.push(this)
                         }
                     }
                 }
-                function _(e, t, r) {
-                    var n = rt.pop() || y();
-                    return n.open(e), n.observe(t, r), n
+                function _(t, e, r) {
+                    var n = re.pop() || y();
+                    return n.open(t), n.observe(e, r), n
                 }
                 function w() {
-                    function e(t, o) {
-                        t && (t === n && (i[o] = !0), s.indexOf(t) < 0 && (s.push(t), Object.observe(t, r)), e(Object.getPrototypeOf(t), o))
+                    function t(e, o) {
+                        e && (e === n && (i[o] = !0), s.indexOf(e) < 0 && (s.push(e), Object.observe(e, r)), t(Object.getPrototypeOf(e), o))
                     }
-                    function t(e) {
-                        for (var t = 0; t < e.length; t++) {
-                            var r = e[t];
+                    function e(t) {
+                        for (var e = 0; e < t.length; e++) {
+                            var r = t[e];
                             if (r.object !== n || i[r.name] || "setPrototype" === r.type) return !1
                         }
                         return !0
                     }
                     function r(r) {
-                        if (!t(r)) {
-                            for (var n, i = 0; i < a.length; i++) n = a[i], n.state_ == ot && n.iterateObjects_(e);
-                            for (var i = 0; i < a.length; i++) n = a[i], n.state_ == ot && n.check_()
+                        if (!e(r)) {
+                            for (var n, i = 0; i < a.length; i++) n = a[i], n.state_ == oe && n.iterateObjects_(t);
+                            for (var i = 0; i < a.length; i++) n = a[i], n.state_ == oe && n.check_()
                         }
                     }
                     var n, i, o = 0,
@@ -3233,59 +3397,59 @@ function e(t, r, n) {
                         u = {
                             object: void 0,
                             objects: s,
-                            open: function (t, r) {
-                                n || (n = r, i = {}), a.push(t), o++, t.iterateObjects_(e)
+                            open: function (e, r) {
+                                n || (n = r, i = {}), a.push(e), o++, e.iterateObjects_(t)
                             },
                             close: function () {
                                 if (o--, !(o > 0)) {
-                                    for (var e = 0; e < s.length; e++) Object.unobserve(s[e], r), j.unobservedCount++;
-                                    a.length = 0, s.length = 0, n = void 0, i = void 0, nt.push(this)
+                                    for (var t = 0; t < s.length; t++) Object.unobserve(s[t], r), j.unobservedCount++;
+                                    a.length = 0, s.length = 0, n = void 0, i = void 0, ne.push(this)
                                 }
                             }
                         };
                     return u
                 }
-                function O(e, t) {
-                    return Y && Y.object === t || (Y = nt.pop() || w(), Y.object = t), Y.open(e, t), Y
+                function O(t, e) {
+                    return Y && Y.object === e || (Y = ne.pop() || w(), Y.object = e), Y.open(t, e), Y
                 }
                 function j() {
-                    this.state_ = it, this.callback_ = void 0, this.target_ = void 0, this.directObserver_ = void 0, this.value_ = void 0, this.id_ = ut++
+                    this.state_ = ie, this.callback_ = void 0, this.target_ = void 0, this.directObserver_ = void 0, this.value_ = void 0, this.id_ = ue++
                 }
-                function S(e) {
-                    j._allObserversCount++, lt && ct.push(e)
+                function S(t) {
+                    j._allObserversCount++, le && ce.push(t)
                 }
                 function R() {
                     j._allObserversCount--
                 }
-                function C(e) {
-                    j.call(this), this.value_ = e, this.oldObject_ = void 0
+                function E(t) {
+                    j.call(this), this.value_ = t, this.oldObject_ = void 0
                 }
-                function x(e) {
-                    if (!Array.isArray(e)) throw Error("Provided object is not an Array");
-                    C.call(this, e)
+                function C(t) {
+                    if (!Array.isArray(t)) throw Error("Provided object is not an Array");
+                    E.call(this, t)
                 }
-                function E(e, t) {
-                    j.call(this), this.object_ = e, this.path_ = h(t), this.directObserver_ = void 0
+                function x(t, e) {
+                    j.call(this), this.object_ = t, this.path_ = h(e), this.directObserver_ = void 0
                 }
-                function P(e) {
-                    j.call(this), this.reportChangesOnOpen_ = e, this.value_ = [], this.directObserver_ = void 0, this.observed_ = []
+                function P(t) {
+                    j.call(this), this.reportChangesOnOpen_ = t, this.value_ = [], this.directObserver_ = void 0, this.observed_ = []
                 }
-                function $(e) {
-                    return e
+                function $(t) {
+                    return t
                 }
-                function k(e, t, r, n) {
-                    this.callback_ = void 0, this.target_ = void 0, this.value_ = void 0, this.observable_ = e, this.getValueFn_ = t || $, this.setValueFn_ = r || $, this.dontPassThroughSet_ = n
+                function k(t, e, r, n) {
+                    this.callback_ = void 0, this.target_ = void 0, this.value_ = void 0, this.observable_ = t, this.getValueFn_ = e || $, this.setValueFn_ = r || $, this.dontPassThroughSet_ = n
                 }
-                function W(e, t, r) {
-                    for (var n = {}, i = {}, o = 0; o < t.length; o++) {
-                        var a = t[o];
-                        pt[a.type] ? (a.name in r || (r[a.name] = a.oldValue), "update" != a.type && ("add" != a.type ? a.name in n ? (delete n[a.name], delete r[a.name]) : i[a.name] = !0 : a.name in i ? delete i[a.name] : n[a.name] = !0)) : (console.error("Unknown changeRecord type: " + a.type), console.error(a))
+                function W(t, e, r) {
+                    for (var n = {}, i = {}, o = 0; o < e.length; o++) {
+                        var a = e[o];
+                        pe[a.type] ? (a.name in r || (r[a.name] = a.oldValue), "update" != a.type && ("add" != a.type ? a.name in n ? (delete n[a.name], delete r[a.name]) : i[a.name] = !0 : a.name in i ? delete i[a.name] : n[a.name] = !0)) : (console.error("Unknown changeRecord type: " + a.type), console.error(a))
                     }
-                    for (var s in n) n[s] = e[s];
+                    for (var s in n) n[s] = t[s];
                     for (var s in i) i[s] = void 0;
                     var u = {};
                     for (var s in r) if (!(s in n || s in i)) {
-                        var c = e[s];
+                        var c = t[s];
                         r[s] !== c && (u[s] = c)
                     }
                     return {
@@ -3294,27 +3458,27 @@ function e(t, r, n) {
                         changed: u
                     }
                 }
-                function A(e, t, r) {
+                function A(t, e, r) {
                     return {
-                        index: e,
-                        removed: t,
+                        index: t,
+                        removed: e,
                         addedCount: r
                     }
                 }
                 function I() {}
-                function T(e, t, r, n, i, o) {
-                    return bt.calcSplices(e, t, r, n, i, o)
+                function T(t, e, r, n, i, o) {
+                    return be.calcSplices(t, e, r, n, i, o)
                 }
-                function M(e, t, r, n) {
-                    return r > t || e > n ? -1 : t == r || n == e ? 0 : r > e ? n > t ? t - r : n - r : t > n ? n - e : t - e
+                function M(t, e, r, n) {
+                    return r > e || t > n ? -1 : e == r || n == t ? 0 : r > t ? n > e ? e - r : n - r : e > n ? n - t : e - t
                 }
-                function N(e, t, r, n) {
-                    for (var i = A(t, r, n), o = !1, a = 0, s = 0; s < e.length; s++) {
-                        var u = e[s];
+                function N(t, e, r, n) {
+                    for (var i = A(e, r, n), o = !1, a = 0, s = 0; s < t.length; s++) {
+                        var u = t[s];
                         if (u.index += a, !o) {
                             var c = M(i.index, i.index + i.removed.length, u.index, u.index + u.addedCount);
                             if (c >= 0) {
-                                e.splice(s, 1), s--, a -= u.addedCount - u.removed.length, i.addedCount += u.addedCount - c;
+                                t.splice(s, 1), s--, a -= u.addedCount - u.removed.length, i.addedCount += u.addedCount - c;
                                 var l = i.removed.length + u.removed.length - c;
                                 if (i.addedCount || l) {
                                     var r = u.removed;
@@ -3329,17 +3493,17 @@ function e(t, r, n) {
                                     i.removed = r, u.index < i.index && (i.index = u.index)
                                 } else o = !0
                             } else if (i.index < u.index) {
-                                o = !0, e.splice(s, 0, i), s++;
+                                o = !0, t.splice(s, 0, i), s++;
                                 var p = i.addedCount - i.removed.length;
                                 u.index += p, a += p
                             }
                         }
                     }
-                    o || e.push(i)
+                    o || t.push(i)
                 }
-                function F(e, t) {
-                    for (var r = [], o = 0; o < t.length; o++) {
-                        var a = t[o];
+                function F(t, e) {
+                    for (var r = [], o = 0; o < e.length; o++) {
+                        var a = e[o];
                         switch (a.type) {
                         case "splice":
                             N(r, a.index, a.removed.slice(), a.addedCount);
@@ -3358,28 +3522,28 @@ function e(t, r, n) {
                     }
                     return r
                 }
-                function V(e, t) {
+                function V(t, e) {
                     var r = [];
-                    return F(e, t).forEach(function (t) {
-                        return 1 == t.addedCount && 1 == t.removed.length ? void(t.removed[0] !== e[t.index] && r.push(t)) : void(r = r.concat(T(e, t.index, t.index + t.addedCount, t.removed, 0, t.removed.length)))
+                    return F(t, e).forEach(function (e) {
+                        return 1 == e.addedCount && 1 == e.removed.length ? void(e.removed[0] !== t[e.index] && r.push(e)) : void(r = r.concat(T(t, e.index, e.index + e.addedCount, e.removed, 0, e.removed.length)))
                     }), r
                 }
-                var L = e.testingExposeCycleCount,
-                    D = t(),
+                var L = t.testingExposeCycleCount,
+                    D = e(),
                     G = r(),
-                    H = e.Number.isNaN ||
-                    function (t) {
-                        return "number" == typeof t && e.isNaN(t)
+                    H = t.Number.isNaN ||
+                    function (e) {
+                        return "number" == typeof e && t.isNaN(e)
                     },
                     U = "__proto__" in {} ?
-                    function (e) {
-                        return e
-                    } : function (e) {
-                        var t = e.__proto__;
-                        if (!t) return e;
-                        var r = Object.create(t);
-                        return Object.getOwnPropertyNames(e).forEach(function (t) {
-                            Object.defineProperty(r, t, Object.getOwnPropertyDescriptor(e, t))
+                    function (t) {
+                        return t
+                    } : function (t) {
+                        var e = t.__proto__;
+                        if (!e) return t;
+                        var r = Object.create(e);
+                        return Object.getOwnPropertyNames(t).forEach(function (e) {
+                            Object.defineProperty(r, e, Object.getOwnPropertyDescriptor(t, e))
                         }), r
                     },
                     B = "[$_a-zA-Z]",
@@ -3449,163 +3613,163 @@ function e(t, r, n) {
                     __proto__: [],
                     valid: !0,
                     toString: function () {
-                        for (var e = "", t = 0; t < this.length; t++) {
-                            var r = this[t];
-                            e += l(r) ? t ? "." + r : r : p(r)
+                        for (var t = "", e = 0; e < this.length; e++) {
+                            var r = this[e];
+                            t += l(r) ? e ? "." + r : r : p(r)
                         }
-                        return e
+                        return t
                     },
-                    getValueFrom: function (e) {
-                        for (var t = 0; t < this.length; t++) {
-                            if (null == e) return;
-                            e = e[this[t]]
+                    getValueFrom: function (t) {
+                        for (var e = 0; e < this.length; e++) {
+                            if (null == t) return;
+                            t = t[this[e]]
                         }
-                        return e
+                        return t
                     },
-                    iterateObjects: function (e, t) {
+                    iterateObjects: function (t, e) {
                         for (var r = 0; r < this.length; r++) {
-                            if (r && (e = e[this[r - 1]]), !o(e)) return;
-                            t(e, this[0])
+                            if (r && (t = t[this[r - 1]]), !o(t)) return;
+                            e(t, this[0])
                         }
                     },
                     compiledGetValueFromFn: function () {
-                        var e = "",
-                            t = "obj";
-                        e += "if (obj != null";
-                        for (var r, n = 0; n < this.length - 1; n++) r = this[n], t += l(r) ? "." + r : p(r), e += " &&\n     " + t + " != null";
-                        e += ")\n";
+                        var t = "",
+                            e = "obj";
+                        t += "if (obj != null";
+                        for (var r, n = 0; n < this.length - 1; n++) r = this[n], e += l(r) ? "." + r : p(r), t += " &&\n     " + e + " != null";
+                        t += ")\n";
                         var r = this[n];
-                        return t += l(r) ? "." + r : p(r), e += "  return " + t + ";\nelse\n  return undefined;", new Function("obj", e)
+                        return e += l(r) ? "." + r : p(r), t += "  return " + e + ";\nelse\n  return undefined;", new Function("obj", t)
                     },
-                    setValueFrom: function (e, t) {
+                    setValueFrom: function (t, e) {
                         if (!this.length) return !1;
                         for (var r = 0; r < this.length - 1; r++) {
-                            if (!o(e)) return !1;
-                            e = e[this[r]]
+                            if (!o(t)) return !1;
+                            t = t[this[r]]
                         }
-                        return o(e) ? (e[this[r]] = t, !0) : !1
+                        return o(t) ? (t[this[r]] = e, !0) : !1
                     }
                 });
                 var X = new f("", K);
                 X.valid = !1, X.getValueFrom = X.setValueFrom = function () {};
                 var Y, J = 1e3,
-                    et = [],
-                    tt = D ?
+                    te = [],
+                    ee = D ?
                     function () {
-                        var e = {
+                        var t = {
                             pingPong: !0
                         },
-                            t = !1;
-                        return Object.observe(e, function () {
-                            b(), t = !1
+                            e = !1;
+                        return Object.observe(t, function () {
+                            b(), e = !1
                         }), function (r) {
-                            et.push(r), t || (t = !0, e.pingPong = !e.pingPong)
+                            te.push(r), e || (e = !0, t.pingPong = !t.pingPong)
                         }
                     }() : function () {
-                        return function (e) {
-                            et.push(e)
+                        return function (t) {
+                            te.push(t)
                         }
                     }(),
-                    rt = [],
-                    nt = [],
-                    it = 0,
-                    ot = 1,
-                    at = 2,
-                    st = 3,
-                    ut = 1;
+                    re = [],
+                    ne = [],
+                    ie = 0,
+                    oe = 1,
+                    ae = 2,
+                    se = 3,
+                    ue = 1;
                 j.prototype = {
-                    open: function (e, t) {
-                        if (this.state_ != it) throw Error("Observer has already been opened.");
-                        return S(this), this.callback_ = e, this.target_ = t, this.connect_(), this.state_ = ot, this.value_
+                    open: function (t, e) {
+                        if (this.state_ != ie) throw Error("Observer has already been opened.");
+                        return S(this), this.callback_ = t, this.target_ = e, this.connect_(), this.state_ = oe, this.value_
                     },
                     close: function () {
-                        this.state_ == ot && (R(this), this.disconnect_(), this.value_ = void 0, this.callback_ = void 0, this.target_ = void 0, this.state_ = at)
+                        this.state_ == oe && (R(this), this.disconnect_(), this.value_ = void 0, this.callback_ = void 0, this.target_ = void 0, this.state_ = ae)
                     },
                     deliver: function () {
-                        this.state_ == ot && d(this)
+                        this.state_ == oe && d(this)
                     },
-                    report_: function (e) {
+                    report_: function (t) {
                         try {
-                            this.callback_.apply(this.target_, e)
-                        } catch (t) {
-                            j._errorThrownDuringCallback = !0, console.error("Exception caught during observer callback: " + (t.stack || t))
+                            this.callback_.apply(this.target_, t)
+                        } catch (e) {
+                            j._errorThrownDuringCallback = !0, console.error("Exception caught during observer callback: " + (e.stack || e))
                         }
                     },
                     discardChanges: function () {
                         return this.check_(void 0, !0), this.value_
                     }
                 };
-                var ct, lt = !D;
-                j._allObserversCount = 0, lt && (ct = []);
-                var ft = !1;
-                e.Platform = e.Platform || {}, e.Platform.performMicrotaskCheckpoint = function () {
-                    if (!ft && lt) {
-                        ft = !0;
-                        var t, r, n = 0;
+                var ce, le = !D;
+                j._allObserversCount = 0, le && (ce = []);
+                var fe = !1;
+                t.Platform = t.Platform || {}, t.Platform.performMicrotaskCheckpoint = function () {
+                    if (!fe && le) {
+                        fe = !0;
+                        var e, r, n = 0;
                         do {
-                            n++, r = ct, ct = [], t = !1;
+                            n++, r = ce, ce = [], e = !1;
                             for (var i = 0; i < r.length; i++) {
                                 var o = r[i];
-                                o.state_ == ot && (o.check_() && (t = !0), ct.push(o))
+                                o.state_ == oe && (o.check_() && (e = !0), ce.push(o))
                             }
-                            b() && (t = !0)
-                        } while (J > n && t);
-                        L && (e.dirtyCheckCycleCount = n), ft = !1
+                            b() && (e = !0)
+                        } while (J > n && e);
+                        L && (t.dirtyCheckCycleCount = n), fe = !1
                     }
-                }, lt && (e.Platform.clearObservers = function () {
-                    ct = []
-                }), C.prototype = U({
+                }, le && (t.Platform.clearObservers = function () {
+                    ce = []
+                }), E.prototype = U({
                     __proto__: j.prototype,
                     arrayObserve: !1,
                     connect_: function () {
                         D ? this.directObserver_ = _(this, this.value_, this.arrayObserve) : this.oldObject_ = this.copyObject(this.value_)
                     },
-                    copyObject: function (e) {
-                        var t = Array.isArray(e) ? [] : {};
-                        for (var r in e) t[r] = e[r];
-                        return Array.isArray(e) && (t.length = e.length), t
+                    copyObject: function (t) {
+                        var e = Array.isArray(t) ? [] : {};
+                        for (var r in t) e[r] = t[r];
+                        return Array.isArray(t) && (e.length = t.length), e
                     },
-                    check_: function (e) {
-                        var t, r;
+                    check_: function (t) {
+                        var e, r;
                         if (D) {
-                            if (!e) return !1;
-                            r = {}, t = W(this.value_, e, r)
-                        } else r = this.oldObject_, t = g(this.value_, this.oldObject_);
-                        return m(t) ? !1 : (D || (this.oldObject_ = this.copyObject(this.value_)), this.report_([t.added || {},
-                        t.removed || {},
-                        t.changed || {}, function (e) {
-                            return r[e]
+                            if (!t) return !1;
+                            r = {}, e = W(this.value_, t, r)
+                        } else r = this.oldObject_, e = g(this.value_, this.oldObject_);
+                        return m(e) ? !1 : (D || (this.oldObject_ = this.copyObject(this.value_)), this.report_([e.added || {},
+                        e.removed || {},
+                        e.changed || {}, function (t) {
+                            return r[t]
                         }]), !0)
                     },
                     disconnect_: function () {
                         D ? (this.directObserver_.close(), this.directObserver_ = void 0) : this.oldObject_ = void 0
                     },
                     deliver: function () {
-                        this.state_ == ot && (D ? this.directObserver_.deliver(!1) : d(this))
+                        this.state_ == oe && (D ? this.directObserver_.deliver(!1) : d(this))
                     },
                     discardChanges: function () {
                         return this.directObserver_ ? this.directObserver_.deliver(!0) : this.oldObject_ = this.copyObject(this.value_), this.value_
                     }
-                }), x.prototype = U({
-                    __proto__: C.prototype,
+                }), C.prototype = U({
+                    __proto__: E.prototype,
                     arrayObserve: !0,
-                    copyObject: function (e) {
-                        return e.slice()
+                    copyObject: function (t) {
+                        return t.slice()
                     },
-                    check_: function (e) {
-                        var t;
+                    check_: function (t) {
+                        var e;
                         if (D) {
-                            if (!e) return !1;
-                            t = V(this.value_, e)
-                        } else t = T(this.value_, 0, this.value_.length, this.oldObject_, 0, this.oldObject_.length);
-                        return t && t.length ? (D || (this.oldObject_ = this.copyObject(this.value_)), this.report_([t]), !0) : !1
+                            if (!t) return !1;
+                            e = V(this.value_, t)
+                        } else e = T(this.value_, 0, this.value_.length, this.oldObject_, 0, this.oldObject_.length);
+                        return e && e.length ? (D || (this.oldObject_ = this.copyObject(this.value_)), this.report_([e]), !0) : !1
                     }
-                }), x.applySplices = function (e, t, r) {
+                }), C.applySplices = function (t, e, r) {
                     r.forEach(function (r) {
-                        for (var n = [r.index, r.removed.length], i = r.index; i < r.index + r.addedCount;) n.push(t[i]), i++;
-                        Array.prototype.splice.apply(e, n)
+                        for (var n = [r.index, r.removed.length], i = r.index; i < r.index + r.addedCount;) n.push(e[i]), i++;
+                        Array.prototype.splice.apply(t, n)
                     })
-                }, E.prototype = U({
+                }, x.prototype = U({
                     __proto__: j.prototype,
                     get path() {
                         return this.path_
@@ -3616,80 +3780,80 @@ function e(t, r, n) {
                     disconnect_: function () {
                         this.value_ = void 0, this.directObserver_ && (this.directObserver_.close(this), this.directObserver_ = void 0)
                     },
-                    iterateObjects_: function (e) {
-                        this.path_.iterateObjects(this.object_, e)
+                    iterateObjects_: function (t) {
+                        this.path_.iterateObjects(this.object_, t)
                     },
-                    check_: function (e, t) {
+                    check_: function (t, e) {
                         var r = this.value_;
-                        return this.value_ = this.path_.getValueFrom(this.object_), t || a(this.value_, r) ? !1 : (this.report_([this.value_, r, this]), !0)
+                        return this.value_ = this.path_.getValueFrom(this.object_), e || a(this.value_, r) ? !1 : (this.report_([this.value_, r, this]), !0)
                     },
-                    setValue: function (e) {
-                        this.path_ && this.path_.setValueFrom(this.object_, e)
+                    setValue: function (t) {
+                        this.path_ && this.path_.setValueFrom(this.object_, t)
                     }
                 });
-                var ht = {};
+                var he = {};
                 P.prototype = U({
                     __proto__: j.prototype,
                     connect_: function () {
                         if (D) {
-                            for (var e, t = !1, r = 0; r < this.observed_.length; r += 2) if (e = this.observed_[r], e !== ht) {
-                                t = !0;
+                            for (var t, e = !1, r = 0; r < this.observed_.length; r += 2) if (t = this.observed_[r], t !== he) {
+                                e = !0;
                                 break
                             }
-                            t && (this.directObserver_ = O(this, e))
+                            e && (this.directObserver_ = O(this, t))
                         }
                         this.check_(void 0, !this.reportChangesOnOpen_)
                     },
                     disconnect_: function () {
-                        for (var e = 0; e < this.observed_.length; e += 2) this.observed_[e] === ht && this.observed_[e + 1].close();
+                        for (var t = 0; t < this.observed_.length; t += 2) this.observed_[t] === he && this.observed_[t + 1].close();
                         this.observed_.length = 0, this.value_.length = 0, this.directObserver_ && (this.directObserver_.close(this), this.directObserver_ = void 0)
                     },
-                    addPath: function (e, t) {
-                        if (this.state_ != it && this.state_ != st) throw Error("Cannot add paths once started.");
-                        var t = h(t);
-                        if (this.observed_.push(e, t), this.reportChangesOnOpen_) {
+                    addPath: function (t, e) {
+                        if (this.state_ != ie && this.state_ != se) throw Error("Cannot add paths once started.");
+                        var e = h(e);
+                        if (this.observed_.push(t, e), this.reportChangesOnOpen_) {
                             var r = this.observed_.length / 2 - 1;
-                            this.value_[r] = t.getValueFrom(e)
+                            this.value_[r] = e.getValueFrom(t)
                         }
                     },
-                    addObserver: function (e) {
-                        if (this.state_ != it && this.state_ != st) throw Error("Cannot add observers once started.");
-                        if (this.observed_.push(ht, e), this.reportChangesOnOpen_) {
-                            var t = this.observed_.length / 2 - 1;
-                            this.value_[t] = e.open(this.deliver, this)
+                    addObserver: function (t) {
+                        if (this.state_ != ie && this.state_ != se) throw Error("Cannot add observers once started.");
+                        if (this.observed_.push(he, t), this.reportChangesOnOpen_) {
+                            var e = this.observed_.length / 2 - 1;
+                            this.value_[e] = t.open(this.deliver, this)
                         }
                     },
                     startReset: function () {
-                        if (this.state_ != ot) throw Error("Can only reset while open");
-                        this.state_ = st, this.disconnect_()
+                        if (this.state_ != oe) throw Error("Can only reset while open");
+                        this.state_ = se, this.disconnect_()
                     },
                     finishReset: function () {
-                        if (this.state_ != st) throw Error("Can only finishReset after startReset");
-                        return this.state_ = ot, this.connect_(), this.value_
+                        if (this.state_ != se) throw Error("Can only finishReset after startReset");
+                        return this.state_ = oe, this.connect_(), this.value_
                     },
-                    iterateObjects_: function (e) {
-                        for (var t, r = 0; r < this.observed_.length; r += 2) t = this.observed_[r], t !== ht && this.observed_[r + 1].iterateObjects(t, e)
+                    iterateObjects_: function (t) {
+                        for (var e, r = 0; r < this.observed_.length; r += 2) e = this.observed_[r], e !== he && this.observed_[r + 1].iterateObjects(e, t)
                     },
-                    check_: function (e, t) {
+                    check_: function (t, e) {
                         for (var r, n = 0; n < this.observed_.length; n += 2) {
                             var i, o = this.observed_[n],
                                 s = this.observed_[n + 1];
-                            if (o === ht) {
+                            if (o === he) {
                                 var u = s;
-                                i = this.state_ === it ? u.open(this.deliver, this) : u.discardChanges()
+                                i = this.state_ === ie ? u.open(this.deliver, this) : u.discardChanges()
                             } else i = s.getValueFrom(o);
-                            t ? this.value_[n / 2] = i : a(i, this.value_[n / 2]) || (r = r || [], r[n / 2] = this.value_[n / 2], this.value_[n / 2] = i)
+                            e ? this.value_[n / 2] = i : a(i, this.value_[n / 2]) || (r = r || [], r[n / 2] = this.value_[n / 2], this.value_[n / 2] = i)
                         }
                         return r ? (this.report_([this.value_, r, this.observed_]), !0) : !1
                     }
                 }), k.prototype = {
-                    open: function (e, t) {
-                        return this.callback_ = e, this.target_ = t, this.value_ = this.getValueFn_(this.observable_.open(this.observedCallback_, this)), this.value_
+                    open: function (t, e) {
+                        return this.callback_ = t, this.target_ = e, this.value_ = this.getValueFn_(this.observable_.open(this.observedCallback_, this)), this.value_
                     },
-                    observedCallback_: function (e) {
-                        if (e = this.getValueFn_(e), !a(e, this.value_)) {
-                            var t = this.value_;
-                            this.value_ = e, this.callback_.call(this.target_, this.value_, t)
+                    observedCallback_: function (t) {
+                        if (t = this.getValueFn_(t), !a(t, this.value_)) {
+                            var e = this.value_;
+                            this.value_ = t, this.callback_.call(this.target_, this.value_, e)
                         }
                     },
                     discardChanges: function () {
@@ -3698,27 +3862,27 @@ function e(t, r, n) {
                     deliver: function () {
                         return this.observable_.deliver()
                     },
-                    setValue: function (e) {
-                        return e = this.setValueFn_(e), !this.dontPassThroughSet_ && this.observable_.setValue ? this.observable_.setValue(e) : void 0
+                    setValue: function (t) {
+                        return t = this.setValueFn_(t), !this.dontPassThroughSet_ && this.observable_.setValue ? this.observable_.setValue(t) : void 0
                     },
                     close: function () {
                         this.observable_ && this.observable_.close(), this.callback_ = void 0, this.target_ = void 0, this.observable_ = void 0, this.value_ = void 0, this.getValueFn_ = void 0, this.setValueFn_ = void 0
                     }
                 };
-                var pt = {
+                var pe = {
                     add: !0,
                     update: !0,
                     "delete": !0
                 },
-                    dt = 0,
-                    vt = 1,
-                    mt = 2,
-                    gt = 3;
+                    de = 0,
+                    ve = 1,
+                    me = 2,
+                    ge = 3;
                 I.prototype = {
-                    calcEditDistances: function (e, t, r, n, i, o) {
-                        for (var a = o - i + 1, s = r - t + 1, u = new Array(a), c = 0; a > c; c++) u[c] = new Array(s), u[c][0] = c;
+                    calcEditDistances: function (t, e, r, n, i, o) {
+                        for (var a = o - i + 1, s = r - e + 1, u = new Array(a), c = 0; a > c; c++) u[c] = new Array(s), u[c][0] = c;
                         for (var l = 0; s > l; l++) u[0][l] = l;
-                        for (var c = 1; a > c; c++) for (var l = 1; s > l; l++) if (this.equals(e[t + l - 1], n[i + c - 1])) u[c][l] = u[c - 1][l - 1];
+                        for (var c = 1; a > c; c++) for (var l = 1; s > l; l++) if (this.equals(t[e + l - 1], n[i + c - 1])) u[c][l] = u[c - 1][l - 1];
                         else {
                             var f = u[c - 1][l] + 1,
                                 h = u[c][l - 1] + 1;
@@ -3726,62 +3890,62 @@ function e(t, r, n) {
                         }
                         return u
                     },
-                    spliceOperationsFromEditDistances: function (e) {
-                        for (var t = e.length - 1, r = e[0].length - 1, n = e[t][r], i = []; t > 0 || r > 0;) if (0 != t) if (0 != r) {
-                            var o, a = e[t - 1][r - 1],
-                                s = e[t - 1][r],
-                                u = e[t][r - 1];
-                            o = u > s ? a > s ? s : a : a > u ? u : a, o == a ? (a == n ? i.push(dt) : (i.push(vt), n = a), t--, r--) : o == s ? (i.push(gt), t--, n = s) : (i.push(mt), r--, n = u)
-                        } else i.push(gt), t--;
-                        else i.push(mt), r--;
+                    spliceOperationsFromEditDistances: function (t) {
+                        for (var e = t.length - 1, r = t[0].length - 1, n = t[e][r], i = []; e > 0 || r > 0;) if (0 != e) if (0 != r) {
+                            var o, a = t[e - 1][r - 1],
+                                s = t[e - 1][r],
+                                u = t[e][r - 1];
+                            o = u > s ? a > s ? s : a : a > u ? u : a, o == a ? (a == n ? i.push(de) : (i.push(ve), n = a), e--, r--) : o == s ? (i.push(ge), e--, n = s) : (i.push(me), r--, n = u)
+                        } else i.push(ge), e--;
+                        else i.push(me), r--;
                         return i.reverse(), i
                     },
-                    calcSplices: function (e, t, r, n, i, o) {
+                    calcSplices: function (t, e, r, n, i, o) {
                         var a = 0,
                             s = 0,
-                            u = Math.min(r - t, o - i);
-                        if (0 == t && 0 == i && (a = this.sharedPrefix(e, n, u)), r == e.length && o == n.length && (s = this.sharedSuffix(e, n, u - a)), t += a, i += a, r -= s, o -= s, r - t == 0 && o - i == 0) return [];
-                        if (t == r) {
-                            for (var c = A(t, [], 0); o > i;) c.removed.push(n[i++]);
+                            u = Math.min(r - e, o - i);
+                        if (0 == e && 0 == i && (a = this.sharedPrefix(t, n, u)), r == t.length && o == n.length && (s = this.sharedSuffix(t, n, u - a)), e += a, i += a, r -= s, o -= s, r - e == 0 && o - i == 0) return [];
+                        if (e == r) {
+                            for (var c = A(e, [], 0); o > i;) c.removed.push(n[i++]);
                             return [c]
                         }
-                        if (i == o) return [A(t, [], r - t)];
-                        for (var l = this.spliceOperationsFromEditDistances(this.calcEditDistances(e, t, r, n, i, o)), c = void 0, f = [], h = t, p = i, d = 0; d < l.length; d++) switch (l[d]) {
-                        case dt:
+                        if (i == o) return [A(e, [], r - e)];
+                        for (var l = this.spliceOperationsFromEditDistances(this.calcEditDistances(t, e, r, n, i, o)), c = void 0, f = [], h = e, p = i, d = 0; d < l.length; d++) switch (l[d]) {
+                        case de:
                             c && (f.push(c), c = void 0), h++, p++;
                             break;
-                        case vt:
+                        case ve:
                             c || (c = A(h, [], 0)), c.addedCount++, h++, c.removed.push(n[p]), p++;
                             break;
-                        case mt:
+                        case me:
                             c || (c = A(h, [], 0)), c.addedCount++, h++;
                             break;
-                        case gt:
+                        case ge:
                             c || (c = A(h, [], 0)), c.removed.push(n[p]), p++
                         }
                         return c && f.push(c), f
                     },
-                    sharedPrefix: function (e, t, r) {
-                        for (var n = 0; r > n; n++) if (!this.equals(e[n], t[n])) return n;
+                    sharedPrefix: function (t, e, r) {
+                        for (var n = 0; r > n; n++) if (!this.equals(t[n], e[n])) return n;
                         return r
                     },
-                    sharedSuffix: function (e, t, r) {
-                        for (var n = e.length, i = t.length, o = 0; r > o && this.equals(e[--n], t[--i]);) o++;
+                    sharedSuffix: function (t, e, r) {
+                        for (var n = t.length, i = e.length, o = 0; r > o && this.equals(t[--n], e[--i]);) o++;
                         return o
                     },
-                    calculateSplices: function (e, t) {
-                        return this.calcSplices(e, 0, e.length, t, 0, t.length)
+                    calculateSplices: function (t, e) {
+                        return this.calcSplices(t, 0, t.length, e, 0, e.length)
                     },
-                    equals: function (e, t) {
-                        return e === t
+                    equals: function (t, e) {
+                        return t === e
                     }
                 };
-                var bt = new I;
-                e.Observer = j, e.Observer.runEOM_ = tt, e.Observer.observerSentinel_ = ht, e.Observer.hasObjectObserve = D, e.ArrayObserver = x, e.ArrayObserver.calculateSplices = function (e, t) {
-                    return bt.calculateSplices(e, t)
-                }, e.ArraySplice = I, e.ObjectObserver = C, e.PathObserver = E, e.CompoundObserver = P, e.Path = f, e.ObserverTransform = k
-            }("undefined" != typeof e && e && "undefined" != typeof t && t ? e : this || window)
+                var be = new I;
+                t.Observer = j, t.Observer.runEOM_ = ee, t.Observer.observerSentinel_ = he, t.Observer.hasObjectObserve = D, t.ArrayObserver = C, t.ArrayObserver.calculateSplices = function (t, e) {
+                    return be.calculateSplices(t, e)
+                }, t.ArraySplice = I, t.ObjectObserver = E, t.PathObserver = x, t.CompoundObserver = P, t.Path = f, t.ObserverTransform = k
+            }("undefined" != typeof t && t && "undefined" != typeof e && e ? t : this || window)
         }).call(this, "undefined" != typeof global ? global : "undefined" != typeof self ? self : "undefined" != typeof window ? window : {})
     },
     {}]
-}, {}, [40, 8]);
+}, {}, [44, 8]);

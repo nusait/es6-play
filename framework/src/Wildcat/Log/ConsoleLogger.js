@@ -20,6 +20,10 @@ class ConsoleLogger /*implements 'Wildcat.Contracts.Log'*/ {
 
         state(this).console.dir(...args);
     }
+    get state_() {
+
+        return state(this);
+    }
 
 }
 

@@ -10,6 +10,7 @@ var AppServiceProvider = require('App.Providers.AppServiceProvider');
  */
 var LogServiceProvider       = require('Wildcat.Log.LogServiceProvider');
 var WindowServiceProvider    = require('Wildcat.DOM.WindowServiceProvider');
+var ErrorProvider            = require('Wildcat.Errors.ErrorServiceProvider');
 var ViewServiceProvider      = require('Wildcat.View.ViewServiceProvider');
 var CommanderServiceProvider = require('Wildcat.Commander.CommandServiceProvider');
 
@@ -26,6 +27,7 @@ module.exports = {
          */
         LogServiceProvider,
         WindowServiceProvider,
+        ErrorProvider,
         ViewServiceProvider,
         CommanderServiceProvider,
     ],

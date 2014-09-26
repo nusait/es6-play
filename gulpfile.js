@@ -94,10 +94,16 @@ function yuidocTask() {
 }
 function watchTask() {
 
+    gulp.watch('framework/**/helpers.js', function() {
+        console.log('=== helpers.js');
+        bootstrapTask()
+    });
+
     gulp.watch('framework/**/*.js', jsTaskWithAutoload);
     gulp.watch('app/**/*.js',       jsTaskWithAutoload);
     gulp.watch('config/**/*.js',    jsTaskWithAutoload);
     gulp.watch('public/js/bundle.js', uglifyTask);
+
     gulp.watch('bootstrap/**/*.js', bootstrapTask);
 }
 function registerGulpTasks() {     

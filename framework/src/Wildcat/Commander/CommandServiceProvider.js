@@ -16,10 +16,7 @@ class CommandServiceProvider extends ServiceProvider {
 
 function registerCommandBus() {
 
-    this.app.bindShared('commandBus', app => {
-
-        return new CommandBus(app);
-    });
+    this.app.bindShared('commandBus', app => new CommandBus(app));
 }
 function registerCommands() {
 
@@ -48,11 +45,9 @@ function registerHandlers() {
 function registerEventDispatcher() {
 
     var {app} = this;
-    var {events, log} = app;
+    var {events, logger} = app;
 
-    app.bind('eventDispatcher', app => {
-        return new EventDispatcher(events, log);        
-    });
+    app.bind('eventDispatcher', app => new EventDispatcher(events, logger));
 }
 
 module.exports = CommandServiceProvider;

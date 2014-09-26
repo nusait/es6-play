@@ -72,6 +72,7 @@ function debugIfLocalEnvironment(app) {
     }
     window.helpers = helpers;
     for (var key in helpers) {
+      log(("adding helpers." + key + " to window"));
       if (!window[key])
         window[key] = helpers[key];
     }
@@ -88,16 +89,19 @@ autoload.loadApp().then(instantiateNewApplication).then(loadEnvironment).then(st
 
 
 },{"Wildcat.Support.helpers":4,"bootstrap.autoload":1,"bootstrap.environment":2}],4:[function(require,module,exports){
+(function (global){
 "use strict";
+var $console = global.console;
+var $setTimeout = global.setTimeout;
 function keys(object) {
   return Object.keys(object);
 }
 function assign(object) {
-  var $__4;
+  var $__6;
   for (var args = [],
       $__2 = 1; $__2 < arguments.length; $__2++)
     args[$__2 - 1] = arguments[$__2];
-  return ($__4 = Object).assign.apply($__4, $traceurRuntime.spread(args));
+  return ($__6 = Object).assign.apply($__6, $traceurRuntime.spread(args));
 }
 function extendProtoOf(target, source) {
   var key = arguments[2] !== (void 0) ? arguments[2] : [];
@@ -133,6 +137,9 @@ function isUndefined(val) {
 function isDefined(val) {
   return (!isUndefined(val));
 }
+function isArray(val) {
+  return Array.isArray(val);
+}
 function defined(val, $default) {
   return isDefined(val) ? val : $default;
 }
@@ -143,21 +150,40 @@ function wait() {
   }));
 }
 function log() {
-  var $__4;
+  var $__6;
   for (var args = [],
       $__3 = 0; $__3 < arguments.length; $__3++)
     args[$__3] = arguments[$__3];
-  var console = window.console;
-  ($__4 = console).log.apply($__4, $traceurRuntime.spread(args));
+  ($__6 = $console).log.apply($__6, $traceurRuntime.spread(args));
+}
+function error() {
+  var $__6;
+  for (var args = [],
+      $__4 = 0; $__4 < arguments.length; $__4++)
+    args[$__4] = arguments[$__4];
+  ($__6 = $console).error.apply($__6, $traceurRuntime.spread(args));
+}
+function warn() {
+  var $__6;
+  for (var args = [],
+      $__5 = 0; $__5 < arguments.length; $__5++)
+    args[$__5] = arguments[$__5];
+  ($__6 = $console).warn.apply($__6, $traceurRuntime.spread(args));
+}
+function spawn(makeGenerator) {
+  var promise = async(makeGenerator);
+  promise().then(log, terminateError);
 }
 function async(makeGenerator) {
   return function() {
     var $Promise = Promise;
     var generator = makeGenerator.apply(this, arguments);
     function handle(result) {
-      if (result.done)
-        return $Promise.resolve(result.value);
-      return $Promise.resolve(result.value).then(function(res) {
+      var done = result.done;
+      var value = result.value;
+      if (done)
+        return $Promise.resolve(value);
+      return $Promise.resolve(value).then(function(res) {
         return handle(generator.next(res));
       }, function(err) {
         return handle(generator.throw(err));
@@ -191,6 +217,13 @@ function noProto() {
   Object.assign(empty, source);
   return empty;
 }
+function terminateError(error) {
+  $setTimeout((function() {
+    warn("from [terimateError]:");
+    warn(error.stack);
+    throw error;
+  }), 0);
+}
 var helpers = {
   keys: keys,
   assign: assign,
@@ -201,16 +234,22 @@ var helpers = {
   isString: isString,
   isUndefined: isUndefined,
   isDefined: isDefined,
+  isArray: isArray,
   defined: defined,
   wait: wait,
   log: log,
+  error: error,
+  warn: warn,
+  spawn: spawn,
   async: async,
   arrayIterator: arrayIterator,
-  noProto: noProto
+  noProto: noProto,
+  terminateError: terminateError
 };
 module.exports = helpers;
 
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],5:[function(require,module,exports){
 // shim for using process in browser
 

@@ -1,4 +1,6 @@
 var helpers = require('Wildcat.Support.helpers');
+var ValidationError = require('Wildcat.Errors.ValidationError');
+var AuthenticationError = require('Wildcat.Errors.AuthenticationError');
 
 class ReportRepository {
 
@@ -11,10 +13,14 @@ class ReportRepository {
         log(`saving report, please wait…`);
         
         return wait().then(() => {
+
+            // throw new AuthenticationError(`craapppp`);
+
             log(`report saved, thank you.`);
             return report;
         });
     }
+    
 }
 
 var {log, wait} = helpers;

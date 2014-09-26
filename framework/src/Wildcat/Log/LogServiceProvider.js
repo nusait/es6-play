@@ -5,7 +5,7 @@ class LogServiceProvider extends ServiceProvider {
  
     register() {
 
-        this.app.singleton('log', ConsoleLogger);
+        this.app.singleton('logger', ConsoleLogger);
     }
     provides() {
 

@@ -46,6 +46,7 @@ function debugIfLocalEnvironment(app) {
         // add all helper functions to global
         window.helpers = helpers;
         for (var key in helpers) {
+            log(`adding helpers.${key} to window`);
             if ( ! window[key] ) window[key] = helpers[key];
         }
     }

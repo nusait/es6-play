@@ -25,19 +25,29 @@
     1: [ function(require, module, exports) {
         "use strict";
         var View = require("Wildcat.View.View");
+        var helpers = require("Wildcat.Support.helpers");
+        var log = $traceurRuntime.assertObject(helpers).log;
         var IntroView = function IntroView() {
-            $traceurRuntime.defaultSuperCall(this, $IntroView.prototype, arguments);
+            for (var args = [], $__1 = 0; $__1 < arguments.length; $__1++) args[$__1] = arguments[$__1];
+            $traceurRuntime.superCall(this, $IntroView.prototype, "constructor", $traceurRuntime.spread(args));
+            var app = this.app;
+            var events = $traceurRuntime.assertObject(app).events;
+            events.on("reportWasPosted", function(e) {
+                return log(e.type, e);
+            });
         };
         var $IntroView = IntroView;
         $traceurRuntime.createClass(IntroView, {
             postReport: function(name, incident) {
-                var command = this.app.make("postReportCommand", [ name, incident ]);
+                var app = this.app;
+                var command = app.make("postReportCommand", [ name, incident ]);
                 this.execute(command);
             }
         }, {}, View);
         module.exports = IntroView;
     }, {
-        "Wildcat.View.View": 36
+        "Wildcat.Support.helpers": 37,
+        "Wildcat.View.View": 40
     } ],
     2: [ function(require, module, exports) {
         "use strict";
@@ -91,16 +101,18 @@
                 }))().catch(terminateError);
             }
         }, {}, CommandHandler);
-        var $__1 = $traceurRuntime.assertObject(helpers), terminateError = $__1.terminateError, async = $__1.async;
+        var $__1 = $traceurRuntime.assertObject(helpers), terminateError = $__1.terminateError, async = $__1.async, log = $__1.log;
         module.exports = PostReportCommandHandler;
     }, {
         "Wildcat.Commander.CommandHandler": 16,
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Support.helpers": 37
     } ],
     4: [ function(require, module, exports) {
         "use strict";
         var ReportWasPosted = function ReportWasPosted(report) {
-            this.report = report;
+            this.value = report;
+            this.type = this.getName();
+            this.timeStamp = Date.now();
         };
         $traceurRuntime.createClass(ReportWasPosted, {
             getName: function() {
@@ -113,6 +125,7 @@
         "use strict";
         var EventGenerator = require("Wildcat.Commander.Events.EventGenerator");
         var helpers = require("Wildcat.Support.helpers");
+        var ValidationError = require("Wildcat.Errors.ValidationError");
         var Report = function Report(name, incident) {
             this.name = name;
             this.incident = incident;
@@ -120,11 +133,62 @@
         };
         var $Report = Report;
         $traceurRuntime.createClass(Report, {}, {
+            persist: $traceurRuntime.initGeneratorFunction(function $__3(report) {
+                var myName, savedReport;
+                return $traceurRuntime.createGeneratorInstance(function($ctx) {
+                    while (true) switch ($ctx.state) {
+                      case 0:
+                        myName = this.myName();
+                        console.log("hey report 1: " + myName);
+                        $ctx.state = 12;
+                        break;
+
+                      case 12:
+                        $ctx.state = 2;
+                        return wait();
+
+                      case 2:
+                        savedReport = $ctx.sent;
+                        $ctx.state = 4;
+                        break;
+
+                      case 4:
+                        console.log("hey report 2");
+                        $ctx.state = 14;
+                        break;
+
+                      case 14:
+                        $ctx.state = 6;
+                        return wait();
+
+                      case 6:
+                        $ctx.maybeThrow();
+                        $ctx.state = 8;
+                        break;
+
+                      case 8:
+                        console.log("hey report 3");
+                        $ctx.state = 16;
+                        break;
+
+                      case 16:
+                        $ctx.returnValue = "i am done!";
+                        $ctx.state = -2;
+                        break;
+
+                      default:
+                        return $ctx.end();
+                    }
+                }, $__3, this);
+            }),
+            myName: function() {
+                return "weirdName";
+            },
             post: function() {
                 for (var args = [], $__1 = 0; $__1 < arguments.length; $__1++) args[$__1] = arguments[$__1];
                 var app = $Report.getApplication();
                 var reportRepository = $traceurRuntime.assertObject(app).reportRepository;
-                return async($traceurRuntime.initGeneratorFunction(function $__3() {
+                return async($traceurRuntime.initGeneratorFunction(function $__4() {
                     var report, event;
                     return $traceurRuntime.createGeneratorInstance(function($ctx) {
                         while (true) switch ($ctx.state) {
@@ -155,7 +219,7 @@
                           default:
                             return $ctx.end();
                         }
-                    }, $__3, this);
+                    }, $__4, this);
                 }))();
             },
             getApplication: function() {
@@ -165,12 +229,14 @@
                 $Report.app_ = app;
             }
         });
-        var $__2 = $traceurRuntime.assertObject(helpers), log = $__2.log, extendProtoOf = $__2.extendProtoOf;
+        var $__2 = $traceurRuntime.assertObject(helpers), log = $__2.log, extendProtoOf = $__2.extendProtoOf, wait = $__2.wait, async = $__2.async;
         extendProtoOf(Report, EventGenerator);
+        Report.persist = async(Report.persist);
         module.exports = Report;
     }, {
         "Wildcat.Commander.Events.EventGenerator": 21,
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Errors.ValidationError": 28,
+        "Wildcat.Support.helpers": 37
     } ],
     6: [ function(require, module, exports) {
         "use strict";
@@ -217,12 +283,14 @@
         "App.Entities.Reports.Events.ReportWasPosted": 4,
         "App.Entities.Reports.Report": 5,
         "App.Repositories.ReportRepository": 7,
-        "Wildcat.Support.ServiceProvider": 32,
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Support.ServiceProvider": 36,
+        "Wildcat.Support.helpers": 37
     } ],
     7: [ function(require, module, exports) {
         "use strict";
         var helpers = require("Wildcat.Support.helpers");
+        var ValidationError = require("Wildcat.Errors.ValidationError");
+        var AuthenticationError = require("Wildcat.Errors.AuthenticationError");
         var ReportRepository = function ReportRepository(app) {
             this.app = app;
         };
@@ -238,25 +306,28 @@
         var $__1 = $traceurRuntime.assertObject(helpers), log = $__1.log, wait = $__1.wait;
         module.exports = ReportRepository;
     }, {
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Errors.AuthenticationError": 26,
+        "Wildcat.Errors.ValidationError": 28,
+        "Wildcat.Support.helpers": 37
     } ],
     8: [ function(require, module, exports) {
         "use strict";
         var App = require("Wildcat.Foundation.Application");
         window.App = App;
     }, {
-        "Wildcat.Foundation.Application": 27
+        "Wildcat.Foundation.Application": 31
     } ],
     9: [ function(require, module, exports) {
         "use strict";
         var AppServiceProvider = require("App.Providers.AppServiceProvider");
         var LogServiceProvider = require("Wildcat.Log.LogServiceProvider");
         var WindowServiceProvider = require("Wildcat.DOM.WindowServiceProvider");
+        var ErrorProvider = require("Wildcat.Errors.ErrorServiceProvider");
         var ViewServiceProvider = require("Wildcat.View.ViewServiceProvider");
         var CommanderServiceProvider = require("Wildcat.Commander.CommandServiceProvider");
         module.exports = {
             debug: false,
-            providers: [ AppServiceProvider, LogServiceProvider, WindowServiceProvider, ViewServiceProvider, CommanderServiceProvider ],
+            providers: [ AppServiceProvider, LogServiceProvider, WindowServiceProvider, ErrorProvider, ViewServiceProvider, CommanderServiceProvider ],
             locale: "en",
             get browser() {
                 return window.navigator.userAgent;
@@ -266,8 +337,9 @@
         "App.Providers.AppServiceProvider": 6,
         "Wildcat.Commander.CommandServiceProvider": 17,
         "Wildcat.DOM.WindowServiceProvider": 25,
-        "Wildcat.Log.LogServiceProvider": 31,
-        "Wildcat.View.ViewServiceProvider": 37
+        "Wildcat.Errors.ErrorServiceProvider": 27,
+        "Wildcat.Log.LogServiceProvider": 35,
+        "Wildcat.View.ViewServiceProvider": 41
     } ],
     10: [ function(require, module, exports) {
         "use strict";
@@ -350,7 +422,7 @@
         module.exports = CommandHandler;
     }, {
         "Wildcat.Commander.Events.DispatchableTrait": 19,
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Support.helpers": 37
     } ],
     17: [ function(require, module, exports) {
         "use strict";
@@ -403,17 +475,17 @@
         }
         function registerEventDispatcher() {
             var app = this.app;
-            var $__4 = $traceurRuntime.assertObject(app), events = $__4.events, log = $__4.log;
+            var $__4 = $traceurRuntime.assertObject(app), events = $__4.events, logger = $__4.logger;
             app.bind("eventDispatcher", function(app) {
-                return new EventDispatcher(events, log);
+                return new EventDispatcher(events, logger);
             });
         }
         module.exports = CommandServiceProvider;
     }, {
         "Wildcat.Commander.CommandBus": 15,
         "Wildcat.Commander.Events.EventDispatcher": 20,
-        "Wildcat.Support.ServiceProvider": 32,
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Support.ServiceProvider": 36,
+        "Wildcat.Support.helpers": 37
     } ],
     18: [ function(require, module, exports) {
         "use strict";
@@ -431,7 +503,7 @@
         var log = $traceurRuntime.assertObject(helpers).log;
         module.exports = CommanderTrait;
     }, {
-        "Wildcat.Support.helpers": 33
+        "Wildcat.Support.helpers": 37
     } ],
     19: [ function(require, module, exports) {
         "use strict";
@@ -450,8 +522,8 @@
     }, {} ],
     20: [ function(require, module, exports) {
         "use strict";
-        var EventDispatcher = function EventDispatcher(event, log) {
-            this.event_ = event;
+        var EventDispatcher = function EventDispatcher(events, log) {
+            this.events_ = events;
             this.log_ = log;
         };
         $traceurRuntime.createClass(EventDispatcher, {
@@ -460,7 +532,7 @@
                     var event = $__2.value;
                     {
                         var eventName = getEventName.call(this, event);
-                        this.event_.emit(eventName, event);
+                        this.events_.emit(eventName, event);
                         this.log_.log(eventName + " was fired.");
                     }
                 }
@@ -519,7 +591,7 @@
         }, {});
         module.exports = ModuleLoader;
     }, {
-        "Wildcat.Support.state": 35
+        "Wildcat.Support.state": 39
     } ],
     23: [ function(require, module, exports) {
         "use strict";
@@ -556,7 +628,7 @@
         }
         module.exports = Repository;
     }, {
-        "Wildcat.Support.state": 35
+        "Wildcat.Support.state": 39
     } ],
     24: [ function(require, module, exports) {
         "use strict";
@@ -695,9 +767,9 @@
         implementIterator(Container);
         module.exports = Container;
     }, {
-        "Wildcat.Support.helpers": 33,
-        "Wildcat.Support.state": 35,
-        events: 38
+        "Wildcat.Support.helpers": 37,
+        "Wildcat.Support.state": 39,
+        events: 42
     } ],
     25: [ function(require, module, exports) {
         (function(global) {
@@ -721,9 +793,107 @@
             module.exports = WindowServiceProvider;
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
-        "Wildcat.Support.ServiceProvider": 32
+        "Wildcat.Support.ServiceProvider": 36
     } ],
     26: [ function(require, module, exports) {
+        "use strict";
+        var errorConstructor = require("Wildcat.Errors.errorConstructor");
+        var AuthenticationError = errorConstructor("AuthenticationError", "no way! authenticated");
+        module.exports = AuthenticationError;
+    }, {
+        "Wildcat.Errors.errorConstructor": 29
+    } ],
+    27: [ function(require, module, exports) {
+        "use strict";
+        var ServiceProvider = require("Wildcat.Support.ServiceProvider");
+        var ValidationError = require("Wildcat.Errors.ValidationError");
+        var AuthenticationError = require("Wildcat.Errors.AuthenticationError");
+        var ErrorServiceProvider = function ErrorServiceProvider() {
+            $traceurRuntime.defaultSuperCall(this, $ErrorServiceProvider.prototype, arguments);
+        };
+        var $ErrorServiceProvider = ErrorServiceProvider;
+        $traceurRuntime.createClass(ErrorServiceProvider, {
+            register: function() {
+                var app = this.app;
+                app.bindShared("ValidationError", function(app) {
+                    return ValidationError;
+                });
+                app.bindShared("AuthenticationError", function(app) {
+                    return AuthenticationError;
+                });
+            },
+            provides: function() {
+                return [ "ValidationError", "AuthenticationError" ];
+            }
+        }, {}, ServiceProvider);
+        module.exports = ErrorServiceProvider;
+    }, {
+        "Wildcat.Errors.AuthenticationError": 26,
+        "Wildcat.Errors.ValidationError": 28,
+        "Wildcat.Support.ServiceProvider": 36
+    } ],
+    28: [ function(require, module, exports) {
+        "use strict";
+        var errorConstructor = require("Wildcat.Errors.errorConstructor");
+        var ValidationError = errorConstructor("ValidationError", "no way! validated");
+        module.exports = ValidationError;
+    }, {
+        "Wildcat.Errors.errorConstructor": 29
+    } ],
+    29: [ function(require, module, exports) {
+        "use strict";
+        var $Error = Error;
+        var isArray = $traceurRuntime.assertObject(Array).isArray;
+        var $__1 = $traceurRuntime.assertObject(Object), keys = $__1.keys, defineProperties = $__1.defineProperties;
+        function nonEnum(objects) {
+            var writable = true;
+            var enumerable = false;
+            var configurable = true;
+            objects = isArray(objects) ? objects : [ objects ];
+            return objects.reduce(function(result, object) {
+                var key = keys(object)[0];
+                var value = object[key];
+                result[key] = {
+                    value: value,
+                    writable: writable,
+                    enumerable: enumerable,
+                    configurable: configurable
+                };
+                return result;
+            }, {});
+        }
+        function addStackToObject(object, CustomError) {
+            var captureStackTrace = $traceurRuntime.assertObject($Error).captureStackTrace;
+            if (captureStackTrace) {
+                captureStackTrace(object, CustomError);
+            } else {
+                object.stack = new $Error().stack || "";
+            }
+            return object;
+        }
+        function errorConstructor() {
+            var name = arguments[0] !== void 0 ? arguments[0] : "CustomError";
+            var message = arguments[1] !== void 0 ? arguments[1] : "";
+            var CustomError = function CustomError(message) {
+                if (message !== undefined) {
+                    defineProperties(this, nonEnum({
+                        message: message
+                    }));
+                }
+                addStackToObject(this, $CustomError);
+            };
+            var $CustomError = CustomError;
+            $traceurRuntime.createClass(CustomError, {}, {}, $Error);
+            defineProperties(CustomError.prototype, nonEnum([ {
+                name: name
+            }, {
+                message: message
+            } ]));
+            return CustomError;
+        }
+        module.exports = errorConstructor;
+    }, {} ],
+    30: [ function(require, module, exports) {
         "use strict";
         var EventEmitter = require("events").EventEmitter;
         var $__1 = $traceurRuntime.assertObject(require("Wildcat.Support.helpers")), extendProtoOf = $__1.extendProtoOf, isString = $__1.isString;
@@ -746,10 +916,10 @@
         }
         module.exports = Dispatcher;
     }, {
-        "Wildcat.Support.helpers": 33,
-        events: 38
+        "Wildcat.Support.helpers": 37,
+        events: 42
     } ],
-    27: [ function(require, module, exports) {
+    31: [ function(require, module, exports) {
         "use strict";
         var Container = require("Wildcat.Container.Container");
         var Config = require("Wildcat.Config.Repository");
@@ -811,13 +981,13 @@
         "Wildcat.Config.ModuleLoader": 22,
         "Wildcat.Config.Repository": 23,
         "Wildcat.Container.Container": 24,
-        "Wildcat.Events.Dispatcher": 26,
-        "Wildcat.Foundation.ProviderRepository": 28,
-        "Wildcat.Foundation.start": 29,
-        "Wildcat.Support.helpers": 33,
+        "Wildcat.Events.Dispatcher": 30,
+        "Wildcat.Foundation.ProviderRepository": 32,
+        "Wildcat.Foundation.start": 33,
+        "Wildcat.Support.helpers": 37,
         "config.config": 11
     } ],
-    28: [ function(require, module, exports) {
+    32: [ function(require, module, exports) {
         "use strict";
         var ProviderRepository = function ProviderRepository() {};
         $traceurRuntime.createClass(ProviderRepository, {
@@ -835,7 +1005,7 @@
         }, {});
         module.exports = ProviderRepository;
     }, {} ],
-    29: [ function(require, module, exports) {
+    33: [ function(require, module, exports) {
         "use strict";
         var Config = require("Wildcat.Config.Repository");
         function start() {
@@ -854,7 +1024,7 @@
     }, {
         "Wildcat.Config.Repository": 23
     } ],
-    30: [ function(require, module, exports) {
+    34: [ function(require, module, exports) {
         (function(global) {
             "use strict";
             var state = require("Wildcat.Support.state");
@@ -879,14 +1049,17 @@
                     var $__4;
                     for (var args = [], $__3 = 0; $__3 < arguments.length; $__3++) args[$__3] = arguments[$__3];
                     ($__4 = state(this).console).dir.apply($__4, $traceurRuntime.spread(args));
+                },
+                get state_() {
+                    return state(this);
                 }
             }, {});
             module.exports = ConsoleLogger;
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
-        "Wildcat.Support.state": 35
+        "Wildcat.Support.state": 39
     } ],
-    31: [ function(require, module, exports) {
+    35: [ function(require, module, exports) {
         "use strict";
         var ServiceProvider = require("Wildcat.Support.ServiceProvider");
         var ConsoleLogger = require("Wildcat.Log.ConsoleLogger");
@@ -896,7 +1069,7 @@
         var $LogServiceProvider = LogServiceProvider;
         $traceurRuntime.createClass(LogServiceProvider, {
             register: function() {
-                this.app.singleton("log", ConsoleLogger);
+                this.app.singleton("logger", ConsoleLogger);
             },
             provides: function() {
                 return [ "log" ];
@@ -904,10 +1077,10 @@
         }, {}, ServiceProvider);
         module.exports = LogServiceProvider;
     }, {
-        "Wildcat.Log.ConsoleLogger": 30,
-        "Wildcat.Support.ServiceProvider": 32
+        "Wildcat.Log.ConsoleLogger": 34,
+        "Wildcat.Support.ServiceProvider": 36
     } ],
-    32: [ function(require, module, exports) {
+    36: [ function(require, module, exports) {
         "use strict";
         var state = require("Wildcat.Support.state");
         var ServiceProvider = function ServiceProvider(app) {
@@ -922,9 +1095,9 @@
         }, {});
         module.exports = ServiceProvider;
     }, {
-        "Wildcat.Support.state": 35
+        "Wildcat.Support.state": 39
     } ],
-    33: [ function(require, module, exports) {
+    37: [ function(require, module, exports) {
         (function(global) {
             "use strict";
             var $console = global.console;
@@ -933,9 +1106,9 @@
                 return Object.keys(object);
             }
             function assign(object) {
-                var $__5;
+                var $__6;
                 for (var args = [], $__2 = 1; $__2 < arguments.length; $__2++) args[$__2 - 1] = arguments[$__2];
-                return ($__5 = Object).assign.apply($__5, $traceurRuntime.spread(args));
+                return ($__6 = Object).assign.apply($__6, $traceurRuntime.spread(args));
             }
             function extendProtoOf(target, source) {
                 var key = arguments[2] !== void 0 ? arguments[2] : [];
@@ -970,6 +1143,9 @@
             function isDefined(val) {
                 return !isUndefined(val);
             }
+            function isArray(val) {
+                return Array.isArray(val);
+            }
             function defined(val, $default) {
                 return isDefined(val) ? val : $default;
             }
@@ -980,22 +1156,33 @@
                 });
             }
             function log() {
-                var $__5;
+                var $__6;
                 for (var args = [], $__3 = 0; $__3 < arguments.length; $__3++) args[$__3] = arguments[$__3];
-                ($__5 = $console).log.apply($__5, $traceurRuntime.spread(args));
+                ($__6 = $console).log.apply($__6, $traceurRuntime.spread(args));
+            }
+            function error() {
+                var $__6;
+                for (var args = [], $__4 = 0; $__4 < arguments.length; $__4++) args[$__4] = arguments[$__4];
+                ($__6 = $console).error.apply($__6, $traceurRuntime.spread(args));
             }
             function warn() {
-                var $__5;
-                for (var args = [], $__4 = 0; $__4 < arguments.length; $__4++) args[$__4] = arguments[$__4];
-                ($__5 = $console).warn.apply($__5, $traceurRuntime.spread(args));
+                var $__6;
+                for (var args = [], $__5 = 0; $__5 < arguments.length; $__5++) args[$__5] = arguments[$__5];
+                ($__6 = $console).warn.apply($__6, $traceurRuntime.spread(args));
+            }
+            function spawn(makeGenerator) {
+                var promise = async(makeGenerator);
+                promise().then(log, terminateError);
             }
             function async(makeGenerator) {
                 return function() {
                     var $Promise = Promise;
                     var generator = makeGenerator.apply(this, arguments);
                     function handle(result) {
-                        if (result.done) return $Promise.resolve(result.value);
-                        return $Promise.resolve(result.value).then(function(res) {
+                        var done = result.done;
+                        var value = result.value;
+                        if (done) return $Promise.resolve(value);
+                        return $Promise.resolve(value).then(function(res) {
                             return handle(generator.next(res));
                         }, function(err) {
                             return handle(generator.throw(err));
@@ -1046,10 +1233,13 @@
                 isString: isString,
                 isUndefined: isUndefined,
                 isDefined: isDefined,
+                isArray: isArray,
                 defined: defined,
                 wait: wait,
                 log: log,
+                error: error,
                 warn: warn,
+                spawn: spawn,
                 async: async,
                 arrayIterator: arrayIterator,
                 noProto: noProto,
@@ -1058,7 +1248,7 @@
             module.exports = helpers;
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {} ],
-    34: [ function(require, module, exports) {
+    38: [ function(require, module, exports) {
         (function(global) {
             "use strict";
             var observeJs = require("observe-js");
@@ -1075,9 +1265,9 @@
             };
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
-        "observe-js": 41
+        "observe-js": 45
     } ],
-    35: [ function(require, module, exports) {
+    39: [ function(require, module, exports) {
         (function(global) {
             "use strict";
             var $__1 = $traceurRuntime.assertObject(require("Wildcat.Support.helpers")), isUndefined = $__1.isUndefined, log = $__1.log, noProto = $__1.noProto, isString = $__1.isString;
@@ -1149,10 +1339,10 @@
             module.exports = state;
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
-        "Wildcat.Support.helpers": 33,
-        "Wildcat.Support.observe": 34
+        "Wildcat.Support.helpers": 37,
+        "Wildcat.Support.observe": 38
     } ],
-    36: [ function(require, module, exports) {
+    40: [ function(require, module, exports) {
         "use strict";
         var state = require("Wildcat.Support.state");
         var observe = require("Wildcat.Support.observe");
@@ -1201,11 +1391,11 @@
         module.exports = View;
     }, {
         "Wildcat.Commander.CommanderTrait": 18,
-        "Wildcat.Support.helpers": 33,
-        "Wildcat.Support.observe": 34,
-        "Wildcat.Support.state": 35
+        "Wildcat.Support.helpers": 37,
+        "Wildcat.Support.observe": 38,
+        "Wildcat.Support.state": 39
     } ],
-    37: [ function(require, module, exports) {
+    41: [ function(require, module, exports) {
         "use strict";
         var ServiceProvider = require("Wildcat.Support.ServiceProvider");
         var View = require("Wildcat.View.View");
@@ -1233,10 +1423,10 @@
         }, {}, ServiceProvider);
         module.exports = ViewServiceProvider;
     }, {
-        "Wildcat.Support.ServiceProvider": 32,
-        "Wildcat.View.View": 36
+        "Wildcat.Support.ServiceProvider": 36,
+        "Wildcat.View.View": 40
     } ],
-    38: [ function(require, module, exports) {
+    42: [ function(require, module, exports) {
         function EventEmitter() {
             this._events = this._events || {};
             this._maxListeners = this._maxListeners || undefined;
@@ -1409,7 +1599,7 @@
             return arg === void 0;
         }
     }, {} ],
-    39: [ function(require, module, exports) {
+    43: [ function(require, module, exports) {
         var process = module.exports = {};
         process.nextTick = function() {
             var canSetImmediate = typeof window !== "undefined" && window.setImmediate;
@@ -1462,7 +1652,7 @@
             throw new Error("process.chdir is not supported");
         };
     }, {} ],
-    40: [ function(require, module, exports) {
+    44: [ function(require, module, exports) {
         (function(process, global) {
             (function(global) {
                 "use strict";
@@ -3746,9 +3936,9 @@
             System.get("traceur-runtime@0.0.55/src/runtime/polyfill-import" + "");
         }).call(this, require("_process"), typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
-        _process: 39
+        _process: 43
     } ],
-    41: [ function(require, module, exports) {
+    45: [ function(require, module, exports) {
         (function(global) {
             (function(global) {
                 "use strict";
@@ -4911,4 +5101,4 @@
             })(typeof global !== "undefined" && global && typeof module !== "undefined" && module ? global : this || window);
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {} ]
-}, {}, [ 40, 8 ]);
+}, {}, [ 44, 8 ]);

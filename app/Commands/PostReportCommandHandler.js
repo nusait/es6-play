@@ -26,6 +26,6 @@ class PostReportCommandHandler extends CommandHandler {
     }
 }
 
-var {terminateError, async} = helpers;
+var {terminateError, async, log} = helpers;
 
 module.exports = PostReportCommandHandler;

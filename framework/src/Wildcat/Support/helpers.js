@@ -30,10 +30,12 @@ function value(val) {
     return (typeof val === 'function') ? val() : val;
 }
 function isNull(val) {
+
     return val === null;
 }
 function isString(val) {
-    return (typeof val) === 'string';
+
+    return typeof val === 'string';
 }
 function isUndefined(val) {
 
@@ -42,6 +44,10 @@ function isUndefined(val) {
 function isDefined(val) {
 
     return ( ! isUndefined(val));
+}
+function isArray(val) {
+
+    return Array.isArray(val);
 }
 function defined(val, $default) {
 
@@ -56,9 +62,19 @@ function log(...args) {
     
     $console.log(...args);
 }
+function error(...args) {
+
+    $console.error(...args);
+}
 function warn(...args) {
     
     $console.warn(...args);
+}
+function spawn(makeGenerator) {
+
+    var promise = async(makeGenerator);
+
+    promise().then(log, terminateError);
 }
 function async(makeGenerator) {
 
@@ -67,10 +83,13 @@ function async(makeGenerator) {
         var generator = makeGenerator.apply(this, arguments);
 
         function handle(result) {
-            // result => { done: [Boolean], value: [Object] }
-            if (result.done) return $Promise.resolve(result.value);
 
-            return $Promise.resolve(result.value).then(function (res) {
+            var done  = result.done;
+            var value = result.value;
+
+            if (done) return $Promise.resolve(value); 
+
+            return $Promise.resolve(value).then(function (res) {
                 return handle(generator.next(res));
             }, function (err) {
                 return handle(generator.throw(err));
@@ -120,10 +139,13 @@ var helpers = {
     isString,
     isUndefined,
     isDefined,
+    isArray,
     defined,
     wait,
     log,
+    error,
     warn,
+    spawn,
     async,
     arrayIterator,
     noProto,
