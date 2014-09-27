@@ -15,6 +15,7 @@ var canaryExpOpts = require('./gulp/canaryExpOpts');
 var auroraOpts    = require('./gulp/auroraOpts');
 var mold          = require('mold-source-map');
 var shell         = require('gulp-shell');
+var concat        = require('gulp-concat');
 
 var dumpautoload  = require('./dumpautoload');
 
@@ -23,7 +24,8 @@ var log = console.log.bind(log);
 
 function uglifyTask() {
 
-    return gulp.src('./public/js/bundle.js')
+    // return gulp.src(['./node_modules/traceur/bin/traceur-runtime.js', './public/js/bundle.js'])
+    gulp.src('./public/js/bundle.js')
         .pipe(uglify({
             mangle: false,
             output: {beautify: true},
@@ -58,10 +60,13 @@ function jsTask(e) {
     
     // es6ify.traceurOverrides = canaryExpOpts;
     
-    return browserify({debug: true})
-        .add(es6ify.runtime)
+    return browserify({debug: true, standalone: 'App'})
         .transform(es6ify.configure(/(app|config|framework).*\.js$/))
-        .require(require.resolve('./app/main.js'), { entry: true })
+        .require(
+            require.resolve('./app/main.js'), 
+            { entry: true }
+        )
+        // .add(es6ify.runtime, {standalone: false}) // load inline from main
         .bundle()
         .pipe(mold.transformSourcesRelativeTo(jsRoot))
         .pipe(source('bundle.js'))

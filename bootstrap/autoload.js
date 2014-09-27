@@ -6,6 +6,14 @@ var autoload = {
 
     loadApp() {
 
+        /*var runningInConsole = true;
+
+        if (runningInConsole) {
+            var module = 'Wildcat.Foundation.Application';
+            var App = require(module);
+            return App;
+        }*/
+
         return new $Promise((resolve, reject) => {
             var script = document.createElement('script');
             script.src = 'js/bundle.js';

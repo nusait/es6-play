@@ -14,7 +14,16 @@ var ErrorProvider            = require('Wildcat.Errors.ErrorServiceProvider');
 var ViewServiceProvider      = require('Wildcat.View.ViewServiceProvider');
 var CommanderServiceProvider = require('Wildcat.Commander.CommandServiceProvider');
 
-module.exports = {
+function browser() {
+
+    if (global.navigator) {
+        return global.navigator.userAgent;
+    } else {
+        return 'not determined';
+    }
+}
+
+var configObject = {
     debug: false,
     providers: [
         /*
@@ -32,5 +41,7 @@ module.exports = {
         CommanderServiceProvider,
     ],
     locale: 'en',
-    get browser() {return window.navigator.userAgent;},
+    browser: browser(),
 };
+
+module.exports = configObject;

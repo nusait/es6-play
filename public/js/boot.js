@@ -129,7 +129,7 @@ function isNull(val) {
   return val === null;
 }
 function isString(val) {
-  return (typeof val) === 'string';
+  return typeof val === 'string';
 }
 function isUndefined(val) {
   return val === undefined;

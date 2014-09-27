@@ -18,6 +18,15 @@ function toBeInstanceOf(util, testers) {
         return {pass, message};    
     }};
 }
+function toBeAFunction(util, testers) {
+
+    return { compare(actual) {
+        pass = (typeof actual === 'function');
+        not = pass ? '' : 'not';
+        message = say`actual is ${not} a function`;
+        return {pass, message};    
+    }};
+}
 function toBeEnumerable(util, testers) {
     
     return { compare([object, name]) {
@@ -31,6 +40,7 @@ function toBeEnumerable(util, testers) {
 var customMatchers = {
     toBeInstanceOf,
     toBeEnumerable,
+    toBeAFunction,
 };
 
 module.exports = customMatchers;

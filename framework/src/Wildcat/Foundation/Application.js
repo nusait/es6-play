@@ -4,6 +4,8 @@ var ModuleLoader       = require('Wildcat.Config.ModuleLoader');
 var Dispatcher         = require('Wildcat.Events.Dispatcher');
 var start              = require('Wildcat.Foundation.start');
 var ProviderRepository = require('Wildcat.Foundation.ProviderRepository');
+var CommanderTrait     = require('Wildcat.Commander.CommanderTrait');
+var helpers            = require('Wildcat.Support.helpers');
 
 var config       = require('config.config');
 var {value}      = require('Wildcat.Support.helpers');
@@ -60,5 +62,9 @@ class Application extends Container {
         return provider;
     }
 }
+
+var {extendProtoOf} = helpers;
+
+extendProtoOf(Application, CommanderTrait);
 
 module.exports = Application;
