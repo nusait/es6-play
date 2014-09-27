@@ -29,7 +29,7 @@ describe('postReportCommand', function() {
         app.events.on('reportWasPosted', function(e) {
             expect(e.type).toBe('reportWasPosted');
             expect(e.value).toBeInstanceOf(app.Report);
-            expect(e.value.name).toBe('Joey');
+            expect(e.value.name).toBe('Joe');
             expect(e.value.incident).toBe('some-incident');
             done();
         });
