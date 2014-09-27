@@ -68,7 +68,7 @@
     "traceur": "*",
     "vinyl-buffer": "*",
     "vinyl-source-stream": "*",
-    "jasmine-node": "*",
+    "jasmine-node": "2.0.0",
     "jasmine": "*"
   }
 }
