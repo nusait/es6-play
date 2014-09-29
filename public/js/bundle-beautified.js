@@ -54,8 +54,8 @@
             }, {}, View);
             module.exports = IntroView;
         }, {
-            "Wildcat.Support.helpers": 38,
-            "Wildcat.View.View": 41
+            "Wildcat.Support.helpers": 42,
+            "Wildcat.View.View": 45
         } ],
         2: [ function(require, module, exports) {
             "use strict";
@@ -112,8 +112,8 @@
             var $__1 = helpers, terminateError = $__1.terminateError, async = $__1.async, log = $__1.log;
             module.exports = PostReportCommandHandler;
         }, {
-            "Wildcat.Commander.CommandHandler": 17,
-            "Wildcat.Support.helpers": 38
+            "Wildcat.Commander.CommandHandler": 18,
+            "Wildcat.Support.helpers": 42
         } ],
         4: [ function(require, module, exports) {
             "use strict";
@@ -242,9 +242,9 @@
             Report.persist = async(Report.persist);
             module.exports = Report;
         }, {
-            "Wildcat.Commander.Events.EventGenerator": 22,
-            "Wildcat.Errors.ValidationError": 29,
-            "Wildcat.Support.helpers": 38
+            "Wildcat.Commander.Events.EventGenerator": 23,
+            "Wildcat.Errors.ValidationError": 32,
+            "Wildcat.Support.helpers": 42
         } ],
         6: [ function(require, module, exports) {
             "use strict";
@@ -252,6 +252,8 @@
             var Report = require("App.Entities.Reports.Report");
             var ReportWasPosted = require("App.Entities.Reports.Events.ReportWasPosted");
             var ReportRepository = require("App.Repositories.ReportRepository");
+            var BluelightRepository = require("App.Repositories.BluelightRepository");
+            var XHRLoader = require("Wildcat.Loaders.XHRLoader");
             var helpers = require("Wildcat.Support.helpers");
             var AppServiceProvider = function AppServiceProvider() {
                 $traceurRuntime.defaultSuperCall(this, $AppServiceProvider.prototype, arguments);
@@ -284,17 +286,44 @@
                 app.bindShared("reportRepository", function(app) {
                     return new ReportRepository(app);
                 });
+                app.bind("xhrLoader", function(app) {
+                    return new XHRLoader();
+                });
+                app.bindShared("bluelightRepository", function(app) {
+                    var xhrLoader = app.xhrLoader;
+                    return new BluelightRepository(app, xhrLoader);
+                });
             }
             var log = helpers.log;
             module.exports = AppServiceProvider;
         }, {
             "App.Entities.Reports.Events.ReportWasPosted": 4,
             "App.Entities.Reports.Report": 5,
-            "App.Repositories.ReportRepository": 7,
-            "Wildcat.Support.ServiceProvider": 37,
-            "Wildcat.Support.helpers": 38
+            "App.Repositories.BluelightRepository": 7,
+            "App.Repositories.ReportRepository": 8,
+            "Wildcat.Loaders.XHRLoader": 38,
+            "Wildcat.Support.ServiceProvider": 41,
+            "Wildcat.Support.helpers": 42
         } ],
         7: [ function(require, module, exports) {
+            "use strict";
+            var helpers = require("Wildcat.Support.helpers");
+            var BluelightRepository = function BluelightRepository(app, loader) {
+                this.app = app;
+                this.loader_ = loader;
+            };
+            $traceurRuntime.createClass(BluelightRepository, {
+                get: function() {
+                    return new Promise(function(resolve, reject) {
+                        resolve("here are bluerights");
+                    });
+                }
+            }, {});
+            module.exports = BluelightRepository;
+        }, {
+            "Wildcat.Support.helpers": 42
+        } ],
+        8: [ function(require, module, exports) {
             "use strict";
             var helpers = require("Wildcat.Support.helpers");
             var ValidationError = require("Wildcat.Errors.ValidationError");
@@ -314,20 +343,20 @@
             var $__1 = helpers, log = $__1.log, wait = $__1.wait;
             module.exports = ReportRepository;
         }, {
-            "Wildcat.Errors.AuthenticationError": 27,
-            "Wildcat.Errors.ValidationError": 29,
-            "Wildcat.Support.helpers": 38
+            "Wildcat.Errors.AuthenticationError": 28,
+            "Wildcat.Errors.ValidationError": 32,
+            "Wildcat.Support.helpers": 42
         } ],
-        8: [ function(require, module, exports) {
+        9: [ function(require, module, exports) {
             "use strict";
             require("traceur/bin/traceur-runtime");
             var App = require("Wildcat.Foundation.Application");
             module.exports = App;
         }, {
-            "Wildcat.Foundation.Application": 32,
-            "traceur/bin/traceur-runtime": 46
+            "Wildcat.Foundation.Application": 35,
+            "traceur/bin/traceur-runtime": 50
         } ],
-        9: [ function(require, module, exports) {
+        10: [ function(require, module, exports) {
             (function(global) {
                 "use strict";
                 var AppServiceProvider = require("App.Providers.AppServiceProvider");
@@ -344,6 +373,8 @@
                     }
                 }
                 var configObject = {
+                    apiProtocol: "http:",
+                    apiHost: "nuhelp.api",
                     debug: false,
                     providers: [ AppServiceProvider, LogServiceProvider, WindowServiceProvider, ErrorProvider, ViewServiceProvider, CommanderServiceProvider ],
                     locale: "en",
@@ -353,13 +384,13 @@
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {
             "App.Providers.AppServiceProvider": 6,
-            "Wildcat.Commander.CommandServiceProvider": 18,
-            "Wildcat.DOM.WindowServiceProvider": 26,
-            "Wildcat.Errors.ErrorServiceProvider": 28,
-            "Wildcat.Log.LogServiceProvider": 36,
-            "Wildcat.View.ViewServiceProvider": 42
+            "Wildcat.Commander.CommandServiceProvider": 19,
+            "Wildcat.DOM.WindowServiceProvider": 27,
+            "Wildcat.Errors.ErrorServiceProvider": 29,
+            "Wildcat.Log.LogServiceProvider": 40,
+            "Wildcat.View.ViewServiceProvider": 46
         } ],
-        10: [ function(require, module, exports) {
+        11: [ function(require, module, exports) {
             "use strict";
             var PostReportCommand = require("App.Commands.PostReportCommand");
             module.exports = [ {
@@ -369,7 +400,7 @@
         }, {
             "App.Commands.PostReportCommand": 2
         } ],
-        11: [ function(require, module, exports) {
+        12: [ function(require, module, exports) {
             "use strict";
             module.exports = {
                 app: require("./app"),
@@ -380,14 +411,14 @@
                 views: require("./views")
             };
         }, {
-            "./app": 9,
-            "./commands": 10,
-            "./handlers": 12,
-            "./local/app": 13,
-            "./testing/app": 14,
-            "./views": 15
+            "./app": 10,
+            "./commands": 11,
+            "./handlers": 13,
+            "./local/app": 14,
+            "./testing/app": 15,
+            "./views": 16
         } ],
-        12: [ function(require, module, exports) {
+        13: [ function(require, module, exports) {
             "use strict";
             var PostReportCommandHandler = require("App.Commands.PostReportCommandHandler");
             module.exports = [ {
@@ -397,19 +428,19 @@
         }, {
             "App.Commands.PostReportCommandHandler": 3
         } ],
-        13: [ function(require, module, exports) {
+        14: [ function(require, module, exports) {
             "use strict";
             module.exports = {
                 debug: true
             };
         }, {} ],
-        14: [ function(require, module, exports) {
+        15: [ function(require, module, exports) {
             "use strict";
             module.exports = {
                 browser: "console"
             };
         }, {} ],
-        15: [ function(require, module, exports) {
+        16: [ function(require, module, exports) {
             "use strict";
             var IntroView = require("App.Browser.Views.IntroView");
             module.exports = [ {
@@ -420,7 +451,7 @@
         }, {
             "App.Browser.Views.IntroView": 1
         } ],
-        16: [ function(require, module, exports) {
+        17: [ function(require, module, exports) {
             "use strict";
             var CommandBus = function CommandBus(app) {
                 this.app = app;
@@ -435,7 +466,7 @@
             }, {});
             module.exports = CommandBus;
         }, {} ],
-        17: [ function(require, module, exports) {
+        18: [ function(require, module, exports) {
             "use strict";
             var DispatchableTrait = require("Wildcat.Commander.Events.DispatchableTrait");
             var helpers = require("Wildcat.Support.helpers");
@@ -447,10 +478,10 @@
             extendProtoOf(CommandHandler, DispatchableTrait);
             module.exports = CommandHandler;
         }, {
-            "Wildcat.Commander.Events.DispatchableTrait": 20,
-            "Wildcat.Support.helpers": 38
+            "Wildcat.Commander.Events.DispatchableTrait": 21,
+            "Wildcat.Support.helpers": 42
         } ],
-        18: [ function(require, module, exports) {
+        19: [ function(require, module, exports) {
             "use strict";
             var log = require("Wildcat.Support.helpers").log;
             var ServiceProvider = require("Wildcat.Support.ServiceProvider");
@@ -508,12 +539,12 @@
             }
             module.exports = CommandServiceProvider;
         }, {
-            "Wildcat.Commander.CommandBus": 16,
-            "Wildcat.Commander.Events.EventDispatcher": 21,
-            "Wildcat.Support.ServiceProvider": 37,
-            "Wildcat.Support.helpers": 38
+            "Wildcat.Commander.CommandBus": 17,
+            "Wildcat.Commander.Events.EventDispatcher": 22,
+            "Wildcat.Support.ServiceProvider": 41,
+            "Wildcat.Support.helpers": 42
         } ],
-        19: [ function(require, module, exports) {
+        20: [ function(require, module, exports) {
             "use strict";
             var helpers = require("Wildcat.Support.helpers");
             var CommanderTrait = function CommanderTrait() {};
@@ -529,9 +560,9 @@
             var log = helpers.log;
             module.exports = CommanderTrait;
         }, {
-            "Wildcat.Support.helpers": 38
+            "Wildcat.Support.helpers": 42
         } ],
-        20: [ function(require, module, exports) {
+        21: [ function(require, module, exports) {
             "use strict";
             var DispatchableTrait = function DispatchableTrait() {};
             $traceurRuntime.createClass(DispatchableTrait, {
@@ -546,7 +577,7 @@
             }, {});
             module.exports = DispatchableTrait;
         }, {} ],
-        21: [ function(require, module, exports) {
+        22: [ function(require, module, exports) {
             "use strict";
             var EventDispatcher = function EventDispatcher(events, log) {
                 this.events_ = events;
@@ -569,7 +600,7 @@
             }
             module.exports = EventDispatcher;
         }, {} ],
-        22: [ function(require, module, exports) {
+        23: [ function(require, module, exports) {
             "use strict";
             var EventGenerator = function EventGenerator() {
                 this.pendingEvents_ = [];
@@ -587,7 +618,7 @@
             }, {});
             module.exports = EventGenerator;
         }, {} ],
-        23: [ function(require, module, exports) {
+        24: [ function(require, module, exports) {
             "use strict";
             var state = require("Wildcat.Support.state");
             var ModuleLoader = function ModuleLoader() {
@@ -617,9 +648,9 @@
             }, {});
             module.exports = ModuleLoader;
         }, {
-            "Wildcat.Support.state": 40
+            "Wildcat.Support.state": 44
         } ],
-        24: [ function(require, module, exports) {
+        25: [ function(require, module, exports) {
             "use strict";
             var state = require("Wildcat.Support.state");
             var Repository = function Repository(loader, environment) {
@@ -654,9 +685,9 @@
             }
             module.exports = Repository;
         }, {
-            "Wildcat.Support.state": 40
+            "Wildcat.Support.state": 44
         } ],
-        25: [ function(require, module, exports) {
+        26: [ function(require, module, exports) {
             "use strict";
             var state = require("Wildcat.Support.state");
             var EventEmitter = require("events").EventEmitter;
@@ -700,7 +731,7 @@
                 bindShared: function(abstract, concrete) {
                     var $__9, $__10;
                     for (var args = [], $__4 = 2; $__4 < arguments.length; $__4++) args[$__4 - 2] = arguments[$__4];
-                    if (Array.isArray(abstract)) {
+                    if (isArray(abstract)) {
                         for (var $__2 = abstract[Symbol.iterator](), $__3; !($__3 = $__2.next()).done; ) {
                             var $args = $__3.value;
                             ($__9 = this).bindShared.apply($__9, $traceurRuntime.spread($args));
@@ -788,16 +819,16 @@
                     return arrayIterator(this.getItems());
                 }
             }, {});
-            var $__8 = helpers, keys = $__8.keys, implementIterator = $__8.implementIterator, isUndefined = $__8.isUndefined, isDefined = $__8.isDefined, defined = $__8.defined, arrayIterator = $__8.arrayIterator, extendProtoOf = $__8.extendProtoOf, noProto = $__8.noProto;
+            var $__8 = helpers, keys = $__8.keys, implementIterator = $__8.implementIterator, isUndefined = $__8.isUndefined, isDefined = $__8.isDefined, defined = $__8.defined, arrayIterator = $__8.arrayIterator, extendProtoOf = $__8.extendProtoOf, noProto = $__8.noProto, isArray = $__8.isArray;
             extendProtoOf(Container, EventEmitter);
             implementIterator(Container);
             module.exports = Container;
         }, {
-            "Wildcat.Support.helpers": 38,
-            "Wildcat.Support.state": 40,
-            events: 43
+            "Wildcat.Support.helpers": 42,
+            "Wildcat.Support.state": 44,
+            events: 47
         } ],
-        26: [ function(require, module, exports) {
+        27: [ function(require, module, exports) {
             (function(global) {
                 "use strict";
                 var ServiceProvider = require("Wildcat.Support.ServiceProvider");
@@ -819,54 +850,76 @@
                 module.exports = WindowServiceProvider;
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {
-            "Wildcat.Support.ServiceProvider": 37
+            "Wildcat.Support.ServiceProvider": 41
         } ],
-        27: [ function(require, module, exports) {
+        28: [ function(require, module, exports) {
             "use strict";
             var errorConstructor = require("Wildcat.Errors.errorConstructor");
             var AuthenticationError = errorConstructor("AuthenticationError", "no way! authenticated");
             module.exports = AuthenticationError;
         }, {
-            "Wildcat.Errors.errorConstructor": 30
+            "Wildcat.Errors.errorConstructor": 33
         } ],
-        28: [ function(require, module, exports) {
+        29: [ function(require, module, exports) {
             "use strict";
             var ServiceProvider = require("Wildcat.Support.ServiceProvider");
             var ValidationError = require("Wildcat.Errors.ValidationError");
+            var TimeoutError = require("Wildcat.Errors.TimeoutError");
             var AuthenticationError = require("Wildcat.Errors.AuthenticationError");
+            var NetworkError = require("Wildcat.Errors.NetworkError");
             var ErrorServiceProvider = function ErrorServiceProvider() {
                 $traceurRuntime.defaultSuperCall(this, $ErrorServiceProvider.prototype, arguments);
             };
             var $ErrorServiceProvider = ErrorServiceProvider;
             $traceurRuntime.createClass(ErrorServiceProvider, {
                 register: function() {
-                    var app = this.app;
-                    app.bindShared("ValidationError", function(app) {
+                    this.app.bindShared([ [ "ValidationError", function() {
                         return ValidationError;
-                    });
-                    app.bindShared("AuthenticationError", function(app) {
+                    } ], [ "AuthenticationError", function() {
                         return AuthenticationError;
-                    });
+                    } ], [ "NetworkError", function() {
+                        return NetworkError;
+                    } ], [ "TimeoutError", function() {
+                        return TimeoutError;
+                    } ] ]);
                 },
                 provides: function() {
-                    return [ "ValidationError", "AuthenticationError" ];
+                    return [ "ValidationError", "AuthenticationError", "NetworkError", "TimeoutError" ];
                 }
             }, {}, ServiceProvider);
             module.exports = ErrorServiceProvider;
         }, {
-            "Wildcat.Errors.AuthenticationError": 27,
-            "Wildcat.Errors.ValidationError": 29,
-            "Wildcat.Support.ServiceProvider": 37
+            "Wildcat.Errors.AuthenticationError": 28,
+            "Wildcat.Errors.NetworkError": 30,
+            "Wildcat.Errors.TimeoutError": 31,
+            "Wildcat.Errors.ValidationError": 32,
+            "Wildcat.Support.ServiceProvider": 41
         } ],
-        29: [ function(require, module, exports) {
+        30: [ function(require, module, exports) {
+            "use strict";
+            var errorConstructor = require("Wildcat.Errors.errorConstructor");
+            var NetworkError = errorConstructor("NetworkError", "network problem");
+            module.exports = NetworkError;
+        }, {
+            "Wildcat.Errors.errorConstructor": 33
+        } ],
+        31: [ function(require, module, exports) {
+            "use strict";
+            var errorConstructor = require("Wildcat.Errors.errorConstructor");
+            var TimeoutError = errorConstructor("TimeoutError", "timeout error happened");
+            module.exports = TimeoutError;
+        }, {
+            "Wildcat.Errors.errorConstructor": 33
+        } ],
+        32: [ function(require, module, exports) {
             "use strict";
             var errorConstructor = require("Wildcat.Errors.errorConstructor");
             var ValidationError = errorConstructor("ValidationError", "no way! validated");
             module.exports = ValidationError;
         }, {
-            "Wildcat.Errors.errorConstructor": 30
+            "Wildcat.Errors.errorConstructor": 33
         } ],
-        30: [ function(require, module, exports) {
+        33: [ function(require, module, exports) {
             "use strict";
             var $Error = Error;
             var isArray = Array.isArray;
@@ -919,7 +972,7 @@
             }
             module.exports = errorConstructor;
         }, {} ],
-        31: [ function(require, module, exports) {
+        34: [ function(require, module, exports) {
             "use strict";
             var EventEmitter = require("events").EventEmitter;
             var $__1 = require("Wildcat.Support.helpers"), extendProtoOf = $__1.extendProtoOf, isString = $__1.isString;
@@ -942,10 +995,10 @@
             }
             module.exports = Dispatcher;
         }, {
-            "Wildcat.Support.helpers": 38,
-            events: 43
+            "Wildcat.Support.helpers": 42,
+            events: 47
         } ],
-        32: [ function(require, module, exports) {
+        35: [ function(require, module, exports) {
             "use strict";
             var Container = require("Wildcat.Container.Container");
             var Config = require("Wildcat.Config.Repository");
@@ -1008,17 +1061,17 @@
             extendProtoOf(Application, CommanderTrait);
             module.exports = Application;
         }, {
-            "Wildcat.Commander.CommanderTrait": 19,
-            "Wildcat.Config.ModuleLoader": 23,
-            "Wildcat.Config.Repository": 24,
-            "Wildcat.Container.Container": 25,
-            "Wildcat.Events.Dispatcher": 31,
-            "Wildcat.Foundation.ProviderRepository": 33,
-            "Wildcat.Foundation.start": 34,
-            "Wildcat.Support.helpers": 38,
-            "config.config": 11
+            "Wildcat.Commander.CommanderTrait": 20,
+            "Wildcat.Config.ModuleLoader": 24,
+            "Wildcat.Config.Repository": 25,
+            "Wildcat.Container.Container": 26,
+            "Wildcat.Events.Dispatcher": 34,
+            "Wildcat.Foundation.ProviderRepository": 36,
+            "Wildcat.Foundation.start": 37,
+            "Wildcat.Support.helpers": 42,
+            "config.config": 12
         } ],
-        33: [ function(require, module, exports) {
+        36: [ function(require, module, exports) {
             "use strict";
             var ProviderRepository = function ProviderRepository() {};
             $traceurRuntime.createClass(ProviderRepository, {
@@ -1036,7 +1089,7 @@
             }, {});
             module.exports = ProviderRepository;
         }, {} ],
-        34: [ function(require, module, exports) {
+        37: [ function(require, module, exports) {
             "use strict";
             var Config = require("Wildcat.Config.Repository");
             function start() {
@@ -1053,9 +1106,69 @@
             }
             module.exports = start;
         }, {
-            "Wildcat.Config.Repository": 24
+            "Wildcat.Config.Repository": 25
         } ],
-        35: [ function(require, module, exports) {
+        38: [ function(require, module, exports) {
+            (function(global) {
+                "use strict";
+                var TimeoutError = require("Wildcat.Errors.TimeoutError");
+                var NetworkError = require("Wildcat.Errors.NetworkError");
+                var helpers = require("Wildcat.Support.helpers");
+                var XHRLoader = function XHRLoader(XMLHttpRequest) {
+                    this.Xhr_ = XMLHttpRequest || global.XMLHttpRequest;
+                };
+                $traceurRuntime.createClass(XHRLoader, {
+                    send: function(method, $__2) {
+                        var $__4, $__5;
+                        var $__3 = $__2, url = $__3.url, timeout = ($__4 = $__3.timeout) === void 0 ? 5e3 : $__4, responseType = ($__5 = $__3.responseType) === void 0 ? "json" : $__5;
+                        var xhr = new this.Xhr_();
+                        var promise = new Promise(function(resolve, reject) {
+                            xhr.open(method, url);
+                            assign(xhr, {
+                                resolve: resolve,
+                                reject: reject,
+                                responseType: responseType,
+                                timeout: timeout,
+                                onload: onload,
+                                ontimeout: ontimeout,
+                                onerror: onerror
+                            }).send();
+                        });
+                        promise.cancel = xhr.abort.bind(xhr);
+                        return promise;
+                    },
+                    get: function() {
+                        var $__6;
+                        for (var args = [], $__1 = 0; $__1 < arguments.length; $__1++) args[$__1] = arguments[$__1];
+                        return ($__6 = this).send.apply($__6, $traceurRuntime.spread([ "GET" ], args));
+                    }
+                }, {});
+                function onload($__2) {
+                    var xhr = $__2.target;
+                    var $__4 = xhr, response = $__4.response, status = $__4.status, statusText = $__4.statusText, resolve = $__4.resolve;
+                    if (isString(response) && xhr.responseType === "json") response = JSON.parse(response);
+                    resolve(response);
+                }
+                function ontimeout($__2) {
+                    var reject = $__2.target.reject;
+                    var timeoutError = new TimeoutError();
+                    reject(timeoutError);
+                }
+                function onerror($__2) {
+                    var xhr = $__2.target;
+                    var $__4 = xhr, response = $__4.response, status = $__4.status, reject = $__4.reject;
+                    var networkError = new NetworkError();
+                    reject(networkError);
+                }
+                var $__2 = helpers, log = $__2.log, error = $__2.error, isString = $__2.isString, assign = $__2.assign;
+                module.exports = XHRLoader;
+            }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
+        }, {
+            "Wildcat.Errors.NetworkError": 30,
+            "Wildcat.Errors.TimeoutError": 31,
+            "Wildcat.Support.helpers": 42
+        } ],
+        39: [ function(require, module, exports) {
             (function(global) {
                 "use strict";
                 var state = require("Wildcat.Support.state");
@@ -1088,9 +1201,9 @@
                 module.exports = ConsoleLogger;
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {
-            "Wildcat.Support.state": 40
+            "Wildcat.Support.state": 44
         } ],
-        36: [ function(require, module, exports) {
+        40: [ function(require, module, exports) {
             "use strict";
             var ServiceProvider = require("Wildcat.Support.ServiceProvider");
             var ConsoleLogger = require("Wildcat.Log.ConsoleLogger");
@@ -1108,10 +1221,10 @@
             }, {}, ServiceProvider);
             module.exports = LogServiceProvider;
         }, {
-            "Wildcat.Log.ConsoleLogger": 35,
-            "Wildcat.Support.ServiceProvider": 37
+            "Wildcat.Log.ConsoleLogger": 39,
+            "Wildcat.Support.ServiceProvider": 41
         } ],
-        37: [ function(require, module, exports) {
+        41: [ function(require, module, exports) {
             "use strict";
             var state = require("Wildcat.Support.state");
             var ServiceProvider = function ServiceProvider(app) {
@@ -1126,9 +1239,9 @@
             }, {});
             module.exports = ServiceProvider;
         }, {
-            "Wildcat.Support.state": 40
+            "Wildcat.Support.state": 44
         } ],
-        38: [ function(require, module, exports) {
+        42: [ function(require, module, exports) {
             (function(global) {
                 "use strict";
                 var $console = global.console;
@@ -1136,10 +1249,10 @@
                 function keys(object) {
                     return Object.keys(object);
                 }
-                function assign(object) {
+                function assign(target) {
                     var $__6;
                     for (var args = [], $__2 = 1; $__2 < arguments.length; $__2++) args[$__2 - 1] = arguments[$__2];
-                    return ($__6 = Object).assign.apply($__6, $traceurRuntime.spread(args));
+                    return ($__6 = Object).assign.apply($__6, $traceurRuntime.spread([ target ], args));
                 }
                 function extendProtoOf(target, source) {
                     var key = arguments[2] !== void 0 ? arguments[2] : [];
@@ -1279,7 +1392,7 @@
                 module.exports = helpers;
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {} ],
-        39: [ function(require, module, exports) {
+        43: [ function(require, module, exports) {
             (function(global) {
                 "use strict";
                 var observeJs = require("observe-js");
@@ -1296,9 +1409,9 @@
                 };
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {
-            "observe-js": 45
+            "observe-js": 49
         } ],
-        40: [ function(require, module, exports) {
+        44: [ function(require, module, exports) {
             (function(global) {
                 "use strict";
                 var $__1 = require("Wildcat.Support.helpers"), isUndefined = $__1.isUndefined, log = $__1.log, noProto = $__1.noProto, isString = $__1.isString;
@@ -1370,10 +1483,10 @@
                 module.exports = state;
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {
-            "Wildcat.Support.helpers": 38,
-            "Wildcat.Support.observe": 39
+            "Wildcat.Support.helpers": 42,
+            "Wildcat.Support.observe": 43
         } ],
-        41: [ function(require, module, exports) {
+        45: [ function(require, module, exports) {
             "use strict";
             var state = require("Wildcat.Support.state");
             var observe = require("Wildcat.Support.observe");
@@ -1421,12 +1534,12 @@
             extendProtoOf(View, CommanderTrait);
             module.exports = View;
         }, {
-            "Wildcat.Commander.CommanderTrait": 19,
-            "Wildcat.Support.helpers": 38,
-            "Wildcat.Support.observe": 39,
-            "Wildcat.Support.state": 40
+            "Wildcat.Commander.CommanderTrait": 20,
+            "Wildcat.Support.helpers": 42,
+            "Wildcat.Support.observe": 43,
+            "Wildcat.Support.state": 44
         } ],
-        42: [ function(require, module, exports) {
+        46: [ function(require, module, exports) {
             "use strict";
             var ServiceProvider = require("Wildcat.Support.ServiceProvider");
             var View = require("Wildcat.View.View");
@@ -1454,10 +1567,10 @@
             }, {}, ServiceProvider);
             module.exports = ViewServiceProvider;
         }, {
-            "Wildcat.Support.ServiceProvider": 37,
-            "Wildcat.View.View": 41
+            "Wildcat.Support.ServiceProvider": 41,
+            "Wildcat.View.View": 45
         } ],
-        43: [ function(require, module, exports) {
+        47: [ function(require, module, exports) {
             function EventEmitter() {
                 this._events = this._events || {};
                 this._maxListeners = this._maxListeners || undefined;
@@ -1630,7 +1743,7 @@
                 return arg === void 0;
             }
         }, {} ],
-        44: [ function(require, module, exports) {
+        48: [ function(require, module, exports) {
             var process = module.exports = {};
             process.nextTick = function() {
                 var canSetImmediate = typeof window !== "undefined" && window.setImmediate;
@@ -1683,7 +1796,7 @@
                 throw new Error("process.chdir is not supported");
             };
         }, {} ],
-        45: [ function(require, module, exports) {
+        49: [ function(require, module, exports) {
             (function(global) {
                 (function(global) {
                     "use strict";
@@ -2846,7 +2959,7 @@
                 })(typeof global !== "undefined" && global && typeof module !== "undefined" && module ? global : this || window);
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {} ],
-        46: [ function(require, module, exports) {
+        50: [ function(require, module, exports) {
             (function(process, global) {
                 (function(global) {
                     "use strict";
@@ -5213,7 +5326,7 @@
                 System.get("traceur-runtime@0.0.62/src/runtime/polyfills/polyfills" + "");
             }).call(this, require("_process"), typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {
-            _process: 44
+            _process: 48
         } ]
-    }, {}, [ 8 ])(8);
+    }, {}, [ 9 ])(9);
 });

@@ -24,6 +24,8 @@ function browser() {
 }
 
 var configObject = {
+    apiProtocol: 'http:',
+    apiHost: 'nuhelp.api',
     debug: false,
     providers: [
         /*

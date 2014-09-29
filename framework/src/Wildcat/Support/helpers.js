@@ -1,3 +1,4 @@
+
 var $console    = global.console;
 var $setTimeout = global.setTimeout;
 
@@ -5,8 +6,9 @@ var $setTimeout = global.setTimeout;
 function keys(object) {
     return Object.keys(object);
 }
-function assign(object, ...args) {
-    return Object.assign(...args);
+function assign(target, ...args) {
+
+    return Object.assign(target, ...args);
 }
 function extendProtoOf(target, source, key = []) {
 

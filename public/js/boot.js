@@ -96,12 +96,12 @@ var $setTimeout = global.setTimeout;
 function keys(object) {
   return Object.keys(object);
 }
-function assign(object) {
+function assign(target) {
   var $__6;
   for (var args = [],
       $__2 = 1; $__2 < arguments.length; $__2++)
     args[$__2 - 1] = arguments[$__2];
-  return ($__6 = Object).assign.apply($__6, $traceurRuntime.spread(args));
+  return ($__6 = Object).assign.apply($__6, $traceurRuntime.spread([target], args));
 }
 function extendProtoOf(target, source) {
   var key = arguments[2] !== (void 0) ? arguments[2] : [];

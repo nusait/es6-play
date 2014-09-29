@@ -50,7 +50,7 @@ class Container {
     }
     bindShared(abstract, concrete, ...args) {
 
-        if (Array.isArray(abstract)) {
+        if (isArray(abstract)) {
             for (var $args of abstract) this.bindShared(...$args);
             return;
         }
@@ -163,6 +163,7 @@ var {
     arrayIterator,
     extendProtoOf,
     noProto,
+    isArray,
 
 } = helpers;
 

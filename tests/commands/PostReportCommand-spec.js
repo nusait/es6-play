@@ -12,6 +12,7 @@ var createTestApplication = require('../../framework/src/Wildcat/Foundation/Test
 app = createTestApplication();
 
 beforeEach(function() {
+    
     jasmine.addMatchers(customMatchers);
 });
 
