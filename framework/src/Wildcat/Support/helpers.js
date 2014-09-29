@@ -131,6 +131,16 @@ function terminateError(error) {
         throw error;    
     }, 0);
 }
+function entries(object = {}) {
+
+    var objectKeys = Object.keys(object);
+
+    return objectKeys.reduce((result, key) => {
+        var value = object[key];
+        result.push([key, value]);
+        return result;
+    }, []);
+}
 var helpers = {
     keys,
     assign,
@@ -152,6 +162,7 @@ var helpers = {
     arrayIterator,
     noProto,
     terminateError,
+    entries,
 };
 
 module.exports = helpers;
