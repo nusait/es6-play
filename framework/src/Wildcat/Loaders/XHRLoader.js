@@ -8,13 +8,17 @@ class XHRLoader {
 
         this.Xhr_ = XMLHttpRequest || global.XMLHttpRequest;
     }
-    send(method, {url, timeout = 5000, responseType = 'json'}) {
+    send(method, {url, timeout = 5000, headers = {}, responseType = 'json'}) {
+
+        // if (headers) log(headers);
 
         var xhr = new this.Xhr_();
 
         var promise = new Promise((resolve, reject) => {
             
             xhr.open(method, url);
+
+            // for([key, value] of headers) xhr.setRequestHeader(key, value);
 
             assign(xhr, {
                 resolve, reject,

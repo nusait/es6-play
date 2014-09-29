@@ -6,7 +6,6 @@ class BluelightRepository {
         this.app = app;
         this.loader_ = loader;
     }
-
     get() {
         return new Promise(function(resolve, reject) {
             resolve('here are bluerights');
