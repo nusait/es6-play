@@ -34,7 +34,7 @@
             "use strict";
             var View = require("Wildcat.View.View");
             var helpers = require("Wildcat.Support.helpers");
-            var log = helpers.log;
+            var $__2 = helpers, log = $__2.log, error = $__2.error;
             var IntroView = function IntroView() {
                 for (var args = [], $__1 = 0; $__1 < arguments.length; $__1++) args[$__1] = arguments[$__1];
                 $traceurRuntime.superCall(this, $IntroView.prototype, "constructor", $traceurRuntime.spread(args));
@@ -50,12 +50,28 @@
                     var app = this.app;
                     var command = app.make("postReportCommand", [ name, incident ]);
                     this.execute(command);
+                },
+                getBluelights: function() {
+                    var app = this.app;
+                    var command = app.make("retrieveBluelightsCommand");
+                    this.execute(command).then(function(collection) {
+                        log("got it from thenable ", collection);
+                    }).catch(function(err) {
+                        error("got it from catchable", err.message);
+                    });
+                },
+                onBluelightsDelivered: function($__3) {
+                    var collection = $__3.value;
+                    log("whenBluelightsDelivered");
+                },
+                onFailRetrieveBluelightsCommand: function(err) {
+                    error("onFailRetrieveBluelightsCommand", err);
                 }
             }, {}, View);
             module.exports = IntroView;
         }, {
-            "Wildcat.Support.helpers": 42,
-            "Wildcat.View.View": 45
+            "Wildcat.Support.helpers": 49,
+            "Wildcat.View.View": 52
         } ],
         2: [ function(require, module, exports) {
             "use strict";
@@ -112,10 +128,205 @@
             var $__1 = helpers, terminateError = $__1.terminateError, async = $__1.async, log = $__1.log;
             module.exports = PostReportCommandHandler;
         }, {
-            "Wildcat.Commander.CommandHandler": 18,
-            "Wildcat.Support.helpers": 42
+            "Wildcat.Commander.CommandHandler": 23,
+            "Wildcat.Support.helpers": 49
         } ],
         4: [ function(require, module, exports) {
+            "use strict";
+            var helpers = require("Wildcat.Support.helpers");
+            var RetrieveBluelightsCommand = function RetrieveBluelightsCommand() {
+                var options = arguments[0] !== void 0 ? arguments[0] : {};
+                assign(this, options);
+            };
+            $traceurRuntime.createClass(RetrieveBluelightsCommand, {}, {
+                getName: function() {
+                    return "app.retrieveBluelightsCommand";
+                },
+                getShortName: function() {
+                    return lastSegment(this.getName());
+                }
+            });
+            var $__1 = helpers, assign = $__1.assign, lastSegment = $__1.lastSegment;
+            module.exports = RetrieveBluelightsCommand;
+        }, {
+            "Wildcat.Support.helpers": 49
+        } ],
+        5: [ function(require, module, exports) {
+            "use strict";
+            var CommandHandler = require("Wildcat.Commander.CommandHandler");
+            var helpers = require("Wildcat.Support.helpers");
+            var RetrieveBluelightsCommandHandler = function RetrieveBluelightsCommandHandler() {
+                $traceurRuntime.defaultSuperCall(this, $RetrieveBluelightsCommandHandler.prototype, arguments);
+            };
+            var $RetrieveBluelightsCommandHandler = RetrieveBluelightsCommandHandler;
+            $traceurRuntime.createClass(RetrieveBluelightsCommandHandler, {
+                handle: $traceurRuntime.initGeneratorFunction(function $__3(command) {
+                    var app, $__2, Bluelight, events, commandName, bluelight, err;
+                    return $traceurRuntime.createGeneratorInstance(function($ctx) {
+                        while (true) switch ($ctx.state) {
+                          case 0:
+                            app = this.app;
+                            $__2 = app, Bluelight = $__2.Bluelight, events = $__2.events;
+                            commandName = command.constructor.getName();
+                            $ctx.state = 19;
+                            break;
+
+                          case 19:
+                            $ctx.pushTry(9, null);
+                            $ctx.state = 12;
+                            break;
+
+                          case 12:
+                            $ctx.state = 2;
+                            return Bluelight.get();
+
+                          case 2:
+                            bluelight = $ctx.sent;
+                            $ctx.state = 4;
+                            break;
+
+                          case 4:
+                            this.dispatchEventsFor(bluelight);
+                            $ctx.state = 8;
+                            break;
+
+                          case 8:
+                            $ctx.returnValue = bluelight.collection;
+                            $ctx.state = -2;
+                            break;
+
+                          case 6:
+                            $ctx.popTry();
+                            $ctx.state = -2;
+                            break;
+
+                          case 9:
+                            $ctx.popTry();
+                            err = $ctx.storedException;
+                            $ctx.state = 15;
+                            break;
+
+                          case 15:
+                            events.emit(commandName, err);
+                            throw err;
+                            $ctx.state = -2;
+                            break;
+
+                          default:
+                            return $ctx.end();
+                        }
+                    }, $__3, this);
+                })
+            }, {}, CommandHandler);
+            var asyncMethods = helpers.asyncMethods;
+            asyncMethods(RetrieveBluelightsCommandHandler.prototype, "handle");
+            module.exports = RetrieveBluelightsCommandHandler;
+        }, {
+            "Wildcat.Commander.CommandHandler": 23,
+            "Wildcat.Support.helpers": 49
+        } ],
+        6: [ function(require, module, exports) {
+            "use strict";
+            var EventGenerator = require("../../../framework/src/Wildcat/Commander/Events/EventGenerator");
+            var helpers = require("Wildcat.Support.helpers");
+            var Bluelight = function Bluelight(name, incident) {
+                this.name = name;
+                this.incident = incident;
+                EventGenerator.call(this);
+            };
+            $traceurRuntime.createClass(Bluelight, {}, {
+                get: $traceurRuntime.initGeneratorFunction(function $__3() {
+                    var args, $__1, app, $__2, bluelightRepository, bluelight, collection, event;
+                    var $arguments = arguments;
+                    return $traceurRuntime.createGeneratorInstance(function($ctx) {
+                        while (true) switch ($ctx.state) {
+                          case 0:
+                            for (args = [], $__1 = 0; $__1 < $arguments.length; $__1++) args[$__1] = $arguments[$__1];
+                            app = this.getApplication();
+                            $__2 = app, bluelightRepository = $__2.bluelightRepository, bluelight = $__2.bluelight;
+                            $ctx.state = 8;
+                            break;
+
+                          case 8:
+                            $ctx.state = 2;
+                            return bluelightRepository.get();
+
+                          case 2:
+                            collection = $ctx.sent;
+                            $ctx.state = 4;
+                            break;
+
+                          case 4:
+                            bluelight.collection = collection;
+                            event = app.make("bluelightsDelivered", [ collection ]);
+                            $ctx.state = 10;
+                            break;
+
+                          case 10:
+                            $ctx.returnValue = bluelight.raise(event);
+                            $ctx.state = -2;
+                            break;
+
+                          default:
+                            return $ctx.end();
+                        }
+                    }, $__3, this);
+                }),
+                getApplication: function() {
+                    return this.app_;
+                },
+                setApplication: function(app) {
+                    this.app_ = app;
+                    return this;
+                }
+            });
+            var $__2 = helpers, log = $__2.log, extendProtoOf = $__2.extendProtoOf, wait = $__2.wait, asyncMethods = $__2.asyncMethods;
+            extendProtoOf(Bluelight, EventGenerator);
+            asyncMethods(Bluelight, "get");
+            module.exports = Bluelight;
+        }, {
+            "../../../framework/src/Wildcat/Commander/Events/EventGenerator": 28,
+            "Wildcat.Support.helpers": 49
+        } ],
+        7: [ function(require, module, exports) {
+            "use strict";
+            var Collection = require("Wildcat.Support.Collection");
+            var helpers = require("../../../framework/src/Wildcat/Support/helpers");
+            var BluelightCollection = function BluelightCollection() {
+                for (var args = [], $__1 = 0; $__1 < arguments.length; $__1++) args[$__1] = arguments[$__1];
+                $traceurRuntime.superCall(this, $BluelightCollection.prototype, "constructor", $traceurRuntime.spread(args));
+            };
+            var $BluelightCollection = BluelightCollection;
+            $traceurRuntime.createClass(BluelightCollection, {}, {
+                getApplication: function() {
+                    return this.app_;
+                },
+                setApplication: function(app) {
+                    this.app_ = app;
+                    return this;
+                }
+            }, Collection);
+            var $__2 = helpers, extendProtoOf = $__2.extendProtoOf, wait = $__2.wait;
+            module.exports = BluelightCollection;
+        }, {
+            "../../../framework/src/Wildcat/Support/helpers": 49,
+            "Wildcat.Support.Collection": 47
+        } ],
+        8: [ function(require, module, exports) {
+            "use strict";
+            var BluelightsDelivered = function BluelightsDelivered(bluelightCollection) {
+                this.value = bluelightCollection;
+                this.type = this.getName();
+                this.timeStamp = Date.now();
+            };
+            $traceurRuntime.createClass(BluelightsDelivered, {
+                getName: function() {
+                    return "app.bluelightsDelivered";
+                }
+            }, {});
+            module.exports = BluelightsDelivered;
+        }, {} ],
+        9: [ function(require, module, exports) {
             "use strict";
             var ReportWasPosted = function ReportWasPosted(report) {
                 this.value = report;
@@ -129,7 +340,7 @@
             }, {});
             module.exports = ReportWasPosted;
         }, {} ],
-        5: [ function(require, module, exports) {
+        10: [ function(require, module, exports) {
             "use strict";
             var EventGenerator = require("Wildcat.Commander.Events.EventGenerator");
             var helpers = require("Wildcat.Support.helpers");
@@ -139,7 +350,6 @@
                 this.incident = incident;
                 EventGenerator.call(this);
             };
-            var $Report = Report;
             $traceurRuntime.createClass(Report, {}, {
                 persist: $traceurRuntime.initGeneratorFunction(function $__3(report) {
                     var myName, savedReport;
@@ -192,67 +402,70 @@
                 myName: function() {
                     return "weirdName";
                 },
-                post: function() {
-                    for (var args = [], $__1 = 0; $__1 < arguments.length; $__1++) args[$__1] = arguments[$__1];
-                    var app = $Report.getApplication();
-                    var reportRepository = app.reportRepository;
-                    return async($traceurRuntime.initGeneratorFunction(function $__4() {
-                        var report, event;
-                        return $traceurRuntime.createGeneratorInstance(function($ctx) {
-                            while (true) switch ($ctx.state) {
-                              case 0:
-                                report = app.make("report", args);
-                                $ctx.state = 8;
-                                break;
+                post: $traceurRuntime.initGeneratorFunction(function $__4() {
+                    var args, $__1, app, reportRepository, report, event;
+                    var $arguments = arguments;
+                    return $traceurRuntime.createGeneratorInstance(function($ctx) {
+                        while (true) switch ($ctx.state) {
+                          case 0:
+                            for (args = [], $__1 = 0; $__1 < $arguments.length; $__1++) args[$__1] = $arguments[$__1];
+                            app = this.getApplication();
+                            reportRepository = app.reportRepository;
+                            report = app.make("report", args);
+                            $ctx.state = 8;
+                            break;
 
-                              case 8:
-                                $ctx.state = 2;
-                                return reportRepository.save(report);
+                          case 8:
+                            $ctx.state = 2;
+                            return reportRepository.save(report);
 
-                              case 2:
-                                report = $ctx.sent;
-                                $ctx.state = 4;
-                                break;
+                          case 2:
+                            report = $ctx.sent;
+                            $ctx.state = 4;
+                            break;
 
-                              case 4:
-                                event = app.make("reportWasPosted", [ report ]);
-                                $ctx.state = 10;
-                                break;
+                          case 4:
+                            event = app.make("reportWasPosted", [ report ]);
+                            $ctx.state = 10;
+                            break;
 
-                              case 10:
-                                $ctx.returnValue = report.raise(event);
-                                $ctx.state = -2;
-                                break;
+                          case 10:
+                            $ctx.returnValue = report.raise(event);
+                            $ctx.state = -2;
+                            break;
 
-                              default:
-                                return $ctx.end();
-                            }
-                        }, $__4, this);
-                    }))();
-                },
+                          default:
+                            return $ctx.end();
+                        }
+                    }, $__4, this);
+                }),
                 getApplication: function() {
-                    return $Report.app_;
+                    return this.app_;
                 },
                 setApplication: function(app) {
-                    $Report.app_ = app;
+                    this.app_ = app;
+                    return this;
                 }
             });
-            var $__2 = helpers, log = $__2.log, extendProtoOf = $__2.extendProtoOf, wait = $__2.wait, async = $__2.async;
+            var $__2 = helpers, log = $__2.log, extendProtoOf = $__2.extendProtoOf, wait = $__2.wait, asyncMethods = $__2.asyncMethods;
             extendProtoOf(Report, EventGenerator);
-            Report.persist = async(Report.persist);
+            asyncMethods(Report, "persist", "post");
             module.exports = Report;
         }, {
-            "Wildcat.Commander.Events.EventGenerator": 23,
-            "Wildcat.Errors.ValidationError": 32,
-            "Wildcat.Support.helpers": 42
+            "Wildcat.Commander.Events.EventGenerator": 28,
+            "Wildcat.Errors.ValidationError": 38,
+            "Wildcat.Support.helpers": 49
         } ],
-        6: [ function(require, module, exports) {
+        11: [ function(require, module, exports) {
             "use strict";
             var ServiceProvider = require("Wildcat.Support.ServiceProvider");
             var Report = require("App.Entities.Reports.Report");
             var ReportWasPosted = require("App.Entities.Reports.Events.ReportWasPosted");
             var ReportRepository = require("App.Repositories.ReportRepository");
+            var Bluelight = require("App.Entities.Bluelights.Bluelight");
+            var BluelightCollection = require("App.Entities.Bluelights.BluelightCollection");
             var BluelightRepository = require("App.Repositories.BluelightRepository");
+            var BluelightsDelivered = require("App.Entities.Bluelights.Events.BluelightsDelivered");
             var XHRLoader = require("Wildcat.Loaders.XHRLoader");
             var helpers = require("Wildcat.Support.helpers");
             var AppServiceProvider = function AppServiceProvider() {
@@ -269,8 +482,7 @@
             function registerEntities() {
                 var app = this.app;
                 app.bindShared("Report", function(app) {
-                    Report.setApplication(app);
-                    return Report;
+                    return Report.setApplication(app);
                 });
                 app.bind("report", function(app) {
                     for (var args = [], $__1 = 1; $__1 < arguments.length; $__1++) args[$__1 - 1] = arguments[$__1];
@@ -279,6 +491,25 @@
                 app.bind("reportWasPosted", function(app) {
                     for (var args = [], $__2 = 1; $__2 < arguments.length; $__2++) args[$__2 - 1] = arguments[$__2];
                     return new (Function.prototype.bind.apply(ReportWasPosted, $traceurRuntime.spread([ null ], args)))();
+                });
+                app.bindShared("Bluelight", function(app) {
+                    return Bluelight.setApplication(app);
+                });
+                app.bind("bluelight", function(app) {
+                    for (var args = [], $__3 = 1; $__3 < arguments.length; $__3++) args[$__3 - 1] = arguments[$__3];
+                    return new (Function.prototype.bind.apply(app.Bluelight, $traceurRuntime.spread([ null ], args)))();
+                });
+                app.bindShared("BluelightCollection", function(app) {
+                    return BluelightCollection.setApplication(app);
+                });
+                app.bind("bluelightCollection", function(app) {
+                    for (var args = [], $__4 = 1; $__4 < arguments.length; $__4++) args[$__4 - 1] = arguments[$__4];
+                    if (!args.length) args = [ [] ];
+                    return new (Function.prototype.bind.apply(app.BluelightCollection, $traceurRuntime.spread([ null ], args)))();
+                });
+                app.bind("bluelightsDelivered", function(app) {
+                    for (var args = [], $__5 = 1; $__5 < arguments.length; $__5++) args[$__5 - 1] = arguments[$__5];
+                    return new (Function.prototype.bind.apply(BluelightsDelivered, $traceurRuntime.spread([ null ], args)))();
                 });
             }
             function registerRepositories() {
@@ -297,33 +528,82 @@
             var log = helpers.log;
             module.exports = AppServiceProvider;
         }, {
-            "App.Entities.Reports.Events.ReportWasPosted": 4,
-            "App.Entities.Reports.Report": 5,
-            "App.Repositories.BluelightRepository": 7,
-            "App.Repositories.ReportRepository": 8,
-            "Wildcat.Loaders.XHRLoader": 38,
-            "Wildcat.Support.ServiceProvider": 41,
-            "Wildcat.Support.helpers": 42
+            "App.Entities.Bluelights.Bluelight": 6,
+            "App.Entities.Bluelights.BluelightCollection": 7,
+            "App.Entities.Bluelights.Events.BluelightsDelivered": 8,
+            "App.Entities.Reports.Events.ReportWasPosted": 9,
+            "App.Entities.Reports.Report": 10,
+            "App.Repositories.BluelightRepository": 12,
+            "App.Repositories.ReportRepository": 13,
+            "Wildcat.Loaders.XHRLoader": 44,
+            "Wildcat.Support.ServiceProvider": 48,
+            "Wildcat.Support.helpers": 49
         } ],
-        7: [ function(require, module, exports) {
+        12: [ function(require, module, exports) {
             "use strict";
-            var helpers = require("Wildcat.Support.helpers");
+            var helpers = require("../../framework/src/Wildcat/Support/helpers");
             var BluelightRepository = function BluelightRepository(app, loader) {
                 this.app = app;
-                this.loader_ = loader;
+                this.loader = loader;
             };
             $traceurRuntime.createClass(BluelightRepository, {
-                get: function() {
-                    return new Promise(function(resolve, reject) {
-                        resolve("here are bluerights");
-                    });
+                get: $traceurRuntime.initGeneratorFunction(function $__4() {
+                    var $__1, app, loader, baseUrl, BluelightCollection, url, features, $__5, $__6, $__7, $__8;
+                    return $traceurRuntime.createGeneratorInstance(function($ctx) {
+                        while (true) switch ($ctx.state) {
+                          case 0:
+                            $__1 = this, app = $__1.app, loader = $__1.loader, baseUrl = $__1.baseUrl;
+                            BluelightCollection = app.BluelightCollection;
+                            url = baseUrl + "bluelights";
+                            $ctx.state = 12;
+                            break;
+
+                          case 12:
+                            $__5 = loader.get;
+                            $__6 = $__5.call(loader, {
+                                url: url,
+                                timeout: 1e4
+                            });
+                            $ctx.state = 6;
+                            break;
+
+                          case 6:
+                            $ctx.state = 2;
+                            return $__6;
+
+                          case 2:
+                            $__7 = $ctx.sent;
+                            $ctx.state = 4;
+                            break;
+
+                          case 4:
+                            $__8 = $__7.features;
+                            features = $__8;
+                            $ctx.state = 8;
+                            break;
+
+                          case 8:
+                            $ctx.returnValue = new BluelightCollection(features);
+                            $ctx.state = -2;
+                            break;
+
+                          default:
+                            return $ctx.end();
+                        }
+                    }, $__4, this);
+                }),
+                get baseUrl() {
+                    var config = this.app.config;
+                    return config.get("app").apiBaseUrl;
                 }
             }, {});
+            var $__1 = helpers, asyncMethods = $__1.asyncMethods, log = $__1.log;
+            asyncMethods(BluelightRepository.prototype, "get");
             module.exports = BluelightRepository;
         }, {
-            "Wildcat.Support.helpers": 42
+            "../../framework/src/Wildcat/Support/helpers": 49
         } ],
-        8: [ function(require, module, exports) {
+        13: [ function(require, module, exports) {
             "use strict";
             var helpers = require("Wildcat.Support.helpers");
             var ValidationError = require("Wildcat.Errors.ValidationError");
@@ -343,20 +623,20 @@
             var $__1 = helpers, log = $__1.log, wait = $__1.wait;
             module.exports = ReportRepository;
         }, {
-            "Wildcat.Errors.AuthenticationError": 28,
-            "Wildcat.Errors.ValidationError": 32,
-            "Wildcat.Support.helpers": 42
+            "Wildcat.Errors.AuthenticationError": 34,
+            "Wildcat.Errors.ValidationError": 38,
+            "Wildcat.Support.helpers": 49
         } ],
-        9: [ function(require, module, exports) {
+        14: [ function(require, module, exports) {
             "use strict";
             require("traceur/bin/traceur-runtime");
-            var App = require("Wildcat.Foundation.Application");
+            var App = require("../framework/src/Wildcat/Foundation/Application");
             module.exports = App;
         }, {
-            "Wildcat.Foundation.Application": 35,
-            "traceur/bin/traceur-runtime": 50
+            "../framework/src/Wildcat/Foundation/Application": 41,
+            "traceur/bin/traceur-runtime": 58
         } ],
-        10: [ function(require, module, exports) {
+        15: [ function(require, module, exports) {
             (function(global) {
                 "use strict";
                 var AppServiceProvider = require("App.Providers.AppServiceProvider");
@@ -373,8 +653,7 @@
                     }
                 }
                 var configObject = {
-                    apiProtocol: "http:",
-                    apiHost: "nuhelp.api",
+                    apiBaseUrl: "https://go.dosa.northwestern.edu/nuhelpapi/api/",
                     debug: false,
                     providers: [ AppServiceProvider, LogServiceProvider, WindowServiceProvider, ErrorProvider, ViewServiceProvider, CommanderServiceProvider ],
                     locale: "en",
@@ -383,24 +662,29 @@
                 module.exports = configObject;
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {
-            "App.Providers.AppServiceProvider": 6,
-            "Wildcat.Commander.CommandServiceProvider": 19,
-            "Wildcat.DOM.WindowServiceProvider": 27,
-            "Wildcat.Errors.ErrorServiceProvider": 29,
-            "Wildcat.Log.LogServiceProvider": 40,
-            "Wildcat.View.ViewServiceProvider": 46
+            "App.Providers.AppServiceProvider": 11,
+            "Wildcat.Commander.CommandServiceProvider": 24,
+            "Wildcat.DOM.WindowServiceProvider": 33,
+            "Wildcat.Errors.ErrorServiceProvider": 35,
+            "Wildcat.Log.LogServiceProvider": 46,
+            "Wildcat.View.ViewServiceProvider": 53
         } ],
-        11: [ function(require, module, exports) {
+        16: [ function(require, module, exports) {
             "use strict";
             var PostReportCommand = require("App.Commands.PostReportCommand");
+            var RetrieveBluelightsCommand = require("App.Commands.RetrieveBluelightsCommand");
             module.exports = [ {
                 "abstract": "postReportCommand",
                 command: PostReportCommand
+            }, {
+                "abstract": "retrieveBluelightsCommand",
+                command: RetrieveBluelightsCommand
             } ];
         }, {
-            "App.Commands.PostReportCommand": 2
+            "App.Commands.PostReportCommand": 2,
+            "App.Commands.RetrieveBluelightsCommand": 4
         } ],
-        12: [ function(require, module, exports) {
+        17: [ function(require, module, exports) {
             "use strict";
             module.exports = {
                 app: require("./app"),
@@ -411,36 +695,43 @@
                 views: require("./views")
             };
         }, {
-            "./app": 10,
-            "./commands": 11,
-            "./handlers": 13,
-            "./local/app": 14,
-            "./testing/app": 15,
-            "./views": 16
+            "./app": 15,
+            "./commands": 16,
+            "./handlers": 18,
+            "./local/app": 19,
+            "./testing/app": 20,
+            "./views": 21
         } ],
-        13: [ function(require, module, exports) {
+        18: [ function(require, module, exports) {
             "use strict";
             var PostReportCommandHandler = require("App.Commands.PostReportCommandHandler");
+            var RetrieveBluelightsCommandHandler = require("App.Commands.RetrieveBluelightsCommandHandler");
             module.exports = [ {
                 "abstract": "postReportCommandHandler",
                 handler: PostReportCommandHandler
+            }, {
+                "abstract": "retrieveBluelightsCommandHandler",
+                handler: RetrieveBluelightsCommandHandler
             } ];
         }, {
-            "App.Commands.PostReportCommandHandler": 3
+            "App.Commands.PostReportCommandHandler": 3,
+            "App.Commands.RetrieveBluelightsCommandHandler": 5
         } ],
-        14: [ function(require, module, exports) {
+        19: [ function(require, module, exports) {
             "use strict";
             module.exports = {
+                apiBaseUrl: "http://nuhelp.api/api/",
                 debug: true
             };
         }, {} ],
-        15: [ function(require, module, exports) {
+        20: [ function(require, module, exports) {
             "use strict";
             module.exports = {
+                apiBaseUrl: "http://nuhelp.api/api/",
                 browser: "console"
             };
         }, {} ],
-        16: [ function(require, module, exports) {
+        21: [ function(require, module, exports) {
             "use strict";
             var IntroView = require("App.Browser.Views.IntroView");
             module.exports = [ {
@@ -451,22 +742,22 @@
         }, {
             "App.Browser.Views.IntroView": 1
         } ],
-        17: [ function(require, module, exports) {
+        22: [ function(require, module, exports) {
             "use strict";
             var CommandBus = function CommandBus(app) {
                 this.app = app;
             };
             $traceurRuntime.createClass(CommandBus, {
                 execute: function(command) {
-                    var commandName = command.constructor.getName();
+                    var commandName = command.constructor.getShortName();
                     var handlerName = commandName + "Handler";
                     var handler = this.app.make(handlerName);
-                    handler.handle(command);
+                    return handler.handle(command);
                 }
             }, {});
             module.exports = CommandBus;
         }, {} ],
-        18: [ function(require, module, exports) {
+        23: [ function(require, module, exports) {
             "use strict";
             var DispatchableTrait = require("Wildcat.Commander.Events.DispatchableTrait");
             var helpers = require("Wildcat.Support.helpers");
@@ -478,10 +769,10 @@
             extendProtoOf(CommandHandler, DispatchableTrait);
             module.exports = CommandHandler;
         }, {
-            "Wildcat.Commander.Events.DispatchableTrait": 21,
-            "Wildcat.Support.helpers": 42
+            "Wildcat.Commander.Events.DispatchableTrait": 26,
+            "Wildcat.Support.helpers": 49
         } ],
-        19: [ function(require, module, exports) {
+        24: [ function(require, module, exports) {
             "use strict";
             var log = require("Wildcat.Support.helpers").log;
             var ServiceProvider = require("Wildcat.Support.ServiceProvider");
@@ -508,7 +799,7 @@
                 var app = this.app;
                 var commands = app.config.get("commands");
                 for (var $__1 = commands[Symbol.iterator](), $__2; !($__2 = $__1.next()).done; ) {
-                    var $__5 = $__2.value, abstract = $__5.abstract, command = $__5.command;
+                    var $__6 = $__2.value, abstract = $__6.abstract, command = $__6.command;
                     {
                         app.bind(abstract, function(app) {
                             for (var args = [], $__3 = 1; $__3 < arguments.length; $__3++) args[$__3 - 1] = arguments[$__3];
@@ -521,9 +812,9 @@
                 var app = this.app;
                 var handlers = app.config.get("handlers");
                 for (var $__1 = handlers[Symbol.iterator](), $__2; !($__2 = $__1.next()).done; ) {
-                    var $__5 = $__2.value, abstract = $__5.abstract, handler = $__5.handler;
+                    var $__6 = $__2.value, abstract = $__6.abstract, handler = $__6.handler;
                     {
-                        app.bind(abstract, function(app) {
+                        app.bindShared(abstract, function(app) {
                             for (var args = [], $__3 = 1; $__3 < arguments.length; $__3++) args[$__3 - 1] = arguments[$__3];
                             return new (Function.prototype.bind.apply(handler, $traceurRuntime.spread([ null, app ], args)))();
                         });
@@ -539,19 +830,19 @@
             }
             module.exports = CommandServiceProvider;
         }, {
-            "Wildcat.Commander.CommandBus": 17,
-            "Wildcat.Commander.Events.EventDispatcher": 22,
-            "Wildcat.Support.ServiceProvider": 41,
-            "Wildcat.Support.helpers": 42
+            "Wildcat.Commander.CommandBus": 22,
+            "Wildcat.Commander.Events.EventDispatcher": 27,
+            "Wildcat.Support.ServiceProvider": 48,
+            "Wildcat.Support.helpers": 49
         } ],
-        20: [ function(require, module, exports) {
+        25: [ function(require, module, exports) {
             "use strict";
             var helpers = require("Wildcat.Support.helpers");
             var CommanderTrait = function CommanderTrait() {};
             $traceurRuntime.createClass(CommanderTrait, {
                 execute: function(command, input) {
                     var bus = this.getCommandBus();
-                    bus.execute(command);
+                    return bus.execute(command);
                 },
                 getCommandBus: function() {
                     return this.app.make("commandBus");
@@ -560,9 +851,9 @@
             var log = helpers.log;
             module.exports = CommanderTrait;
         }, {
-            "Wildcat.Support.helpers": 42
+            "Wildcat.Support.helpers": 49
         } ],
-        21: [ function(require, module, exports) {
+        26: [ function(require, module, exports) {
             "use strict";
             var DispatchableTrait = function DispatchableTrait() {};
             $traceurRuntime.createClass(DispatchableTrait, {
@@ -577,7 +868,7 @@
             }, {});
             module.exports = DispatchableTrait;
         }, {} ],
-        22: [ function(require, module, exports) {
+        27: [ function(require, module, exports) {
             "use strict";
             var EventDispatcher = function EventDispatcher(events, log) {
                 this.events_ = events;
@@ -600,7 +891,7 @@
             }
             module.exports = EventDispatcher;
         }, {} ],
-        23: [ function(require, module, exports) {
+        28: [ function(require, module, exports) {
             "use strict";
             var EventGenerator = function EventGenerator() {
                 this.pendingEvents_ = [];
@@ -618,7 +909,32 @@
             }, {});
             module.exports = EventGenerator;
         }, {} ],
-        24: [ function(require, module, exports) {
+        29: [ function(require, module, exports) {
+            "use strict";
+            var helpers = require("Wildcat.Support.helpers");
+            var EventListener = function EventListener() {};
+            $traceurRuntime.createClass(EventListener, {
+                handle: function(event) {
+                    var eventName = event.getName();
+                    var shortName = getShortname(eventName);
+                    var targetName = getTargetname(shortName);
+                    var isRegistered = isFunction(this[targetName]);
+                    if (isRegistered) return this[targetName](event);
+                }
+            }, {});
+            function getTargetname(shortName) {
+                shortName = ucfirst(shortName);
+                return "on" + shortName;
+            }
+            function getShortname(eventName) {
+                return lastSegment(eventName);
+            }
+            var $__1 = helpers, isFunction = $__1.isFunction, log = $__1.log, ucfirst = $__1.ucfirst, lastSegment = $__1.lastSegment;
+            module.exports = EventListener;
+        }, {
+            "Wildcat.Support.helpers": 49
+        } ],
+        30: [ function(require, module, exports) {
             "use strict";
             var state = require("Wildcat.Support.state");
             var ModuleLoader = function ModuleLoader() {
@@ -648,9 +964,9 @@
             }, {});
             module.exports = ModuleLoader;
         }, {
-            "Wildcat.Support.state": 44
+            "Wildcat.Support.state": 51
         } ],
-        25: [ function(require, module, exports) {
+        31: [ function(require, module, exports) {
             "use strict";
             var state = require("Wildcat.Support.state");
             var Repository = function Repository(loader, environment) {
@@ -685,9 +1001,9 @@
             }
             module.exports = Repository;
         }, {
-            "Wildcat.Support.state": 44
+            "Wildcat.Support.state": 51
         } ],
-        26: [ function(require, module, exports) {
+        32: [ function(require, module, exports) {
             "use strict";
             var state = require("Wildcat.Support.state");
             var EventEmitter = require("events").EventEmitter;
@@ -781,11 +1097,13 @@
                     delete state(this).instances[abstract];
                 },
                 makeAccessorProperty: function(abstract) {
+                    var $__0 = this;
                     if (this.abstract) return;
                     Object.defineProperty(this, abstract, {
                         get: function() {
-                            return this.make(abstract);
-                        }
+                            return $__0.make(abstract);
+                        },
+                        configurable: true
                     });
                 },
                 getState: function() {
@@ -824,11 +1142,11 @@
             implementIterator(Container);
             module.exports = Container;
         }, {
-            "Wildcat.Support.helpers": 42,
-            "Wildcat.Support.state": 44,
-            events: 47
+            "Wildcat.Support.helpers": 49,
+            "Wildcat.Support.state": 51,
+            events: 54
         } ],
-        27: [ function(require, module, exports) {
+        33: [ function(require, module, exports) {
             (function(global) {
                 "use strict";
                 var ServiceProvider = require("Wildcat.Support.ServiceProvider");
@@ -850,17 +1168,17 @@
                 module.exports = WindowServiceProvider;
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {
-            "Wildcat.Support.ServiceProvider": 41
+            "Wildcat.Support.ServiceProvider": 48
         } ],
-        28: [ function(require, module, exports) {
+        34: [ function(require, module, exports) {
             "use strict";
-            var errorConstructor = require("Wildcat.Errors.errorConstructor");
+            var errorConstructor = require("./errorConstructor");
             var AuthenticationError = errorConstructor("AuthenticationError", "no way! authenticated");
             module.exports = AuthenticationError;
         }, {
-            "Wildcat.Errors.errorConstructor": 33
+            "./errorConstructor": 39
         } ],
-        29: [ function(require, module, exports) {
+        35: [ function(require, module, exports) {
             "use strict";
             var ServiceProvider = require("Wildcat.Support.ServiceProvider");
             var ValidationError = require("Wildcat.Errors.ValidationError");
@@ -889,37 +1207,37 @@
             }, {}, ServiceProvider);
             module.exports = ErrorServiceProvider;
         }, {
-            "Wildcat.Errors.AuthenticationError": 28,
-            "Wildcat.Errors.NetworkError": 30,
-            "Wildcat.Errors.TimeoutError": 31,
-            "Wildcat.Errors.ValidationError": 32,
-            "Wildcat.Support.ServiceProvider": 41
+            "Wildcat.Errors.AuthenticationError": 34,
+            "Wildcat.Errors.NetworkError": 36,
+            "Wildcat.Errors.TimeoutError": 37,
+            "Wildcat.Errors.ValidationError": 38,
+            "Wildcat.Support.ServiceProvider": 48
         } ],
-        30: [ function(require, module, exports) {
+        36: [ function(require, module, exports) {
             "use strict";
-            var errorConstructor = require("Wildcat.Errors.errorConstructor");
+            var errorConstructor = require("./errorConstructor");
             var NetworkError = errorConstructor("NetworkError", "network problem");
             module.exports = NetworkError;
         }, {
-            "Wildcat.Errors.errorConstructor": 33
+            "./errorConstructor": 39
         } ],
-        31: [ function(require, module, exports) {
+        37: [ function(require, module, exports) {
             "use strict";
-            var errorConstructor = require("Wildcat.Errors.errorConstructor");
+            var errorConstructor = require("./errorConstructor");
             var TimeoutError = errorConstructor("TimeoutError", "timeout error happened");
             module.exports = TimeoutError;
         }, {
-            "Wildcat.Errors.errorConstructor": 33
+            "./errorConstructor": 39
         } ],
-        32: [ function(require, module, exports) {
+        38: [ function(require, module, exports) {
             "use strict";
-            var errorConstructor = require("Wildcat.Errors.errorConstructor");
+            var errorConstructor = require("./errorConstructor");
             var ValidationError = errorConstructor("ValidationError", "no way! validated");
             module.exports = ValidationError;
         }, {
-            "Wildcat.Errors.errorConstructor": 33
+            "./errorConstructor": 39
         } ],
-        33: [ function(require, module, exports) {
+        39: [ function(require, module, exports) {
             "use strict";
             var $Error = Error;
             var isArray = Array.isArray;
@@ -972,21 +1290,20 @@
             }
             module.exports = errorConstructor;
         }, {} ],
-        34: [ function(require, module, exports) {
+        40: [ function(require, module, exports) {
             "use strict";
-            var EventEmitter = require("events").EventEmitter;
-            var $__1 = require("Wildcat.Support.helpers"), extendProtoOf = $__1.extendProtoOf, isString = $__1.isString;
-            var Dispatcher = function Dispatcher(app) {
-                this.app_ = app;
-                EventEmitter.call(this);
+            var EventEmitter2 = require("eventemitter2").EventEmitter2;
+            var isString = require("Wildcat.Support.helpers").isString;
+            var Dispatcher = function Dispatcher(options) {
+                this.app_ = options.app;
+                EventEmitter2.call(this, options);
             };
             $traceurRuntime.createClass(Dispatcher, {
                 subscribe: function(subscriber) {
                     subscriber = resolveSubscriber.call(this);
                     subscriber.subscribe(this);
                 }
-            }, {});
-            extendProtoOf(Dispatcher, EventEmitter);
+            }, {}, EventEmitter2);
             function resolveSubscriber(subscriber) {
                 if (isString(subscriber)) {
                     return this.app_[subscriber];
@@ -995,21 +1312,21 @@
             }
             module.exports = Dispatcher;
         }, {
-            "Wildcat.Support.helpers": 42,
-            events: 47
+            "Wildcat.Support.helpers": 49,
+            eventemitter2: 56
         } ],
-        35: [ function(require, module, exports) {
+        41: [ function(require, module, exports) {
             "use strict";
-            var Container = require("Wildcat.Container.Container");
-            var Config = require("Wildcat.Config.Repository");
-            var ModuleLoader = require("Wildcat.Config.ModuleLoader");
-            var Dispatcher = require("Wildcat.Events.Dispatcher");
-            var start = require("Wildcat.Foundation.start");
-            var ProviderRepository = require("Wildcat.Foundation.ProviderRepository");
-            var CommanderTrait = require("Wildcat.Commander.CommanderTrait");
-            var helpers = require("Wildcat.Support.helpers");
-            var config = require("config.config");
-            var value = require("Wildcat.Support.helpers").value;
+            var Container = require("../../Wildcat/Container/Container");
+            var Config = require("../../Wildcat/Config/Repository");
+            var ModuleLoader = require("../../Wildcat/Config/ModuleLoader");
+            var Dispatcher = require("../../Wildcat/Events/Dispatcher");
+            var start = require("../../Wildcat/Foundation/start");
+            var ProviderRepository = require("../../Wildcat/Foundation/ProviderRepository");
+            var CommanderTrait = require("../../Wildcat/Commander/CommanderTrait");
+            var helpers = require("../../Wildcat/Support/helpers");
+            var config = require("../../../../config/config");
+            var value = require("../../Wildcat/Support/helpers").value;
             var state = {};
             var Application = function Application() {
                 $traceurRuntime.defaultSuperCall(this, $Application.prototype, arguments);
@@ -1037,10 +1354,15 @@
                     var app = this;
                     var configLoader = app.getConfigLoader();
                     var environment = app.environment();
+                    var dispatcherOptions = {
+                        app: app,
+                        newListener: true,
+                        wildcard: true
+                    };
                     app.bindShared([ [ "config", function(app) {
                         return new Config(configLoader, environment);
                     } ], [ "events", function(app) {
-                        return new Dispatcher(app);
+                        return new Dispatcher(dispatcherOptions);
                     } ] ]);
                 },
                 getProviderRepository: function() {
@@ -1061,17 +1383,17 @@
             extendProtoOf(Application, CommanderTrait);
             module.exports = Application;
         }, {
-            "Wildcat.Commander.CommanderTrait": 20,
-            "Wildcat.Config.ModuleLoader": 24,
-            "Wildcat.Config.Repository": 25,
-            "Wildcat.Container.Container": 26,
-            "Wildcat.Events.Dispatcher": 34,
-            "Wildcat.Foundation.ProviderRepository": 36,
-            "Wildcat.Foundation.start": 37,
-            "Wildcat.Support.helpers": 42,
-            "config.config": 12
+            "../../../../config/config": 17,
+            "../../Wildcat/Commander/CommanderTrait": 25,
+            "../../Wildcat/Config/ModuleLoader": 30,
+            "../../Wildcat/Config/Repository": 31,
+            "../../Wildcat/Container/Container": 32,
+            "../../Wildcat/Events/Dispatcher": 40,
+            "../../Wildcat/Foundation/ProviderRepository": 42,
+            "../../Wildcat/Foundation/start": 43,
+            "../../Wildcat/Support/helpers": 49
         } ],
-        36: [ function(require, module, exports) {
+        42: [ function(require, module, exports) {
             "use strict";
             var ProviderRepository = function ProviderRepository() {};
             $traceurRuntime.createClass(ProviderRepository, {
@@ -1089,26 +1411,25 @@
             }, {});
             module.exports = ProviderRepository;
         }, {} ],
-        37: [ function(require, module, exports) {
+        43: [ function(require, module, exports) {
             "use strict";
             var Config = require("Wildcat.Config.Repository");
             function start() {
                 var app = this;
                 var env = app.environment();
-                var providers, config;
                 app.bindShared("app", function() {
                     return app;
                 });
                 app.registerCoreContainerBindings();
-                config = app.config;
-                providers = config.get("app").providers;
+                var config = app.config;
+                var providers = config.get("app").providers;
                 app.getProviderRepository().load(app, providers);
             }
             module.exports = start;
         }, {
-            "Wildcat.Config.Repository": 25
+            "Wildcat.Config.Repository": 31
         } ],
-        38: [ function(require, module, exports) {
+        44: [ function(require, module, exports) {
             (function(global) {
                 "use strict";
                 var TimeoutError = require("Wildcat.Errors.TimeoutError");
@@ -1119,11 +1440,18 @@
                 };
                 $traceurRuntime.createClass(XHRLoader, {
                     send: function(method, $__2) {
-                        var $__4, $__5;
-                        var $__3 = $__2, url = $__3.url, timeout = ($__4 = $__3.timeout) === void 0 ? 5e3 : $__4, responseType = ($__5 = $__3.responseType) === void 0 ? "json" : $__5;
+                        var $__4, $__5, $__6;
+                        var $__3 = $__2, url = $__3.url, timeout = ($__4 = $__3.timeout) === void 0 ? 5e3 : $__4, headers = ($__5 = $__3.headers) === void 0 ? {} : $__5, responseType = ($__6 = $__3.responseType) === void 0 ? "json" : $__6;
                         var xhr = new this.Xhr_();
                         var promise = new Promise(function(resolve, reject) {
                             xhr.open(method, url);
+                            if (responseType === "json") {
+                                xhr.setRequestHeader("Accept", "application/json");
+                            }
+                            entries(headers).forEach(function(entry) {
+                                var $__7;
+                                return ($__7 = xhr).setRequestHeader.apply($__7, $traceurRuntime.spread(entry));
+                            });
                             assign(xhr, {
                                 resolve: resolve,
                                 reject: reject,
@@ -1138,9 +1466,9 @@
                         return promise;
                     },
                     get: function() {
-                        var $__6;
+                        var $__7;
                         for (var args = [], $__1 = 0; $__1 < arguments.length; $__1++) args[$__1] = arguments[$__1];
-                        return ($__6 = this).send.apply($__6, $traceurRuntime.spread([ "GET" ], args));
+                        return ($__7 = this).send.apply($__7, $traceurRuntime.spread([ "GET" ], args));
                     }
                 }, {});
                 function onload($__2) {
@@ -1160,15 +1488,15 @@
                     var networkError = new NetworkError();
                     reject(networkError);
                 }
-                var $__2 = helpers, log = $__2.log, error = $__2.error, isString = $__2.isString, assign = $__2.assign;
+                var $__2 = helpers, log = $__2.log, error = $__2.error, isString = $__2.isString, assign = $__2.assign, entries = $__2.entries;
                 module.exports = XHRLoader;
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {
-            "Wildcat.Errors.NetworkError": 30,
-            "Wildcat.Errors.TimeoutError": 31,
-            "Wildcat.Support.helpers": 42
+            "Wildcat.Errors.NetworkError": 36,
+            "Wildcat.Errors.TimeoutError": 37,
+            "Wildcat.Support.helpers": 49
         } ],
-        39: [ function(require, module, exports) {
+        45: [ function(require, module, exports) {
             (function(global) {
                 "use strict";
                 var state = require("Wildcat.Support.state");
@@ -1201,9 +1529,9 @@
                 module.exports = ConsoleLogger;
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {
-            "Wildcat.Support.state": 44
+            "Wildcat.Support.state": 51
         } ],
-        40: [ function(require, module, exports) {
+        46: [ function(require, module, exports) {
             "use strict";
             var ServiceProvider = require("Wildcat.Support.ServiceProvider");
             var ConsoleLogger = require("Wildcat.Log.ConsoleLogger");
@@ -1221,10 +1549,57 @@
             }, {}, ServiceProvider);
             module.exports = LogServiceProvider;
         }, {
-            "Wildcat.Log.ConsoleLogger": 39,
-            "Wildcat.Support.ServiceProvider": 41
+            "Wildcat.Log.ConsoleLogger": 45,
+            "Wildcat.Support.ServiceProvider": 48
         } ],
-        41: [ function(require, module, exports) {
+        47: [ function(require, module, exports) {
+            "use strict";
+            var helpers = require("./helpers");
+            var Collection = function Collection(items) {
+                if (!isArray(items)) {
+                    throw new TypeError("collection object must be created with an array");
+                }
+                this.items_ = items;
+            };
+            $traceurRuntime.createClass(Collection, {
+                getItems: function() {
+                    return this.items_;
+                },
+                forEach: function(cb, context) {
+                    var $__0 = this;
+                    context = defined(context, this);
+                    return this.getItems().forEach(function(value, key) {
+                        return cb.call(context, value, key, $__0);
+                    });
+                },
+                filter: function(cb, context) {
+                    var $__0 = this;
+                    context = defined(context, this);
+                    return this.getItems().filter(function(value, key) {
+                        return cb.call(context, value, key, $__0);
+                    });
+                },
+                map: function(cb, context) {
+                    var $__0 = this;
+                    context = defined(context, this);
+                    return this.getItems().map(function(value, key) {
+                        return cb.call(context, value, key, $__0);
+                    });
+                },
+                toJson: function() {
+                    var items = this.getItems();
+                    return JSON.stringify(items);
+                },
+                get length() {
+                    return this.items_.length;
+                }
+            }, {});
+            var $__2 = helpers, isArray = $__2.isArray, defined = $__2.defined;
+            module.exports = Collection;
+        }, {
+            "./helpers": 49
+        } ],
+        48: [ function(require, module, exports) {
             "use strict";
             var state = require("Wildcat.Support.state");
             var ServiceProvider = function ServiceProvider(app) {
@@ -1239,20 +1614,69 @@
             }, {});
             module.exports = ServiceProvider;
         }, {
-            "Wildcat.Support.state": 44
+            "Wildcat.Support.state": 51
         } ],
-        42: [ function(require, module, exports) {
+        49: [ function(require, module, exports) {
             (function(global) {
                 "use strict";
                 var $console = global.console;
                 var $setTimeout = global.setTimeout;
                 function keys(object) {
+                    if (object instanceof Map) {
+                        var result = [];
+                        object.forEach(function(value, key) {
+                            result.push(key);
+                        });
+                        return result;
+                    }
                     return Object.keys(object);
                 }
+                function values() {
+                    var object = arguments[0] !== void 0 ? arguments[0] : {};
+                    if (object instanceof Map) {
+                        var result = [];
+                        object.forEach(function(value, key) {
+                            result.push(value);
+                        });
+                        return result;
+                    }
+                    return keys(object).map(function(key) {
+                        return object[key];
+                    });
+                }
+                function entries() {
+                    var object = arguments[0] !== void 0 ? arguments[0] : {};
+                    if (object instanceof Map) {
+                        var result = [];
+                        object.forEach(function(value, key) {
+                            result.push([ key, value ]);
+                        });
+                        return result;
+                    }
+                    return keys(object).map(function(key) {
+                        return [ key, object[key] ];
+                    });
+                }
                 function assign(target) {
-                    var $__6;
-                    for (var args = [], $__2 = 1; $__2 < arguments.length; $__2++) args[$__2 - 1] = arguments[$__2];
-                    return ($__6 = Object).assign.apply($__6, $traceurRuntime.spread([ target ], args));
+                    var $__11;
+                    for (var sources = [], $__4 = 1; $__4 < arguments.length; $__4++) sources[$__4 - 1] = arguments[$__4];
+                    var source, temp, props, prop;
+                    for (var $__2 = sources[Symbol.iterator](), $__3; !($__3 = $__2.next()).done; ) {
+                        source = $__3.value;
+                        {
+                            if (isArray(source)) {
+                                temp = {};
+                                $__11 = source, source = $__11[0], props = Array.prototype.slice.call($__11, 1), 
+                                $__11;
+                                for (var $__0 = props[Symbol.iterator](), $__1; !($__1 = $__0.next()).done; ) {
+                                    prop = $__1.value;
+                                    temp[prop] = source[prop];
+                                }
+                                assign(target, temp);
+                            } else Object.assign(target, source);
+                        }
+                    }
+                    return target;
                 }
                 function extendProtoOf(target, source) {
                     var key = arguments[2] !== void 0 ? arguments[2] : [];
@@ -1281,6 +1705,9 @@
                 function isString(val) {
                     return typeof val === "string";
                 }
+                function isFunction(val) {
+                    return typeof val === "function";
+                }
                 function isUndefined(val) {
                     return val === undefined;
                 }
@@ -1295,24 +1722,32 @@
                 }
                 function wait() {
                     var time = arguments[0] !== void 0 ? arguments[0] : 500;
-                    return new Promise(function(resolve) {
-                        setTimeout(resolve, time);
+                    for (var args = [], $__5 = 1; $__5 < arguments.length; $__5++) args[$__5 - 1] = arguments[$__5];
+                    return new Promise(function(resolve, reject) {
+                        setTimeout(function() {
+                            resolve.apply(null, $traceurRuntime.spread(args));
+                        }, time);
                     });
                 }
                 function log() {
-                    var $__6;
-                    for (var args = [], $__3 = 0; $__3 < arguments.length; $__3++) args[$__3] = arguments[$__3];
-                    ($__6 = $console).log.apply($__6, $traceurRuntime.spread(args));
+                    var $__12;
+                    for (var args = [], $__6 = 0; $__6 < arguments.length; $__6++) args[$__6] = arguments[$__6];
+                    ($__12 = $console).log.apply($__12, $traceurRuntime.spread(args));
+                }
+                function dir() {
+                    var $__12;
+                    for (var args = [], $__7 = 0; $__7 < arguments.length; $__7++) args[$__7] = arguments[$__7];
+                    ($__12 = $console).dir.apply($__12, $traceurRuntime.spread(args));
                 }
                 function error() {
-                    var $__6;
-                    for (var args = [], $__4 = 0; $__4 < arguments.length; $__4++) args[$__4] = arguments[$__4];
-                    ($__6 = $console).error.apply($__6, $traceurRuntime.spread(args));
+                    var $__12;
+                    for (var args = [], $__8 = 0; $__8 < arguments.length; $__8++) args[$__8] = arguments[$__8];
+                    ($__12 = $console).error.apply($__12, $traceurRuntime.spread(args));
                 }
                 function warn() {
-                    var $__6;
-                    for (var args = [], $__5 = 0; $__5 < arguments.length; $__5++) args[$__5] = arguments[$__5];
-                    ($__6 = $console).warn.apply($__6, $traceurRuntime.spread(args));
+                    var $__12;
+                    for (var args = [], $__9 = 0; $__9 < arguments.length; $__9++) args[$__9] = arguments[$__9];
+                    ($__12 = $console).warn.apply($__12, $traceurRuntime.spread(args));
                 }
                 function spawn(makeGenerator) {
                     var promise = async(makeGenerator);
@@ -1338,6 +1773,15 @@
                             return $Promise.reject(ex);
                         }
                     };
+                }
+                function asyncMethods(object) {
+                    for (var methods = [], $__10 = 1; $__10 < arguments.length; $__10++) methods[$__10 - 1] = arguments[$__10];
+                    for (var $__0 = methods[Symbol.iterator](), $__1; !($__1 = $__0.next()).done; ) {
+                        var method = $__1.value;
+                        {
+                            object[method] = async(object[method]);
+                        }
+                    }
                 }
                 function arrayIterator() {
                     var items = arguments[0] !== void 0 ? arguments[0] : [];
@@ -1367,32 +1811,69 @@
                         throw error;
                     }, 0);
                 }
+                function mapFrom() {
+                    var object = arguments[0] !== void 0 ? arguments[0] : {};
+                    if (object instanceof Map) return object;
+                    var map = new Map();
+                    var objectKeys = keys(object);
+                    return objectKeys.reduce(function(result, key) {
+                        var value = object[key];
+                        map.set(key, value);
+                        return map;
+                    }, map);
+                }
+                function ucfirst(str) {
+                    var f = str.charAt(0).toUpperCase();
+                    return f + str.substr(1);
+                }
+                function first(array) {
+                    return array[0];
+                }
+                function last(array) {
+                    var length = array.length;
+                    var lastIndex = length - 1;
+                    return array[lastIndex];
+                }
+                function lastSegment(array) {
+                    var segments = array.split(".");
+                    return last(segments);
+                }
                 var helpers = {
                     keys: keys,
+                    values: values,
+                    entries: entries,
                     assign: assign,
                     extendProtoOf: extendProtoOf,
                     implementIterator: implementIterator,
                     value: value,
                     isNull: isNull,
                     isString: isString,
+                    isFunction: isFunction,
                     isUndefined: isUndefined,
                     isDefined: isDefined,
                     isArray: isArray,
                     defined: defined,
                     wait: wait,
                     log: log,
+                    dir: dir,
                     error: error,
                     warn: warn,
                     spawn: spawn,
                     async: async,
+                    asyncMethods: asyncMethods,
                     arrayIterator: arrayIterator,
                     noProto: noProto,
-                    terminateError: terminateError
+                    terminateError: terminateError,
+                    mapFrom: mapFrom,
+                    ucfirst: ucfirst,
+                    first: first,
+                    last: last,
+                    lastSegment: lastSegment
                 };
                 module.exports = helpers;
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {} ],
-        43: [ function(require, module, exports) {
+        50: [ function(require, module, exports) {
             (function(global) {
                 "use strict";
                 var observeJs = require("observe-js");
@@ -1409,9 +1890,9 @@
                 };
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {
-            "observe-js": 49
+            "observe-js": 57
         } ],
-        44: [ function(require, module, exports) {
+        51: [ function(require, module, exports) {
             (function(global) {
                 "use strict";
                 var $__1 = require("Wildcat.Support.helpers"), isUndefined = $__1.isUndefined, log = $__1.log, noProto = $__1.noProto, isString = $__1.isString;
@@ -1483,15 +1964,16 @@
                 module.exports = state;
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {
-            "Wildcat.Support.helpers": 42,
-            "Wildcat.Support.observe": 43
+            "Wildcat.Support.helpers": 49,
+            "Wildcat.Support.observe": 50
         } ],
-        45: [ function(require, module, exports) {
+        52: [ function(require, module, exports) {
             "use strict";
             var state = require("Wildcat.Support.state");
             var observe = require("Wildcat.Support.observe");
             var helpers = require("Wildcat.Support.helpers");
             var CommanderTrait = require("Wildcat.Commander.CommanderTrait");
+            var EventListener = require("Wildcat.Commander.Events.EventListener");
             var $__3 = observe, PathObserver = $__3.PathObserver, Platform = $__3.Platform;
             var View = function View(app, el) {
                 this.app = app;
@@ -1515,7 +1997,7 @@
                     this.setEl(value);
                 },
                 render: function() {}
-            }, {});
+            }, {}, EventListener);
             function changed(changes) {
                 log("onStateChanged");
                 for (var $__1 = changes[Symbol.iterator](), $__2; !($__2 = $__1.next()).done; ) {
@@ -1534,12 +2016,13 @@
             extendProtoOf(View, CommanderTrait);
             module.exports = View;
         }, {
-            "Wildcat.Commander.CommanderTrait": 20,
-            "Wildcat.Support.helpers": 42,
-            "Wildcat.Support.observe": 43,
-            "Wildcat.Support.state": 44
+            "Wildcat.Commander.CommanderTrait": 25,
+            "Wildcat.Commander.Events.EventListener": 29,
+            "Wildcat.Support.helpers": 49,
+            "Wildcat.Support.observe": 50,
+            "Wildcat.Support.state": 51
         } ],
-        46: [ function(require, module, exports) {
+        53: [ function(require, module, exports) {
             "use strict";
             var ServiceProvider = require("Wildcat.Support.ServiceProvider");
             var View = require("Wildcat.View.View");
@@ -1552,7 +2035,7 @@
                     var app = this.app;
                     var views = app.config.get("views");
                     for (var $__1 = views[Symbol.iterator](), $__2; !($__2 = $__1.next()).done; ) {
-                        var $__3 = $__2.value, abstract = $__3.abstract, $constructor = $__3.$constructor, build = $__3.build;
+                        var $__4 = $__2.value, abstract = $__4.abstract, $constructor = $__4.$constructor, build = $__4.build;
                         {
                             switch (build) {
                               case "singleton":
@@ -1567,10 +2050,10 @@
             }, {}, ServiceProvider);
             module.exports = ViewServiceProvider;
         }, {
-            "Wildcat.Support.ServiceProvider": 41,
-            "Wildcat.View.View": 45
+            "Wildcat.Support.ServiceProvider": 48,
+            "Wildcat.View.View": 52
         } ],
-        47: [ function(require, module, exports) {
+        54: [ function(require, module, exports) {
             function EventEmitter() {
                 this._events = this._events || {};
                 this._maxListeners = this._maxListeners || undefined;
@@ -1743,7 +2226,7 @@
                 return arg === void 0;
             }
         }, {} ],
-        48: [ function(require, module, exports) {
+        55: [ function(require, module, exports) {
             var process = module.exports = {};
             process.nextTick = function() {
                 var canSetImmediate = typeof window !== "undefined" && window.setImmediate;
@@ -1796,7 +2279,414 @@
                 throw new Error("process.chdir is not supported");
             };
         }, {} ],
-        49: [ function(require, module, exports) {
+        56: [ function(require, module, exports) {
+            !function(undefined) {
+                var isArray = Array.isArray ? Array.isArray : function _isArray(obj) {
+                    return Object.prototype.toString.call(obj) === "[object Array]";
+                };
+                var defaultMaxListeners = 10;
+                function init() {
+                    this._events = {};
+                    if (this._conf) {
+                        configure.call(this, this._conf);
+                    }
+                }
+                function configure(conf) {
+                    if (conf) {
+                        this._conf = conf;
+                        conf.delimiter && (this.delimiter = conf.delimiter);
+                        conf.maxListeners && (this._events.maxListeners = conf.maxListeners);
+                        conf.wildcard && (this.wildcard = conf.wildcard);
+                        conf.newListener && (this.newListener = conf.newListener);
+                        if (this.wildcard) {
+                            this.listenerTree = {};
+                        }
+                    }
+                }
+                function EventEmitter(conf) {
+                    this._events = {};
+                    this.newListener = false;
+                    configure.call(this, conf);
+                }
+                function searchListenerTree(handlers, type, tree, i) {
+                    if (!tree) {
+                        return [];
+                    }
+                    var listeners = [], leaf, len, branch, xTree, xxTree, isolatedBranch, endReached, typeLength = type.length, currentType = type[i], nextType = type[i + 1];
+                    if (i === typeLength && tree._listeners) {
+                        if (typeof tree._listeners === "function") {
+                            handlers && handlers.push(tree._listeners);
+                            return [ tree ];
+                        } else {
+                            for (leaf = 0, len = tree._listeners.length; leaf < len; leaf++) {
+                                handlers && handlers.push(tree._listeners[leaf]);
+                            }
+                            return [ tree ];
+                        }
+                    }
+                    if (currentType === "*" || currentType === "**" || tree[currentType]) {
+                        if (currentType === "*") {
+                            for (branch in tree) {
+                                if (branch !== "_listeners" && tree.hasOwnProperty(branch)) {
+                                    listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i + 1));
+                                }
+                            }
+                            return listeners;
+                        } else if (currentType === "**") {
+                            endReached = i + 1 === typeLength || i + 2 === typeLength && nextType === "*";
+                            if (endReached && tree._listeners) {
+                                listeners = listeners.concat(searchListenerTree(handlers, type, tree, typeLength));
+                            }
+                            for (branch in tree) {
+                                if (branch !== "_listeners" && tree.hasOwnProperty(branch)) {
+                                    if (branch === "*" || branch === "**") {
+                                        if (tree[branch]._listeners && !endReached) {
+                                            listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], typeLength));
+                                        }
+                                        listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i));
+                                    } else if (branch === nextType) {
+                                        listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i + 2));
+                                    } else {
+                                        listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i));
+                                    }
+                                }
+                            }
+                            return listeners;
+                        }
+                        listeners = listeners.concat(searchListenerTree(handlers, type, tree[currentType], i + 1));
+                    }
+                    xTree = tree["*"];
+                    if (xTree) {
+                        searchListenerTree(handlers, type, xTree, i + 1);
+                    }
+                    xxTree = tree["**"];
+                    if (xxTree) {
+                        if (i < typeLength) {
+                            if (xxTree._listeners) {
+                                searchListenerTree(handlers, type, xxTree, typeLength);
+                            }
+                            for (branch in xxTree) {
+                                if (branch !== "_listeners" && xxTree.hasOwnProperty(branch)) {
+                                    if (branch === nextType) {
+                                        searchListenerTree(handlers, type, xxTree[branch], i + 2);
+                                    } else if (branch === currentType) {
+                                        searchListenerTree(handlers, type, xxTree[branch], i + 1);
+                                    } else {
+                                        isolatedBranch = {};
+                                        isolatedBranch[branch] = xxTree[branch];
+                                        searchListenerTree(handlers, type, {
+                                            "**": isolatedBranch
+                                        }, i + 1);
+                                    }
+                                }
+                            }
+                        } else if (xxTree._listeners) {
+                            searchListenerTree(handlers, type, xxTree, typeLength);
+                        } else if (xxTree["*"] && xxTree["*"]._listeners) {
+                            searchListenerTree(handlers, type, xxTree["*"], typeLength);
+                        }
+                    }
+                    return listeners;
+                }
+                function growListenerTree(type, listener) {
+                    type = typeof type === "string" ? type.split(this.delimiter) : type.slice();
+                    for (var i = 0, len = type.length; i + 1 < len; i++) {
+                        if (type[i] === "**" && type[i + 1] === "**") {
+                            return;
+                        }
+                    }
+                    var tree = this.listenerTree;
+                    var name = type.shift();
+                    while (name) {
+                        if (!tree[name]) {
+                            tree[name] = {};
+                        }
+                        tree = tree[name];
+                        if (type.length === 0) {
+                            if (!tree._listeners) {
+                                tree._listeners = listener;
+                            } else if (typeof tree._listeners === "function") {
+                                tree._listeners = [ tree._listeners, listener ];
+                            } else if (isArray(tree._listeners)) {
+                                tree._listeners.push(listener);
+                                if (!tree._listeners.warned) {
+                                    var m = defaultMaxListeners;
+                                    if (typeof this._events.maxListeners !== "undefined") {
+                                        m = this._events.maxListeners;
+                                    }
+                                    if (m > 0 && tree._listeners.length > m) {
+                                        tree._listeners.warned = true;
+                                        console.error("(node) warning: possible EventEmitter memory " + "leak detected. %d listeners added. " + "Use emitter.setMaxListeners() to increase limit.", tree._listeners.length);
+                                        console.trace();
+                                    }
+                                }
+                            }
+                            return true;
+                        }
+                        name = type.shift();
+                    }
+                    return true;
+                }
+                EventEmitter.prototype.delimiter = ".";
+                EventEmitter.prototype.setMaxListeners = function(n) {
+                    this._events || init.call(this);
+                    this._events.maxListeners = n;
+                    if (!this._conf) this._conf = {};
+                    this._conf.maxListeners = n;
+                };
+                EventEmitter.prototype.event = "";
+                EventEmitter.prototype.once = function(event, fn) {
+                    this.many(event, 1, fn);
+                    return this;
+                };
+                EventEmitter.prototype.many = function(event, ttl, fn) {
+                    var self = this;
+                    if (typeof fn !== "function") {
+                        throw new Error("many only accepts instances of Function");
+                    }
+                    function listener() {
+                        if (--ttl === 0) {
+                            self.off(event, listener);
+                        }
+                        fn.apply(this, arguments);
+                    }
+                    listener._origin = fn;
+                    this.on(event, listener);
+                    return self;
+                };
+                EventEmitter.prototype.emit = function() {
+                    this._events || init.call(this);
+                    var type = arguments[0];
+                    if (type === "newListener" && !this.newListener) {
+                        if (!this._events.newListener) {
+                            return false;
+                        }
+                    }
+                    if (this._all) {
+                        var l = arguments.length;
+                        var args = new Array(l - 1);
+                        for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
+                        for (i = 0, l = this._all.length; i < l; i++) {
+                            this.event = type;
+                            this._all[i].apply(this, args);
+                        }
+                    }
+                    if (type === "error") {
+                        if (!this._all && !this._events.error && !(this.wildcard && this.listenerTree.error)) {
+                            if (arguments[1] instanceof Error) {
+                                throw arguments[1];
+                            } else {
+                                throw new Error("Uncaught, unspecified 'error' event.");
+                            }
+                            return false;
+                        }
+                    }
+                    var handler;
+                    if (this.wildcard) {
+                        handler = [];
+                        var ns = typeof type === "string" ? type.split(this.delimiter) : type.slice();
+                        searchListenerTree.call(this, handler, ns, this.listenerTree, 0);
+                    } else {
+                        handler = this._events[type];
+                    }
+                    if (typeof handler === "function") {
+                        this.event = type;
+                        if (arguments.length === 1) {
+                            handler.call(this);
+                        } else if (arguments.length > 1) switch (arguments.length) {
+                          case 2:
+                            handler.call(this, arguments[1]);
+                            break;
+
+                          case 3:
+                            handler.call(this, arguments[1], arguments[2]);
+                            break;
+
+                          default:
+                            var l = arguments.length;
+                            var args = new Array(l - 1);
+                            for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
+                            handler.apply(this, args);
+                        }
+                        return true;
+                    } else if (handler) {
+                        var l = arguments.length;
+                        var args = new Array(l - 1);
+                        for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
+                        var listeners = handler.slice();
+                        for (var i = 0, l = listeners.length; i < l; i++) {
+                            this.event = type;
+                            listeners[i].apply(this, args);
+                        }
+                        return listeners.length > 0 || !!this._all;
+                    } else {
+                        return !!this._all;
+                    }
+                };
+                EventEmitter.prototype.on = function(type, listener) {
+                    if (typeof type === "function") {
+                        this.onAny(type);
+                        return this;
+                    }
+                    if (typeof listener !== "function") {
+                        throw new Error("on only accepts instances of Function");
+                    }
+                    this._events || init.call(this);
+                    this.emit("newListener", type, listener);
+                    if (this.wildcard) {
+                        growListenerTree.call(this, type, listener);
+                        return this;
+                    }
+                    if (!this._events[type]) {
+                        this._events[type] = listener;
+                    } else if (typeof this._events[type] === "function") {
+                        this._events[type] = [ this._events[type], listener ];
+                    } else if (isArray(this._events[type])) {
+                        this._events[type].push(listener);
+                        if (!this._events[type].warned) {
+                            var m = defaultMaxListeners;
+                            if (typeof this._events.maxListeners !== "undefined") {
+                                m = this._events.maxListeners;
+                            }
+                            if (m > 0 && this._events[type].length > m) {
+                                this._events[type].warned = true;
+                                console.error("(node) warning: possible EventEmitter memory " + "leak detected. %d listeners added. " + "Use emitter.setMaxListeners() to increase limit.", this._events[type].length);
+                                console.trace();
+                            }
+                        }
+                    }
+                    return this;
+                };
+                EventEmitter.prototype.onAny = function(fn) {
+                    if (typeof fn !== "function") {
+                        throw new Error("onAny only accepts instances of Function");
+                    }
+                    if (!this._all) {
+                        this._all = [];
+                    }
+                    this._all.push(fn);
+                    return this;
+                };
+                EventEmitter.prototype.addListener = EventEmitter.prototype.on;
+                EventEmitter.prototype.off = function(type, listener) {
+                    if (typeof listener !== "function") {
+                        throw new Error("removeListener only takes instances of Function");
+                    }
+                    var handlers, leafs = [];
+                    if (this.wildcard) {
+                        var ns = typeof type === "string" ? type.split(this.delimiter) : type.slice();
+                        leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0);
+                    } else {
+                        if (!this._events[type]) return this;
+                        handlers = this._events[type];
+                        leafs.push({
+                            _listeners: handlers
+                        });
+                    }
+                    for (var iLeaf = 0; iLeaf < leafs.length; iLeaf++) {
+                        var leaf = leafs[iLeaf];
+                        handlers = leaf._listeners;
+                        if (isArray(handlers)) {
+                            var position = -1;
+                            for (var i = 0, length = handlers.length; i < length; i++) {
+                                if (handlers[i] === listener || handlers[i].listener && handlers[i].listener === listener || handlers[i]._origin && handlers[i]._origin === listener) {
+                                    position = i;
+                                    break;
+                                }
+                            }
+                            if (position < 0) {
+                                continue;
+                            }
+                            if (this.wildcard) {
+                                leaf._listeners.splice(position, 1);
+                            } else {
+                                this._events[type].splice(position, 1);
+                            }
+                            if (handlers.length === 0) {
+                                if (this.wildcard) {
+                                    delete leaf._listeners;
+                                } else {
+                                    delete this._events[type];
+                                }
+                            }
+                            return this;
+                        } else if (handlers === listener || handlers.listener && handlers.listener === listener || handlers._origin && handlers._origin === listener) {
+                            if (this.wildcard) {
+                                delete leaf._listeners;
+                            } else {
+                                delete this._events[type];
+                            }
+                        }
+                    }
+                    return this;
+                };
+                EventEmitter.prototype.offAny = function(fn) {
+                    var i = 0, l = 0, fns;
+                    if (fn && this._all && this._all.length > 0) {
+                        fns = this._all;
+                        for (i = 0, l = fns.length; i < l; i++) {
+                            if (fn === fns[i]) {
+                                fns.splice(i, 1);
+                                return this;
+                            }
+                        }
+                    } else {
+                        this._all = [];
+                    }
+                    return this;
+                };
+                EventEmitter.prototype.removeListener = EventEmitter.prototype.off;
+                EventEmitter.prototype.removeAllListeners = function(type) {
+                    if (arguments.length === 0) {
+                        !this._events || init.call(this);
+                        return this;
+                    }
+                    if (this.wildcard) {
+                        var ns = typeof type === "string" ? type.split(this.delimiter) : type.slice();
+                        var leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0);
+                        for (var iLeaf = 0; iLeaf < leafs.length; iLeaf++) {
+                            var leaf = leafs[iLeaf];
+                            leaf._listeners = null;
+                        }
+                    } else {
+                        if (!this._events[type]) return this;
+                        this._events[type] = null;
+                    }
+                    return this;
+                };
+                EventEmitter.prototype.listeners = function(type) {
+                    if (this.wildcard) {
+                        var handlers = [];
+                        var ns = typeof type === "string" ? type.split(this.delimiter) : type.slice();
+                        searchListenerTree.call(this, handlers, ns, this.listenerTree, 0);
+                        return handlers;
+                    }
+                    this._events || init.call(this);
+                    if (!this._events[type]) this._events[type] = [];
+                    if (!isArray(this._events[type])) {
+                        this._events[type] = [ this._events[type] ];
+                    }
+                    return this._events[type];
+                };
+                EventEmitter.prototype.listenersAny = function() {
+                    if (this._all) {
+                        return this._all;
+                    } else {
+                        return [];
+                    }
+                };
+                if (typeof define === "function" && define.amd) {
+                    define(function() {
+                        return EventEmitter;
+                    });
+                } else if (typeof exports === "object") {
+                    exports.EventEmitter2 = EventEmitter;
+                } else {
+                    window.EventEmitter2 = EventEmitter;
+                }
+            }();
+        }, {} ],
+        57: [ function(require, module, exports) {
             (function(global) {
                 (function(global) {
                     "use strict";
@@ -2959,7 +3849,7 @@
                 })(typeof global !== "undefined" && global && typeof module !== "undefined" && module ? global : this || window);
             }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {} ],
-        50: [ function(require, module, exports) {
+        58: [ function(require, module, exports) {
             (function(process, global) {
                 (function(global) {
                     "use strict";
@@ -5326,7 +6216,7 @@
                 System.get("traceur-runtime@0.0.62/src/runtime/polyfills/polyfills" + "");
             }).call(this, require("_process"), typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
         }, {
-            _process: 48
+            _process: 55
         } ]
-    }, {}, [ 9 ])(9);
+    }, {}, [ 14 ])(14);
 });

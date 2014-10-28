@@ -8,11 +8,11 @@ class CommandBus {
 
     execute(command) {
 
-        var commandName = command.constructor.getName();
+        var commandName = command.constructor.getShortName();
         var handlerName = `${commandName}Handler`;
         var handler     = this.app.make(handlerName);
 
-        handler.handle(command);
+        return handler.handle(command);
     }
 }
 

@@ -9,13 +9,6 @@ class PostReportCommandHandler extends CommandHandler {
         var {name, incident} = command;
         var {app} = $this;
         var Report = app.make('Report');
-
-        // Report.post(name, incident)
-        //     .then( savedReport => {
-        //         this.dispatchEventsFor(savedReport);
-        //     })
-        //     .catch(terminateError);
-        //     
         
         async(function* () {
 

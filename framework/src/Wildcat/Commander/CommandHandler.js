@@ -12,6 +12,7 @@ class CommandHandler {
 }
 
 var {extendProtoOf} = helpers;
+
 extendProtoOf(CommandHandler, DispatchableTrait);
 
 module.exports = CommandHandler;

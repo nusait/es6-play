@@ -5,3 +5,4 @@ var log = console.log.bind(console);
 log('starting dumpautoload');
 
 dumpautoload();
+

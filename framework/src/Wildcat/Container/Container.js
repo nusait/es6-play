@@ -106,9 +106,8 @@ class Container {
         if (this.abstract) return;
 
         Object.defineProperty(this, abstract, {
-            get: function() {
-                return this.make(abstract);
-            }
+            get: () => this.make(abstract),
+            configurable: true,
         });
     }
     getState() {

@@ -88,14 +88,25 @@ function bootstrapTask() {
         .require(require.resolve('./bootstrap/start.js'), { entry: true })
         .bundle()
         // .pipe(mold.transformSourcesRelativeTo(jsRoot))
+
         .pipe(source('boot.js'))
+
         .pipe(gulp.dest('./public/js/'))
         .on('end', function() {
-            log('end bootstrapTask');
+            log('end bootstrapTask: ' + Date.now());
+            return gulp.src('./public/js/boot.js')
+                .pipe(uglify({
+                    mangle: true,
+                    output: {beautify: true},
+                    compress: false,
+                }))
+                .pipe(rename('boot-min.js'))
+                .pipe(gulp.dest('./public/js/'));
         });
 }
 function yuidocTask() {
 
+    // todo
 }
 function watchTask() {
 

@@ -4,7 +4,7 @@ class WindowServiceProvider extends ServiceProvider {
 
     register() {
 
-        var app = this.app;
+        var {app} = this;
         app.bindShared('window', app => global);
     }
     provides() {

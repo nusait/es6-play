@@ -16,23 +16,25 @@ beforeEach(function() {
     jasmine.addMatchers(customMatchers);
 });
 
-describe('postReportCommand', function() {
 
-    it('is truthy', function() {
 
-        expect(app.postReportCommand).toBeTruthy();
-    });
+// describe('postReportCommand', function() {
 
-    it('raises a `reportWasPosted` event', function(done) {
+//     it('is truthy', function() {
 
-        var command = app.make('postReportCommand', ['Joe', 'some-incident']);     
-        app.execute(command); 
-        app.events.on('reportWasPosted', function(e) {
-            expect(e.type).toBe('reportWasPosted');
-            expect(e.value).toBeInstanceOf(app.Report);
-            expect(e.value.name).toBe('Joe');
-            expect(e.value.incident).toBe('some-incident');
-            done();
-        });
-    });
-});
+//         expect(app.postReportCommand).toBeTruthy();
+//     });
+
+//     it('raises a `reportWasPosted` event', function(done) {
+
+//         var command = app.make('postReportCommand', ['Joe', 'some-incident']);     
+//         app.execute(command); 
+//         app.events.on('reportWasPosted', function(e) {
+//             expect(e.type).toBe('reportWasPosted');
+//             expect(e.value).toBeInstanceOf(app.Report);
+//             expect(e.value.name).toBe('Joe');
+//             expect(e.value.incident).toBe('some-incident');
+//             done();
+//         });
+//     });
+// });

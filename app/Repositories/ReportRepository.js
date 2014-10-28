@@ -20,7 +20,6 @@ class ReportRepository {
             return report;
         });
     }
-    
 }
 
 var {log, wait} = helpers;

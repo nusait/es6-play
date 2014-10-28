@@ -2,9 +2,10 @@ var state   = require('Wildcat.Support.state');
 var observe = require('Wildcat.Support.observe');
 var helpers = require('Wildcat.Support.helpers');
 var CommanderTrait = require('Wildcat.Commander.CommanderTrait');
+var EventListener  = require('Wildcat.Commander.Events.EventListener');
 var {PathObserver, Platform} = observe;
 
-class View {
+class View extends EventListener {
 
     // use CommandTrait
 

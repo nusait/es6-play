@@ -26,46 +26,31 @@ class Report {
 
         return 'weirdName';
     }
-    static post(...args) {
+    static *post(...args) {
 
-        var app = Report.getApplication();
+        var app = this.getApplication();
         var {reportRepository} = app;
 
-        // return app.reportRepository.save(report)
-        //      .then( savedReport => {
-        //         var event = app.make('reportWasPosted', [savedReport]);
-        //         return savedReport.raise(event);
-        //      });
+        var report = app.make('report', args);
+        report = yield reportRepository.save(report);
 
-        // throw new Error('simulating error');
-
-
-        return async(function* () {
-
-            var report = app.make('report', args);
-            report = yield reportRepository.save(report);
-
-            
-
-            var event = app.make('reportWasPosted', [report]);
-            return report.raise(event);
-
-        })();
+        var event = app.make('reportWasPosted', [report]);
+        return report.raise(event);
     }
     static getApplication() {
 
-        return Report.app_;
+        return this.app_;
     }
     static setApplication(app) {
 
-        Report.app_ = app;
+        this.app_ = app;
+        return this;
     }
 }
 
 
-var {log, extendProtoOf, wait, async} = helpers;
+var {log, extendProtoOf, wait, asyncMethods} = helpers;
 extendProtoOf(Report, EventGenerator);
-
-Report.persist = async(Report.persist);
+asyncMethods(Report, 'persist', 'post');
 
 module.exports = Report;

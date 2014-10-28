@@ -5,7 +5,7 @@ class CommanderTrait {
     execute(command, input) {
 
         var bus = this.getCommandBus();
-        bus.execute(command);
+        return bus.execute(command);
     }
     getCommandBus() {
 
@@ -13,8 +13,6 @@ class CommanderTrait {
     }
 }
 
-var {
-    log,
-} = helpers;
+var {log} = helpers;
 
 module.exports = CommanderTrait;

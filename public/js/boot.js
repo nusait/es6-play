@@ -1,39 +1,46 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (global){
 "use strict";
 var $Promise = require('rsvp').Promise;
+var document = global.document;
+var head = document.head;
 var autoload = {loadApp: function() {
     return new $Promise((function(resolve, reject) {
       var script = document.createElement('script');
       script.src = 'js/bundle.js';
       script.onload = (function() {
-        var App = window.App;
-        delete window.App;
+        var App = global.App;
+        delete global.App;
         resolve(App);
       });
       script.onerror = (function(error) {
         return reject(error);
       });
-      document.head.appendChild(script);
+      head.appendChild(script);
     }));
   }};
 module.exports = autoload;
 
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"rsvp":6}],2:[function(require,module,exports){
+(function (global){
 "use strict";
 function environment(localStorage) {
-  localStorage = localStorage || window.localStorage;
+  localStorage = localStorage || global.localStorage;
   return (localStorage.env || 'production');
 }
 module.exports = environment;
 
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],3:[function(require,module,exports){
 "use strict";
-var autoload = require('bootstrap.autoload');
-var environment = require('bootstrap.environment');
-var helpers = require('Wildcat.Support.helpers');
+var autoload = require('./autoload');
+var environment = require('./environment');
+var helpers = require('../framework/src/Wildcat/Support/helpers');
 var log = helpers.log;
+var terminateError = helpers.terminateError;
 var APPSTART = Date.now();
 function instantiateNewApplication(App) {
   var app = new App();
@@ -55,10 +62,6 @@ function runApp(app) {
   app.run();
   return app;
 }
-function complete(app) {
-  var APPDONE = Date.now();
-  log(("=== application loaded in " + (APPDONE - APPSTART) + " ms"));
-}
 function debugIfLocalEnvironment(app) {
   if (app.isLocal()) {
     log(("=== app.environment() is " + app.environment()));
@@ -72,36 +75,91 @@ function debugIfLocalEnvironment(app) {
     }
     window.helpers = helpers;
     for (var key in helpers) {
-      log(("adding helpers." + key + " to window"));
       if (!window[key])
         window[key] = helpers[key];
     }
   }
   return app;
 }
-function appFailedToLoad(error) {
-  log('appFailedToLoad');
-  setTimeout(function() {
-    throw error;
-  }, 10);
+function complete(app) {
+  var APPDONE = Date.now();
+  log(("=== application loaded in " + (APPDONE - APPSTART) + " ms"));
+  var events = app.events;
+  var introView = app.introView;
+  events.on('app.*', introView.handle.bind(introView));
+  introView.getBluelights();
 }
-autoload.loadApp().then(instantiateNewApplication).then(loadEnvironment).then(startApp).then(runApp).then(debugIfLocalEnvironment).then(complete).catch(appFailedToLoad);
+autoload.loadApp().then(instantiateNewApplication).then(loadEnvironment).then(startApp).then(runApp).then(debugIfLocalEnvironment).then(complete).catch(terminateError);
 
 
-},{"Wildcat.Support.helpers":4,"bootstrap.autoload":1,"bootstrap.environment":2}],4:[function(require,module,exports){
+},{"../framework/src/Wildcat/Support/helpers":4,"./autoload":1,"./environment":2}],4:[function(require,module,exports){
 (function (global){
 "use strict";
 var $console = global.console;
 var $setTimeout = global.setTimeout;
 function keys(object) {
+  if (object instanceof Map) {
+    var result = [];
+    object.forEach((function(value, key) {
+      result.push(key);
+    }));
+    return result;
+  }
   return Object.keys(object);
 }
+function values() {
+  var object = arguments[0] !== (void 0) ? arguments[0] : {};
+  if (object instanceof Map) {
+    var result = [];
+    object.forEach((function(value, key) {
+      result.push(value);
+    }));
+    return result;
+  }
+  return keys(object).map((function(key) {
+    return object[key];
+  }));
+}
+function entries() {
+  var object = arguments[0] !== (void 0) ? arguments[0] : {};
+  if (object instanceof Map) {
+    var result = [];
+    object.forEach((function(value, key) {
+      result.push([key, value]);
+    }));
+    return result;
+  }
+  return keys(object).map((function(key) {
+    return [key, object[key]];
+  }));
+}
 function assign(target) {
-  var $__6;
-  for (var args = [],
-      $__2 = 1; $__2 < arguments.length; $__2++)
-    args[$__2 - 1] = arguments[$__2];
-  return ($__6 = Object).assign.apply($__6, $traceurRuntime.spread([target], args));
+  var $__11;
+  for (var sources = [],
+      $__4 = 1; $__4 < arguments.length; $__4++)
+    sources[$__4 - 1] = arguments[$__4];
+  var source,
+      temp,
+      props,
+      prop;
+  for (var $__2 = sources[Symbol.iterator](),
+      $__3; !($__3 = $__2.next()).done; ) {
+    source = $__3.value;
+    {
+      if (isArray(source)) {
+        temp = {};
+        ($__11 = source, source = $__11[0], props = Array.prototype.slice.call($__11, 1), $__11);
+        for (var $__0 = props[Symbol.iterator](),
+            $__1; !($__1 = $__0.next()).done; ) {
+          prop = $__1.value;
+          temp[prop] = source[prop];
+        }
+        assign(target, temp);
+      } else
+        Object.assign(target, source);
+    }
+  }
+  return target;
 }
 function extendProtoOf(target, source) {
   var key = arguments[2] !== (void 0) ? arguments[2] : [];
@@ -131,6 +189,9 @@ function isNull(val) {
 function isString(val) {
   return typeof val === 'string';
 }
+function isFunction(val) {
+  return typeof val === 'function';
+}
 function isUndefined(val) {
   return val === undefined;
 }
@@ -145,30 +206,42 @@ function defined(val, $default) {
 }
 function wait() {
   var time = arguments[0] !== (void 0) ? arguments[0] : 500;
-  return new Promise((function(resolve) {
-    setTimeout(resolve, time);
+  for (var args = [],
+      $__5 = 1; $__5 < arguments.length; $__5++)
+    args[$__5 - 1] = arguments[$__5];
+  return new Promise((function(resolve, reject) {
+    setTimeout((function() {
+      resolve.apply(null, $traceurRuntime.spread(args));
+    }), time);
   }));
 }
 function log() {
-  var $__6;
+  var $__12;
   for (var args = [],
-      $__3 = 0; $__3 < arguments.length; $__3++)
-    args[$__3] = arguments[$__3];
-  ($__6 = $console).log.apply($__6, $traceurRuntime.spread(args));
+      $__6 = 0; $__6 < arguments.length; $__6++)
+    args[$__6] = arguments[$__6];
+  ($__12 = $console).log.apply($__12, $traceurRuntime.spread(args));
+}
+function dir() {
+  var $__12;
+  for (var args = [],
+      $__7 = 0; $__7 < arguments.length; $__7++)
+    args[$__7] = arguments[$__7];
+  ($__12 = $console).dir.apply($__12, $traceurRuntime.spread(args));
 }
 function error() {
-  var $__6;
+  var $__12;
   for (var args = [],
-      $__4 = 0; $__4 < arguments.length; $__4++)
-    args[$__4] = arguments[$__4];
-  ($__6 = $console).error.apply($__6, $traceurRuntime.spread(args));
+      $__8 = 0; $__8 < arguments.length; $__8++)
+    args[$__8] = arguments[$__8];
+  ($__12 = $console).error.apply($__12, $traceurRuntime.spread(args));
 }
 function warn() {
-  var $__6;
+  var $__12;
   for (var args = [],
-      $__5 = 0; $__5 < arguments.length; $__5++)
-    args[$__5] = arguments[$__5];
-  ($__6 = $console).warn.apply($__6, $traceurRuntime.spread(args));
+      $__9 = 0; $__9 < arguments.length; $__9++)
+    args[$__9] = arguments[$__9];
+  ($__12 = $console).warn.apply($__12, $traceurRuntime.spread(args));
 }
 function spawn(makeGenerator) {
   var promise = async(makeGenerator);
@@ -195,6 +268,18 @@ function async(makeGenerator) {
       return $Promise.reject(ex);
     }
   };
+}
+function asyncMethods(object) {
+  for (var methods = [],
+      $__10 = 1; $__10 < arguments.length; $__10++)
+    methods[$__10 - 1] = arguments[$__10];
+  for (var $__0 = methods[Symbol.iterator](),
+      $__1; !($__1 = $__0.next()).done; ) {
+    var method = $__1.value;
+    {
+      object[method] = async(object[method]);
+    }
+  }
 }
 function arrayIterator() {
   var items = arguments[0] !== (void 0) ? arguments[0] : [];
@@ -224,27 +309,65 @@ function terminateError(error) {
     throw error;
   }), 0);
 }
+function mapFrom() {
+  var object = arguments[0] !== (void 0) ? arguments[0] : {};
+  if (object instanceof Map)
+    return object;
+  var map = new Map();
+  var objectKeys = keys(object);
+  return objectKeys.reduce((function(result, key) {
+    var value = object[key];
+    map.set(key, value);
+    return map;
+  }), map);
+}
+function ucfirst(str) {
+  var f = str.charAt(0).toUpperCase();
+  return f + str.substr(1);
+}
+function first(array) {
+  return array[0];
+}
+function last(array) {
+  var length = array.length;
+  var lastIndex = length - 1;
+  return array[lastIndex];
+}
+function lastSegment(array) {
+  var segments = array.split('.');
+  return last(segments);
+}
 var helpers = {
   keys: keys,
+  values: values,
+  entries: entries,
   assign: assign,
   extendProtoOf: extendProtoOf,
   implementIterator: implementIterator,
   value: value,
   isNull: isNull,
   isString: isString,
+  isFunction: isFunction,
   isUndefined: isUndefined,
   isDefined: isDefined,
   isArray: isArray,
   defined: defined,
   wait: wait,
   log: log,
+  dir: dir,
   error: error,
   warn: warn,
   spawn: spawn,
   async: async,
+  asyncMethods: asyncMethods,
   arrayIterator: arrayIterator,
   noProto: noProto,
-  terminateError: terminateError
+  terminateError: terminateError,
+  mapFrom: mapFrom,
+  ucfirst: ucfirst,
+  first: first,
+  last: last,
+  lastSegment: lastSegment
 };
 module.exports = helpers;
 

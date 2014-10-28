@@ -1,16 +1,31 @@
-var helpers = require('Wildcat.Support.helpers');
+var helpers = require('../../framework/src/Wildcat/Support/helpers');
 
 class BluelightRepository {
 
     constructor(app, loader) {
+
         this.app = app;
-        this.loader_ = loader;
+        this.loader = loader;
     }
-    get() {
-        return new Promise(function(resolve, reject) {
-            resolve('here are bluerights');
-        });
+    *get() {
+
+    	var {app, loader, baseUrl} = this;
+    	var {BluelightCollection} = app;
+    	var url = `${baseUrl}bluelights`;
+
+    	var {features} = yield loader.get({url, timeout: 10000});
+
+        return new BluelightCollection(features);
+    }
+    get baseUrl() {
+
+    	var {config} = this.app;
+    	return config.get('app').apiBaseUrl;
     }
 }
+
+var {asyncMethods, log} = helpers;
+
+asyncMethods(BluelightRepository.prototype, 'get');
 
 module.exports = BluelightRepository;

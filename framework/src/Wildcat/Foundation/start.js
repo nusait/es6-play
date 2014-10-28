@@ -4,14 +4,13 @@ function start() {
 
     var app    = this;
     var env    = app.environment();
-    var providers, config;
 
     app.bindShared('app', () => app);
-
     app.registerCoreContainerBindings();
 
-    config = app.config;
-    providers = config.get('app').providers;
+    var {config} = app;
+    var {providers} = config.get('app');
+    
     app.getProviderRepository().load(app, providers);
 }
 

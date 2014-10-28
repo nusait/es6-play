@@ -10,15 +10,17 @@ class XHRLoader {
     }
     send(method, {url, timeout = 5000, headers = {}, responseType = 'json'}) {
 
-        // if (headers) log(headers);
-
         var xhr = new this.Xhr_();
 
         var promise = new Promise((resolve, reject) => {
             
             xhr.open(method, url);
 
-            // for([key, value] of headers) xhr.setRequestHeader(key, value);
+            if (responseType === 'json') {
+                xhr.setRequestHeader('Accept', 'application/json');
+            }
+
+            entries(headers).forEach(entry => xhr.setRequestHeader(...entry));
 
             assign(xhr, {
                 resolve, reject,
@@ -61,6 +63,6 @@ function onerror({target: xhr}) {
     reject(networkError);
 }
 
-var {log, error, isString, assign} = helpers;
+var {log, error, isString, assign, entries} = helpers;
 
 module.exports = XHRLoader;

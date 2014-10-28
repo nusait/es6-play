@@ -5,7 +5,7 @@ class ViewServiceProvider extends ServiceProvider {
 
     register() {
 
-        var app   = this.app;
+        var {app} = this;
         var views = app.config.get('views');
 
         for (var {abstract, $constructor, build} of views) {

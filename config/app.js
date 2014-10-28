@@ -24,8 +24,7 @@ function browser() {
 }
 
 var configObject = {
-    apiProtocol: 'http:',
-    apiHost: 'nuhelp.api',
+    apiBaseUrl: 'https://go.dosa.northwestern.edu/nuhelpapi/api/',
     debug: false,
     providers: [
         /*

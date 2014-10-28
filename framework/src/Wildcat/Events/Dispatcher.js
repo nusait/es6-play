@@ -1,21 +1,20 @@
-/**
-@module Wildcat.Events.Dispatcher
-*/
-var EventEmitter = require('events').EventEmitter;
-var {extendProtoOf, isString} = require('Wildcat.Support.helpers');
 
-class Dispatcher {
+// var EventEmitter = require('events').EventEmitter;
+var {EventEmitter2} = require('eventemitter2');
+var {/*extendProtoOf, */isString} = require('Wildcat.Support.helpers');
 
-    constructor(app) {
-        this.app_ = app;
-        EventEmitter.call(this);
+class Dispatcher extends EventEmitter2 {
+
+    constructor(options) {
+        this.app_ = options.app;
+        EventEmitter2.call(this, options);
     }
     subscribe(subscriber) {
         subscriber = resolveSubscriber.call(this);
         subscriber.subscribe(this);
     }
 }
-extendProtoOf(Dispatcher, EventEmitter);
+// extendProtoOf(Dispatcher, EventEmitter);
 
 function resolveSubscriber(subscriber) {
 

@@ -9,6 +9,7 @@ var customMatchers   = require('../framework/tests/customMatchers.js');
 var createTestApplication = require('../framework/src/Wildcat/Foundation/Testing/createTestApplication.js');
 var log = console.log.bind(console);
 
+console.log(createTestApplication);
 app = createTestApplication();
 
 beforeEach(function() {

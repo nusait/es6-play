@@ -1,0 +1,35 @@
+
+78:
+
+1.	Bachelor's degree or the equivalent combination of education, training, and experience from which comparable skills can be acquired.
+2.	Two years of relevant experience in a professional IT environment developing application software.
+3.	Strong knowledge and experience with JavaScript and associated frameworks (JQuery, YU13)
+4.	Knowledge of W3C standards that govern manipulation of XML (XSLT)
+5.	Agile programming with PHP inside an MVC framework (CodeIgniter preferred)
+6.	An understanding of relational database theory and object relational mapping (SQL Server preferred)
+7.	Experience creating data-driven reports with report writing tools.
+8.	Well-versed in emerging standards governing the web (HTML5, CSS3)
+9.	Fluency in Services (RET, Ajax)
+10.	Ease at the Unix command line
+11.	Experience with versioning (Git preferred)
+12.	Ability to cooperate in a paired programming environment
+13.	Ability to communicate technical requirements and procedures to non-technical staff members.
+14.	Strong technical aptitude and ability to research & solve complex issues independently.
+
+80:
+
+1.	Bachelor's degree or the equivalent combination of education, training, and experience from which comparable skills can be acquired.
+2.	Four years of relevant experience in a professional IT environment developing application software.
+3.	Strong knowledge and experience with JavaScript and associated frameworks (JQuery, YU13)
+4.	Knowledge of W3C standards that govern manipulation of XML (XSLT)
+5.	Agile programming with PHP inside an MVC framework (CodeIgniter preferred)
+6.	An understanding of relational database theory and object relational mapping (SQL Server preferred)
+7.	Experience creating data-driven reports with report writing tools.
+8.	Well-versed in emerging standards governing the web (HTML5, CSS3)
+9.	Fluency in Services (RET, Ajax)
+10.	Ease at the Unix command line
+11.	Experience with versioning (Git preferred)
+12.	Ability to cooperate in a paired programming environment
+13.	Ability to communicate technical requirements and procedures to non-technical staff members.
+14.	Strong technical aptitude and ability to research & solve complex issues independently.
+

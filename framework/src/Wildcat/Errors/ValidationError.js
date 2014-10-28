@@ -1,5 +1,5 @@
 
-var errorConstructor = require('Wildcat.Errors.errorConstructor');
+var errorConstructor = require('./errorConstructor');
 
 var ValidationError = errorConstructor('ValidationError', 'no way! validated');
 

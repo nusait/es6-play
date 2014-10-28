@@ -1,12 +1,12 @@
 
-var npmPath = '/usr/local/lib/node_modules/';
-npmPath = '';
-
+var recursiveReaddir = require('recursive-readdir');
 var fs = require('fs');
-var q  = require(npmPath + 'q');
-var recursive = q.denodeify(require(npmPath + 'recursive-readdir'));
+var q  = require('q');
+
+var recursive = q.denodeify(recursiveReaddir);
 var readFile  = q.denodeify(fs.readFile);
 var writeFile = q.denodeify(fs.writeFile);
+
 var log  = console.log.bind(console);
 var base = './';
 

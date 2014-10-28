@@ -20,24 +20,24 @@ function registerCommandBus() {
 }
 function registerCommands() {
 
-    var app      = this.app;
+    var {app} = this;
     var commands = app.config.get('commands');
 
     for (var {abstract, command} of commands) {
         
-        app.bind(abstract, function(app, ...args) {
+        app.bind(abstract, (app, ...args) => {
             return new command(...args);
         });
     }
 }
 function registerHandlers() {
 
-    var app      = this.app;
+    var {app} = this;
     var handlers = app.config.get('handlers');
 
     for (var {abstract, handler} of handlers) {
         
-        app.bind(abstract, function(app, ...args) {
+        app.bindShared(abstract, (app, ...args) => {
             return new handler(app, ...args);
         });
     }

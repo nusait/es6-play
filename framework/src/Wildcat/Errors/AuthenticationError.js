@@ -1,5 +1,5 @@
 
-var errorConstructor = require('Wildcat.Errors.errorConstructor');
+var errorConstructor = require('./errorConstructor');
 
 var AuthenticationError = errorConstructor('AuthenticationError', 'no way! authenticated');
 

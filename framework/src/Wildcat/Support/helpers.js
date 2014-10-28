@@ -4,11 +4,58 @@ var $setTimeout = global.setTimeout;
 
 // Object
 function keys(object) {
+
+    if (object instanceof Map) {
+        var result = [];
+        object.forEach((value, key) => {
+            result.push(key);
+        }); 
+        return result;
+    }
+
     return Object.keys(object);
 }
-function assign(target, ...args) {
+function values(object = {}) {
 
-    return Object.assign(target, ...args);
+    if (object instanceof Map) {
+        var result = [];
+        object.forEach((value, key) => {
+            result.push(value);
+        });
+        return result;
+    }
+    return keys(object).map(key => object[key]);
+}
+function entries(object = {}) {
+
+    if (object instanceof Map) {
+        var result = [];
+        object.forEach((value, key) => {
+            result.push([key, value]);
+        });
+        return result;
+    }
+
+    return keys(object).map(key => [key, object[key]]);
+}
+function assign(target, ...sources) {
+
+    var source, temp, props, prop;
+
+    for (source of sources) {
+
+        if ( isArray(source) ) {
+
+            temp = {};
+            [source, ...props] = source;
+            for (prop of props) temp[prop] = source[prop];
+            assign(target, temp);
+
+        } else Object.assign(target, source);
+    }
+    return target;
+
+    // return Object.assign(target, ...args);
 }
 function extendProtoOf(target, source, key = []) {
 
@@ -39,6 +86,10 @@ function isString(val) {
 
     return typeof val === 'string';
 }
+function isFunction(val) {
+
+    return typeof val === 'function';
+}
 function isUndefined(val) {
 
     return val === undefined;
@@ -55,14 +106,21 @@ function defined(val, $default) {
 
     return isDefined(val) ? val : $default;
 }
-function wait(time = 500) {
-    return new Promise(resolve => {
-        setTimeout(resolve, time);
+function wait(time = 500, ...args) {
+    
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(...args);
+        }, time);
     });
 }
 function log(...args) {
     
     $console.log(...args);
+}
+function dir(...args) {
+
+    $console.dir(...args);
 }
 function error(...args) {
 
@@ -105,7 +163,15 @@ function async(makeGenerator) {
         }
     };  
 }
+function asyncMethods(object, ...methods) {
+
+    for (var method of methods) {
+
+        object[method] = async(object[method]);
+    }
+}
 function arrayIterator(items = []) {
+    
     var i     = 0;
     var len   = items.length;
 
@@ -131,38 +197,71 @@ function terminateError(error) {
         throw error;    
     }, 0);
 }
-function entries(object = {}) {
+function mapFrom(object = {}) {
 
-    var objectKeys = Object.keys(object);
+    if (object instanceof Map) return object;
+
+    var map = new Map();
+    var objectKeys = keys(object);
 
     return objectKeys.reduce((result, key) => {
         var value = object[key];
-        result.push([key, value]);
-        return result;
-    }, []);
+        map.set(key, value);
+        return map;
+    }, map);
 }
+function ucfirst(str) {
+
+  var f = str.charAt(0).toUpperCase();
+  return f + str.substr(1);
+}
+function first(array) {
+
+    return array[0];
+}
+function last(array) {
+
+    var length    = array.length;
+    var lastIndex = length - 1;
+    return array[lastIndex];
+}
+function lastSegment(array) {
+
+    var segments = array.split('.');
+    return last(segments);
+}
+
 var helpers = {
     keys,
+    values,
+    entries,
     assign,
     extendProtoOf,
     implementIterator,
     value,
     isNull,
     isString,
+    isFunction,
     isUndefined,
     isDefined,
     isArray,
     defined,
     wait,
     log,
+    dir,
     error,
     warn,
     spawn,
     async,
+    asyncMethods,
     arrayIterator,
     noProto,
     terminateError,
-    entries,
+    mapFrom,
+    ucfirst,
+    first,
+    last,
+    lastSegment,
 };
 
 module.exports = helpers;

@@ -1,6 +1,6 @@
 var View = require('Wildcat.View.View');
 var helpers = require('Wildcat.Support.helpers');
-var {log} = helpers;
+var {log, error} = helpers;
 
 class IntroView extends View {
 
@@ -18,6 +18,27 @@ class IntroView extends View {
         var {app} = this;
         var command = app.make('postReportCommand', [name, incident]);     
         this.execute(command); 
+    }
+    getBluelights() {
+
+        var {app} = this;
+        var command = app.make('retrieveBluelightsCommand');
+
+        this.execute(command)
+            .then(collection => {
+                log(`got it from thenable `, collection)
+            })
+            .catch(err => {
+                error('got it from catchable', err.message);
+            });
+    }
+    onBluelightsDelivered({value: collection}) {
+
+        log(`whenBluelightsDelivered`);
+    }
+    onFailRetrieveBluelightsCommand(err) {
+
+        error(`onFailRetrieveBluelightsCommand`, err);
     }
 }
 

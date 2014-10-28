@@ -1,6 +1,8 @@
 /* global document, window */
 
 var $Promise = require('rsvp').Promise;
+var {document} = global;
+var {head} = document;
 
 var autoload = {
 
@@ -18,12 +20,12 @@ var autoload = {
             var script = document.createElement('script');
             script.src = 'js/bundle.js';
             script.onload = () => {
-                var App = window.App;
-                delete window.App;
+                var {App} = global;
+                delete global.App;
                 resolve(App);
             };
             script.onerror = (error) => reject(error);
-            document.head.appendChild(script);
+            head.appendChild(script);
         });
 
     },

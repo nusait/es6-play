@@ -1,5 +1,5 @@
 function environment(localStorage) {
-    localStorage = localStorage || window.localStorage;
+    localStorage = localStorage || global.localStorage;
     return (localStorage.env || 'production');
 }
 
