@@ -1,0 +1,159 @@
+/*style.css*/
+
+@font-face {
+	font-family: 'icomoon';
+	src:url('fonts/icomoon.eot?v6zaba');
+	src:url('fonts/icomoon.eot?#iefixv6zaba') format('embedded-opentype'),
+		url('fonts/icomoon.woff?v6zaba') format('woff'),
+		url('fonts/icomoon.ttf?v6zaba') format('truetype'),
+		url('fonts/icomoon.svg?v6zaba#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	font-family: 'icomoon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-announcement:before {
+	content: "\e60d";
+}
+.icon-exit-to-app:before {
+	content: "\e60e";
+}
+.icon-explore:before {
+	content: "\e601";
+}
+.icon-face-unlock:before {
+	content: "\e60f";
+}
+.icon-home:before {
+	content: "\e610";
+}
+.icon-info:before {
+	content: "\e621";
+}
+.icon-info-outline:before {
+	content: "\e622";
+}
+.icon-language:before {
+	content: "\e611";
+}
+.icon-reorder:before {
+	content: "\e612";
+}
+.icon-room:before {
+	content: "\e613";
+}
+.icon-view-list:before {
+	content: "\e602";
+}
+.icon-visibility:before {
+	content: "\e614";
+}
+.icon-error:before {
+	content: "\e615";
+}
+.icon-warning:before {
+	content: "\e623";
+}
+.icon-subtitles:before {
+	content: "\e624";
+}
+.icon-call:before {
+	content: "\e600";
+}
+.icon-live-help:before {
+	content: "\e625";
+}
+.icon-mail:before {
+	content: "\e603";
+}
+.icon-gps-fixed:before {
+	content: "\e604";
+}
+.icon-location-disabled:before {
+	content: "\e605";
+}
+.icon-location-searching:before {
+	content: "\e606";
+}
+.icon-brightness-7:before {
+	content: "\e626";
+}
+.icon-camera-alt:before {
+	content: "\e616";
+}
+.icon-style:before {
+	content: "\e627";
+}
+.icon-tag-faces:before {
+	content: "\e607";
+}
+.icon-timer-auto:before {
+	content: "\e608";
+}
+.icon-local-hospital:before {
+	content: "\e617";
+}
+.icon-local-library:before {
+	content: "\e618";
+}
+.icon-local-phone:before {
+	content: "\e619";
+}
+.icon-map:before {
+	content: "\e61a";
+}
+.icon-place:before {
+	content: "\e609";
+}
+.icon-arrow-back:before {
+	content: "\e61b";
+}
+.icon-arrow-forward:before {
+	content: "\e61c";
+}
+.icon-cancel:before {
+	content: "\e628";
+}
+.icon-check:before {
+	content: "\e629";
+}
+.icon-chevron-left:before {
+	content: "\e61d";
+}
+.icon-chevron-right:before {
+	content: "\e61e";
+}
+.icon-close:before {
+	content: "\e60a";
+}
+.icon-expand-less:before {
+	content: "\e61f";
+}
+.icon-expand-more:before {
+	content: "\e620";
+}
+.icon-menu:before {
+	content: "\e62a";
+}
+.icon-more-horiz:before {
+	content: "\e60b";
+}
+.icon-people:before {
+	content: "\e60c";
+}
+.icon-publ:before {
+	content: "\e62b";
+}

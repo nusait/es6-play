@@ -1,12 +1,13 @@
 var View = require('Wildcat.View.View');
 var helpers = require('Wildcat.Support.helpers');
-var {log, error} = helpers;
 
 class IntroView extends View {
 
-    constructor(...args) {
+    constructor(app, ...args) {
 
-        super(...args);
+        this.name = 'intro';
+        
+        super(app);
 
         var {app} = this;
         var {events} = app;
@@ -21,15 +22,16 @@ class IntroView extends View {
     }
     getBluelights() {
 
+        log(`::introView#getBluelights`);
         var {app} = this;
         var command = app.make('retrieveBluelightsCommand');
 
-        this.execute(command)
+        return this.execute(command)
             .then(collection => {
-                log(`got it from thenable `, collection)
+                log(`::got it from thenable `, collection)
             })
             .catch(err => {
-                error('got it from catchable', err.message);
+                error('::got it from catchable', err.message);
             });
     }
     onBluelightsDelivered({value: collection}) {
@@ -41,5 +43,7 @@ class IntroView extends View {
         error(`onFailRetrieveBluelightsCommand`, err);
     }
 }
+
+var {log, error} = helpers;
 
 module.exports = IntroView;

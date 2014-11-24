@@ -12,11 +12,11 @@ class Bluelight {
 	    EventGenerator.call(this);
 	}
 	static *get(...args) {
-
 		var app = this.getApplication();
 		var {bluelightRepository, bluelight} = app;
 
 		var collection = yield bluelightRepository.get();
+		log(`:: Bluelight.get 3`);
 		bluelight.collection = collection;
 		
 		var event = app.make('bluelightsDelivered', [collection]);

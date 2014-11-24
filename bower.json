@@ -1,0 +1,8 @@
+{
+  "name": "Nuhelp",
+  "version": "0.0.1",
+  "main": "public/js/boot.js",
+  "dependencies": {
+    "scss-mixins": "*"
+  }
+}

@@ -1,5 +1,6 @@
 var ServiceProvider = require('Wildcat.Support.ServiceProvider');
 var View = require('Wildcat.View.View');
+var helpers = require('../Support/helpers');
 
 class ViewServiceProvider extends ServiceProvider {
 
@@ -8,17 +9,20 @@ class ViewServiceProvider extends ServiceProvider {
         var {app} = this;
         var views = app.config.get('views');
 
-        for (var {abstract, $constructor, build} of views) {
-            
-            switch (build) {
+        views.forEach(view => {
 
+            var {abstract, $constructor, build, args} = view;
+
+            switch (build) {
                 case 'singleton':
-                    app.bindShared(abstract, app => new $constructor(app));
+                    app.bindShared(abstract, app => new $constructor(app, ...args));
                     break;
-                    
-            }
-        }
+            }    
+        });
+
     }
 }
+
+var {log} = helpers;
 
 module.exports = ViewServiceProvider;

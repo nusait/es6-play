@@ -1,0 +1,13 @@
+// initial.scss
+@import 'core/colors';
+
+html {
+    background-color: $light-purple;
+    body {
+    	margin: 0;
+    }
+}
+
+output.log {
+	display: none;
+}

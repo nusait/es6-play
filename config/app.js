@@ -14,10 +14,28 @@ var ErrorProvider            = require('Wildcat.Errors.ErrorServiceProvider');
 var ViewServiceProvider      = require('Wildcat.View.ViewServiceProvider');
 var CommanderServiceProvider = require('Wildcat.Commander.CommandServiceProvider');
 
+function getNavigatorProperty(prop) {
+
+    // deal with current bug in Cordova:
+    // "Deprecated attempt to access property..."
+    // ...probably will fix soon
+
+    var navigator = global.navigator;
+    var parent    = Object.getPrototypeOf(navigator);
+
+    try {
+        var result = parent[prop];
+        if (parent[prop] !== undefined) return parent[prop];
+        return navigator[prop];
+    } catch (err) {
+        return navigator[prop];
+    }
+}
+
 function browser() {
 
     if (global.navigator) {
-        return global.navigator.userAgent;
+        return getNavigatorProperty('userAgent');
     } else {
         return 'not determined';
     }
@@ -30,13 +48,13 @@ var configObject = {
         /*
          * Application Service Providers...
          */
-         AppServiceProvider,
+        AppServiceProvider,
 
         /*
          * Framework Service Providers...
          */
-        LogServiceProvider,
         WindowServiceProvider,
+        LogServiceProvider,
         ErrorProvider,
         ViewServiceProvider,
         CommanderServiceProvider,

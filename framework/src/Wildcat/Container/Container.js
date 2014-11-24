@@ -55,7 +55,7 @@ class Container {
             return;
         }
 
-        this.bind(abstract, this.share(concrete, ...args), true);
+        this.bind(abstract, this.share(abstract, concrete, ...args), true);
     }
     getConcrete(abstract) {
 
@@ -90,11 +90,19 @@ class Container {
         
         this.bindShared(abstract, app => new instantiable(...args));
     }
-    share(func, ...args) {
-        var object;
+    share(abstract, func, ...args) {
+
+        var _ = state(this);
+        var {instances} = _; 
+
         return function(container) {
-            if (object === undefined) object = func(container, ...args);
-            return object;
+            // if (abstract === 'introView') debugger;
+            var obj = instances[abstract];
+            if (obj) return obj;
+
+            obj = func(container, ...args);
+            instances[abstract] = obj;
+            return obj;
         };
     }
     forgetInstance(abstract) {

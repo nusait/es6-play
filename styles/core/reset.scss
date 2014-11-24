@@ -1,0 +1,84 @@
+// reset.scss
+
+// * {
+//     -webkit-tap-highlight-color: rgba(0,0,0,0); // avoid all?
+// } 
+
+button, input, textarea, label, a, h1[tabindex] {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+// BE CAREFUL with these below!
+// e.g. <textarea> must allow user-select on android
+button, label,
+h1, h2, h3,
+div, span, p, img, i, b {
+    @include user-select(none);
+}
+h1, h2, h3 {
+    font-weight: normal;
+}
+
+// forget outline
+h1:focus, input:focus {
+    outline: none !important;
+}
+
+p, h1, h2, h3, h4 {
+    margin: 0;
+}
+
+a {
+    text-decoration: none;
+    -webkit-touch-callout: none;    
+}
+
+button {
+    background-image: none; // firefox mobile
+    padding: 0;
+    border: none;
+    font-family: inherit;
+    color: inherit;
+    font-size: inherit;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center center;
+    text-shadow: inherit;
+    margin: 0;
+    &:focus {
+        outline: none;
+    }
+}
+
+ul, dl {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+dd {
+    margin: 0;
+}
+input {
+    background-image: none; // firefox mobile
+}
+input[type=checkbox] {
+    position: absolute;
+    opacity: 0;
+}
+b {
+	font-weight: inherit;
+}
+i {
+	font-style: inherit;
+}
+
+// ghost inputs reset for android < 4.1 (version 4.0)
+html[data-platform=Android][data-version^="4.0"] input[type=text],
+html[data-platform=Android][data-version^="4.0"] input[type=email],
+html[data-platform=Android][data-version^="4.0"] input[type=date],
+html[data-platform=Android][data-version^="4.0"] input[type=password],
+html[data-platform=Android][data-version^="4.0"] textarea, {
+    position: relative;
+    -webkit-transform: translate(0px, 500px);
+    top: -500px;
+}

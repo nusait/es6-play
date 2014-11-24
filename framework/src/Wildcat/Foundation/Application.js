@@ -55,12 +55,12 @@ class Application extends Container {
         return new ProviderRepository();
     }
     start() {
-        
+        log('::app starting!');
         start.call(this);
     }
     run() {
-
-        console.log('app running!');
+        log(`#run Foundation Application`);
+        log('::app running2!');
     }
     register(provider) {
 
@@ -69,7 +69,7 @@ class Application extends Container {
     }
 }
 
-var {extendProtoOf} = helpers;
+var {extendProtoOf, log} = helpers;
 
 extendProtoOf(Application, CommanderTrait);
 

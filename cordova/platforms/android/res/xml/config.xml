@@ -1,13 +1,30 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="edu.northwestern.dosa.nuhelp" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="7" id="edu.northwestern.dosa.nuhelp" ios-CFBundleVersion="1.0.0" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <preference name="loglevel" value="DEBUG" />
+    <feature name="Device">
+        <param name="android-package" value="org.apache.cordova.device.Device" />
+    </feature>
+    <feature name="NativePageTransitions">
+        <param name="android-package" value="com.telerik.plugins.nativepagetransitions.NativePageTransitions" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="ActionSheet">
+        <param name="android-package" value="nl.xservices.plugins.actionsheet.ActionSheet" />
+    </feature>
+    <feature name="StatusBar">
+        <param name="android-package" onload="true" value="org.apache.cordova.statusbar.StatusBar" />
+    </feature>
+    <preference name="AndroidLaunchMode" value="singleTop" />
     <name>NUHelp</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+        NUHelp Northwestern University Helpful Services
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
-        Apache Cordova Team
+    <author email="sait-web1@northwestern.edu" href="http://www.northwestern.edu">
+        Northwestern SAIT Application Development Team
     </author>
     <content src="index.html" />
     <access origin="*" />
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="Orientation" value="portrait" />
+    <access launch-external="yes" origin="*" />
 </widget>

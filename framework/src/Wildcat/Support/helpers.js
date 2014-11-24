@@ -1,6 +1,7 @@
 
 var $console    = global.console;
-var $setTimeout = global.setTimeout;
+var setTimeout = global.setTimeout;
+var clearTimeout = global.clearTimeout;
 
 // Object
 function keys(object) {
@@ -115,8 +116,27 @@ function wait(time = 500, ...args) {
     });
 }
 function log(...args) {
-    
-    $console.log(...args);
+
+    var {document} = global;
+
+    if (
+        (typeof args[0] === 'string') && 
+        (args[0].startsWith('::')) &&
+        (document)
+    ) {
+        var {body}   = document;
+        var outputEl = document.querySelector('output.log');
+
+        if ( ! outputEl) {
+            body.insertAdjacentHTML('afterbegin', '<output class=log />');
+            outputEl = document.querySelector('output.log');
+        }
+
+        outputEl
+            .insertAdjacentHTML('beforeend', `<p>${args[0]}</p>`);
+    } else {
+        $console.log(...args);
+    }
 }
 function dir(...args) {
 
@@ -191,7 +211,7 @@ function noProto(source = {}) {
 }
 function terminateError(error) {
 
-    $setTimeout(() => {
+    setTimeout(() => {
         warn(`from [terimateError]:`);
         warn(error.stack);
         throw error;    
@@ -231,6 +251,14 @@ function lastSegment(array) {
     return last(segments);
 }
 
+// window helpers
+function nextFrame() {
+
+    return new Promise(resolve => {
+        global.requestAnimationFrame(resolve);
+    });
+}
+
 var helpers = {
     keys,
     values,
@@ -262,6 +290,10 @@ var helpers = {
     first,
     last,
     lastSegment,
+    setTimeout,
+    clearTimeout,
+
+    nextFrame,
 };
 
 module.exports = helpers;

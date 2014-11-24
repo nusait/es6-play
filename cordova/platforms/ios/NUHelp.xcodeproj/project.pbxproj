@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		1D3623260D0F684500981E51 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* AppDelegate.m */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
@@ -40,6 +39,10 @@
 		D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */; };
 		F7F2A3BE19FF0A2E0047B503 /* Default-667h.png in Resources */ = {isa = PBXBuildFile; fileRef = F7F2A3BD19FF0A2E0047B503 /* Default-667h.png */; };
 		F7F2A3C019FF0AD90047B503 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F7F2A3BF19FF0AD90047B503 /* Images.xcassets */; };
+		FC7AF126BB09428D9BBD5B2B /* CDVDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 859B0678C50A4830B747B850 /* CDVDevice.m */; };
+		791505BBB7164E1394D2E402 /* NativePageTransitions.m in Sources */ = {isa = PBXBuildFile; fileRef = 81341463601E45EAAB2A5099 /* NativePageTransitions.m */; };
+		8EE13226104C4DA8849C867C /* ActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = AB505CAA3BF341E8961CB03C /* ActionSheet.m */; };
+		A63FE783E33448A897DFCFA7 /* CDVStatusBar.m in Sources */ = {isa = PBXBuildFile; fileRef = C9F093C2AE0E4A54A45096BD /* CDVStatusBar.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +108,14 @@
 		F7F2A3BD19FF0A2E0047B503 /* Default-667h.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-667h.png"; sourceTree = "<group>"; };
 		F7F2A3BF19FF0AD90047B503 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = NUHelp/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = NUHelp/config.xml; sourceTree = "<group>"; };
+		859B0678C50A4830B747B850 /* CDVDevice.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVDevice.m"; path = "org.apache.cordova.device/CDVDevice.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		DF3091F5E1914BBB90070460 /* CDVDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVDevice.h"; path = "org.apache.cordova.device/CDVDevice.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		81341463601E45EAAB2A5099 /* NativePageTransitions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NativePageTransitions.m"; path = "com.telerik.plugins.nativepagetransitions/NativePageTransitions.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		6E7D89B47C0A4603A78BAB32 /* NativePageTransitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NativePageTransitions.h"; path = "com.telerik.plugins.nativepagetransitions/NativePageTransitions.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		AB505CAA3BF341E8961CB03C /* ActionSheet.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "ActionSheet.m"; path = "nl.x-services.plugins.actionsheet/ActionSheet.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		391540C4319141C48F693360 /* ActionSheet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ActionSheet.h"; path = "nl.x-services.plugins.actionsheet/ActionSheet.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		C9F093C2AE0E4A54A45096BD /* CDVStatusBar.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVStatusBar.m"; path = "org.apache.cordova.statusbar/CDVStatusBar.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		3F1DF12960284D23AEF03EFA /* CDVStatusBar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVStatusBar.h"; path = "org.apache.cordova.statusbar/CDVStatusBar.h"; sourceTree = "<group>"; fileEncoding = 4; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -224,6 +235,14 @@
 		307C750510C5A3420062BCA9 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				859B0678C50A4830B747B850 /* CDVDevice.m */,
+				DF3091F5E1914BBB90070460 /* CDVDevice.h */,
+				81341463601E45EAAB2A5099 /* NativePageTransitions.m */,
+				6E7D89B47C0A4603A78BAB32 /* NativePageTransitions.h */,
+				AB505CAA3BF341E8961CB03C /* ActionSheet.m */,
+				391540C4319141C48F693360 /* ActionSheet.h */,
+				C9F093C2AE0E4A54A45096BD /* CDVStatusBar.m */,
+				3F1DF12960284D23AEF03EFA /* CDVStatusBar.h */,
 			);
 			name = Plugins;
 			path = NUHelp/Plugins;
@@ -318,7 +337,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 510;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
 						DevelopmentTeam = E74ZKF37E6;
@@ -426,6 +445,10 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
+				FC7AF126BB09428D9BBD5B2B /* CDVDevice.m in Sources */,
+				791505BBB7164E1394D2E402 /* NativePageTransitions.m in Sources */,
+				8EE13226104C4DA8849C867C /* ActionSheet.m in Sources */,
+				A63FE783E33448A897DFCFA7 /* CDVStatusBar.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -481,7 +504,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Christopher Walker (TAEB89687H)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -506,6 +530,7 @@
 					"-ObjC",
 				);
 				PRODUCT_NAME = NUHelp;
+				PROVISIONING_PROFILE = "9b1e0761-9266-42d8-82f3-daac6d058768";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -516,7 +541,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Christopher Walker (TAEB89687H)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NUHelp/NUHelp-Prefix.pch";
@@ -539,6 +565,7 @@
 					"-ObjC",
 				);
 				PRODUCT_NAME = NUHelp;
+				PROVISIONING_PROFILE = "9b1e0761-9266-42d8-82f3-daac6d058768";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

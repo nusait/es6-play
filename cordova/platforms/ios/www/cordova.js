@@ -1,340 +1,3467 @@
 // Platform: ios
-// 3.6.3
+// ???
+// browserify
 /*
- Licensed to the Apache Software Foundation (ASF) under one
- or more contributor license agreements.  See the NOTICE file
- distributed with this work for additional information
- regarding copyright ownership.  The ASF licenses this file
- to you under the Apache License, Version 2.0 (the
- "License"); you may not use this file except in compliance
- with the License.  You may obtain a copy of the License at
- 
-     http://www.apache.org/licenses/LICENSE-2.0
- 
- Unless required by applicable law or agreed to in writing,
- software distributed under the License is distributed on an
- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- KIND, either express or implied.  See the License for the
- specific language governing permissions and limitations
- under the License.
-*/
-;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.6.3';
-// file: src/scripts/require.js
-
-/*jshint -W079 */
-/*jshint -W020 */
-
-var require,
-    define;
-
-(function () {
-    var modules = {},
-    // Stack of moduleIds currently being built.
-        requireStack = [],
-    // Map of module ID -> index into requireStack of modules currently being built.
-        inProgressModules = {},
-        SEPARATOR = ".";
-
-
-
-    function build(module) {
-        var factory = module.factory,
-            localRequire = function (id) {
-                var resultantId = id;
-                //Its a relative path, so lop off the last portion and add the id (minus "./")
-                if (id.charAt(0) === ".") {
-                    resultantId = module.id.slice(0, module.id.lastIndexOf(SEPARATOR)) + SEPARATOR + id.slice(2);
-                }
-                return require(resultantId);
-            };
-        module.exports = {};
-        delete module.factory;
-        factory(localRequire, module.exports, module);
-        return module.exports;
-    }
-
-    require = function (id) {
-        if (!modules[id]) {
-            throw "module " + id + " not found";
-        } else if (id in inProgressModules) {
-            var cycle = requireStack.slice(inProgressModules[id]).join('->') + '->' + id;
-            throw "Cycle in require graph: " + cycle;
-        }
-        if (modules[id].factory) {
-            try {
-                inProgressModules[id] = requireStack.length;
-                requireStack.push(id);
-                return build(modules[id]);
-            } finally {
-                delete inProgressModules[id];
-                requireStack.pop();
-            }
-        }
-        return modules[id].exports;
-    };
-
-    define = function (id, factory) {
-        if (modules[id]) {
-            throw "module " + id + " already defined";
-        }
-
-        modules[id] = {
-            id: id,
-            factory: factory
-        };
-    };
-
-    define.remove = function (id) {
-        delete modules[id];
-    };
-
-    define.moduleMap = modules;
-})();
-
-//Export for use in node
-if (typeof module === "object" && typeof require === "function") {
-    module.exports.require = require;
-    module.exports.define = define;
-}
-
-// file: src/cordova.js
-define("cordova", function(require, exports, module) {
-
-
-var channel = require('cordova/channel');
-var platform = require('cordova/platform');
-
-/**
- * Intercept calls to addEventListener + removeEventListener and handle deviceready,
- * resume, and pause events.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-var m_document_addEventListener = document.addEventListener;
-var m_document_removeEventListener = document.removeEventListener;
-var m_window_addEventListener = window.addEventListener;
-var m_window_removeEventListener = window.removeEventListener;
+var PLATFORM_VERSION_BUILD_LABEL = '3.6.3';
+var define = {moduleMap: []};
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+function NativePageTransitions() {}
 
-/**
- * Houses custom event handlers to intercept on document + window event listeners.
- */
-var documentEventHandlers = {},
-    windowEventHandlers = {};
-
-document.addEventListener = function(evt, handler, capture) {
-    var e = evt.toLowerCase();
-    if (typeof documentEventHandlers[e] != 'undefined') {
-        documentEventHandlers[e].subscribe(handler);
-    } else {
-        m_document_addEventListener.call(document, evt, handler, capture);
-    }
+NativePageTransitions.prototype.globalOptions = {
+    duration: 400,
+    iosdelay: 60,
+    androiddelay: 70,
+    winphonedelay: 200,
+    slowdownfactor: 4
 };
 
-window.addEventListener = function(evt, handler, capture) {
-    var e = evt.toLowerCase();
-    if (typeof windowEventHandlers[e] != 'undefined') {
-        windowEventHandlers[e].subscribe(handler);
-    } else {
-        m_window_addEventListener.call(window, evt, handler, capture);
+NativePageTransitions.prototype.slide = function(options, onSuccess, onError) {
+    var opts = options || {};
+    if (!this._validateHref(opts.href, onError)) {
+        return;
     }
+    opts.direction = opts.direction || "left";
+    if (opts.duration == undefined || opts.duration == "null") {
+        opts.duration = this.globalOptions.duration;
+    }
+    if (opts.androiddelay == undefined || opts.androiddelay == "null") {
+        opts.androiddelay = this.globalOptions.androiddelay;
+    }
+    if (opts.iosdelay == undefined || opts.iosdelay == "null") {
+        opts.iosdelay = this.globalOptions.iosdelay;
+    }
+    if (opts.winphonedelay == undefined || opts.winphonedelay == "null") {
+        opts.winphonedelay = this.globalOptions.winphonedelay;
+    }
+    opts.slowdownfactor = opts.slowdownfactor || this.globalOptions.slowdownfactor;
+    cordova.exec(onSuccess, onError, "NativePageTransitions", "slide", [ opts ]);
 };
 
-document.removeEventListener = function(evt, handler, capture) {
-    var e = evt.toLowerCase();
-    // If unsubscribing from an event that is handled by a plugin
-    if (typeof documentEventHandlers[e] != "undefined") {
-        documentEventHandlers[e].unsubscribe(handler);
-    } else {
-        m_document_removeEventListener.call(document, evt, handler, capture);
+NativePageTransitions.prototype.drawer = function(options, onSuccess, onError) {
+    var opts = options || {};
+    if (!this._validateHref(opts.href, onError)) {
+        return;
     }
+    opts.origin = opts.origin || "left";
+    opts.action = opts.action || "open";
+    if (opts.duration == undefined || opts.duration == "null") {
+        opts.duration = this.globalOptions.duration;
+    }
+    if (opts.androiddelay == undefined || opts.androiddelay == "null") {
+        opts.androiddelay = this.globalOptions.androiddelay;
+    }
+    if (opts.iosdelay == undefined || opts.iosdelay == "null") {
+        opts.iosdelay = this.globalOptions.iosdelay;
+    }
+    if (opts.winphonedelay == undefined || opts.winphonedelay == "null") {
+        opts.winphonedelay = this.globalOptions.winphonedelay;
+    }
+    cordova.exec(onSuccess, onError, "NativePageTransitions", "drawer", [ opts ]);
 };
 
-window.removeEventListener = function(evt, handler, capture) {
-    var e = evt.toLowerCase();
-    // If unsubscribing from an event that is handled by a plugin
-    if (typeof windowEventHandlers[e] != "undefined") {
-        windowEventHandlers[e].unsubscribe(handler);
-    } else {
-        m_window_removeEventListener.call(window, evt, handler, capture);
+NativePageTransitions.prototype.flip = function(options, onSuccess, onError) {
+    var opts = options || {};
+    if (!this._validateHref(opts.href, onError)) {
+        return;
     }
+    opts.direction = opts.direction || "right";
+    if (opts.duration == undefined || opts.duration == "null") {
+        opts.duration = this.globalOptions.duration;
+    }
+    if (opts.androiddelay == undefined || opts.androiddelay == "null") {
+        opts.androiddelay = this.globalOptions.androiddelay;
+    }
+    if (opts.iosdelay == undefined || opts.iosdelay == "null") {
+        opts.iosdelay = this.globalOptions.iosdelay;
+    }
+    if (opts.winphonedelay == undefined || opts.winphonedelay == "null") {
+        opts.winphonedelay = this.globalOptions.winphonedelay;
+    }
+    cordova.exec(onSuccess, onError, "NativePageTransitions", "flip", [ opts ]);
 };
 
-function createEvent(type, data) {
-    var event = document.createEvent('Events');
-    event.initEvent(type, false, false);
-    if (data) {
-        for (var i in data) {
-            if (data.hasOwnProperty(i)) {
-                event[i] = data[i];
+NativePageTransitions.prototype._validateHref = function(href, errCallback) {
+    var currentHref = window.location.href.substr(window.location.href.indexOf("www/") + 4);
+    if (href) {
+        if (href.indexOf("#") == 0) {
+            if (currentHref.indexOf("#") > -1) {
+                currentHref = currentHref.substr(currentHref.indexOf("#"));
             }
         }
     }
-    return event;
-}
-
-
-var cordova = {
-    define:define,
-    require:require,
-    version:CORDOVA_JS_BUILD_LABEL,
-    platformId:platform.id,
-    /**
-     * Methods to add/remove your own addEventListener hijacking on document + window.
-     */
-    addWindowEventHandler:function(event) {
-        return (windowEventHandlers[event] = channel.create(event));
-    },
-    addStickyDocumentEventHandler:function(event) {
-        return (documentEventHandlers[event] = channel.createSticky(event));
-    },
-    addDocumentEventHandler:function(event) {
-        return (documentEventHandlers[event] = channel.create(event));
-    },
-    removeWindowEventHandler:function(event) {
-        delete windowEventHandlers[event];
-    },
-    removeDocumentEventHandler:function(event) {
-        delete documentEventHandlers[event];
-    },
-    /**
-     * Retrieve original event handlers that were replaced by Cordova
-     *
-     * @return object
-     */
-    getOriginalHandlers: function() {
-        return {'document': {'addEventListener': m_document_addEventListener, 'removeEventListener': m_document_removeEventListener},
-        'window': {'addEventListener': m_window_addEventListener, 'removeEventListener': m_window_removeEventListener}};
-    },
-    /**
-     * Method to fire event from native code
-     * bNoDetach is required for events which cause an exception which needs to be caught in native code
-     */
-    fireDocumentEvent: function(type, data, bNoDetach) {
-        var evt = createEvent(type, data);
-        if (typeof documentEventHandlers[type] != 'undefined') {
-            if( bNoDetach ) {
-                documentEventHandlers[type].fire(evt);
-            }
-            else {
-                setTimeout(function() {
-                    // Fire deviceready on listeners that were registered before cordova.js was loaded.
-                    if (type == 'deviceready') {
-                        document.dispatchEvent(evt);
-                    }
-                    documentEventHandlers[type].fire(evt);
-                }, 0);
-            }
+    if (currentHref == href) {
+        if (errCallback) {
+            errCallback("The passed href is the same as the current");
         } else {
-            document.dispatchEvent(evt);
+            console.log("The passed href is the same as the current");
         }
-    },
-    fireWindowEvent: function(type, data) {
-        var evt = createEvent(type,data);
-        if (typeof windowEventHandlers[type] != 'undefined') {
-            setTimeout(function() {
-                windowEventHandlers[type].fire(evt);
-            }, 0);
-        } else {
-            window.dispatchEvent(evt);
-        }
-    },
+        return false;
+    }
+    return true;
+};
 
-    /**
-     * Plugin callback mechanism.
-     */
-    // Randomize the starting callbackId to avoid collisions after refreshing or navigating.
-    // This way, it's very unlikely that any new callback would get the same callbackId as an old callback.
-    callbackId: Math.floor(Math.random() * 2000000000),
-    callbacks:  {},
-    callbackStatus: {
-        NO_RESULT: 0,
-        OK: 1,
-        CLASS_NOT_FOUND_EXCEPTION: 2,
-        ILLEGAL_ACCESS_EXCEPTION: 3,
-        INSTANTIATION_EXCEPTION: 4,
-        MALFORMED_URL_EXCEPTION: 5,
-        IO_EXCEPTION: 6,
-        INVALID_ACTION: 7,
-        JSON_EXCEPTION: 8,
-        ERROR: 9
-    },
+NativePageTransitions.install = function() {
+    if (!window.plugins) {
+        window.plugins = {};
+    }
+    window.plugins.nativepagetransitions = new NativePageTransitions();
+    return window.plugins.nativepagetransitions;
+};
 
-    /**
-     * Called by native code when returning successful result from an action.
-     */
-    callbackSuccess: function(callbackId, args) {
-        try {
-            cordova.callbackFromNative(callbackId, true, args.status, [args.message], args.keepCallback);
-        } catch (e) {
-            console.log("Error in success callback: " + callbackId + " = "+e);
-        }
-    },
+cordova.addConstructor(NativePageTransitions.install);
 
-    /**
-     * Called by native code when returning error result from an action.
-     */
-    callbackError: function(callbackId, args) {
-        // TODO: Deprecate callbackSuccess and callbackError in favour of callbackFromNative.
-        // Derive success from status.
-        try {
-            cordova.callbackFromNative(callbackId, false, args.status, [args.message], args.keepCallback);
-        } catch (e) {
-            console.log("Error in error callback: " + callbackId + " = "+e);
-        }
-    },
+window.plugins = window.plugins || {};
 
-    /**
-     * Called by native code when returning the result from an action.
-     */
-    callbackFromNative: function(callbackId, success, status, args, keepCallback) {
-        var callback = cordova.callbacks[callbackId];
-        if (callback) {
-            if (success && status == cordova.callbackStatus.OK) {
-                callback.success && callback.success.apply(null, args);
-            } else if (!success) {
-                callback.fail && callback.fail.apply(null, args);
-            }
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
 
-            // Clear callback if not expecting any more results
-            if (!keepCallback) {
-                delete cordova.callbacks[callbackId];
-            }
-        }
-    },
-    addConstructor: function(func) {
-        channel.onCordovaReady.subscribe(function() {
-            try {
-                func();
-            } catch(e) {
-                console.log("Failed to run constructor: " + e);
-            }
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.nativepagetransitions = window.plugins.nativepagetransitions || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "nativepagetransitions", module.exports);
+},{"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder":10}],2:[function(require,module,exports){
+function ActionSheet() {}
+
+ActionSheet.prototype.show = function(options, successCallback, errorCallback) {
+    cordova.exec(successCallback, errorCallback, "ActionSheet", "show", [ options ]);
+};
+
+ActionSheet.prototype.hide = function() {
+    cordova.exec(null, null, "ActionSheet", "hide", []);
+};
+
+ActionSheet.install = function() {
+    if (!window.plugins) {
+        window.plugins = {};
+    }
+    window.plugins.actionsheet = new ActionSheet();
+    return window.plugins.actionsheet;
+};
+
+cordova.addConstructor(ActionSheet.install);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+
+window.plugins = window.plugins || {};
+
+window.plugins.actionsheet = window.plugins.actionsheet || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window.plugins, "actionsheet", module.exports);
+},{"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder":10}],3:[function(require,module,exports){
+var argscheck = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/argscheck"), channel = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/channel"), utils = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/utils"), exec = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/ios/exec"), cordova = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/cordova_b");
+
+channel.createSticky("onCordovaInfoReady");
+
+channel.waitForInitialization("onCordovaInfoReady");
+
+function Device() {
+    this.available = false;
+    this.platform = null;
+    this.version = null;
+    this.uuid = null;
+    this.cordova = null;
+    this.model = null;
+    var me = this;
+    channel.onCordovaReady.subscribe(function() {
+        me.getInfo(function(info) {
+            var buildLabel = cordova.version;
+            me.available = true;
+            me.platform = info.platform;
+            me.version = info.version;
+            me.uuid = info.uuid;
+            me.cordova = buildLabel;
+            me.model = info.model;
+            channel.onCordovaInfoReady.fire();
+        }, function(e) {
+            me.available = false;
+            utils.alert("[ERROR] Error initializing Cordova: " + e);
         });
+    });
+}
+
+Device.prototype.getInfo = function(successCallback, errorCallback) {
+    argscheck.checkArgs("fF", "Device.getInfo", arguments);
+    exec(successCallback, errorCallback, "Device", "getDeviceInfo", []);
+};
+
+module.exports = new Device();
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+
+window.device = window.device || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "device", module.exports);
+},{"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/argscheck":8,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder":10,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/channel":11,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/utils":13,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/cordova_b":14,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/ios/exec":15}],4:[function(require,module,exports){
+var exec = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/ios/exec");
+
+var namedColors = {
+    black: "#000000",
+    darkGray: "#A9A9A9",
+    lightGray: "#D3D3D3",
+    white: "#FFFFFF",
+    gray: "#808080",
+    red: "#FF0000",
+    green: "#00FF00",
+    blue: "#0000FF",
+    cyan: "#00FFFF",
+    yellow: "#FFFF00",
+    magenta: "#FF00FF",
+    orange: "##FFA500",
+    purple: "#800080",
+    brown: "#A52A2A"
+};
+
+var StatusBar = {
+    isVisible: true,
+    overlaysWebView: function(doOverlay) {
+        exec(null, null, "StatusBar", "overlaysWebView", [ doOverlay ]);
+    },
+    styleDefault: function() {
+        exec(null, null, "StatusBar", "styleDefault", []);
+    },
+    styleLightContent: function() {
+        exec(null, null, "StatusBar", "styleLightContent", []);
+    },
+    styleBlackTranslucent: function() {
+        exec(null, null, "StatusBar", "styleBlackTranslucent", []);
+    },
+    styleBlackOpaque: function() {
+        exec(null, null, "StatusBar", "styleBlackOpaque", []);
+    },
+    backgroundColorByName: function(colorname) {
+        return StatusBar.backgroundColorByHexString(namedColors[colorname]);
+    },
+    backgroundColorByHexString: function(hexString) {
+        if (hexString.charAt(0) !== "#") {
+            hexString = "#" + hexString;
+        }
+        if (hexString.length === 4) {
+            var split = hexString.split("");
+            hexString = "#" + split[1] + split[1] + split[2] + split[2] + split[3] + split[3];
+        }
+        exec(null, null, "StatusBar", "backgroundColorByHexString", [ hexString ]);
+    },
+    hide: function() {
+        exec(null, null, "StatusBar", "hide", []);
+        StatusBar.isVisible = false;
+    },
+    show: function() {
+        exec(null, null, "StatusBar", "show", []);
+        StatusBar.isVisible = true;
     }
 };
 
+exec(function(res) {
+    if (typeof res == "object") {
+        if (res.type == "tap") {
+            cordova.fireWindowEvent("statusTap");
+        }
+    } else {
+        StatusBar.isVisible = res;
+    }
+}, null, "StatusBar", "_ready", []);
 
-module.exports = cordova;
+module.exports = StatusBar;
 
-});
+window.StatusBar = window.StatusBar || {};
 
-// file: src/common/argscheck.js
-define("cordova/argscheck", function(require, exports, module) {
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
 
-var exec = require('cordova/exec');
-var utils = require('cordova/utils');
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+
+window.StatusBar = window.StatusBar || {};
+
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder").assignOrWrapInDeprecateGetter(window, "StatusBar", module.exports);
+},{"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/builder":10,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/ios/exec":15}],5:[function(require,module,exports){
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
+ */
+
+var base64 = require('base64-js')
+var ieee754 = require('ieee754')
+
+exports.Buffer = Buffer
+exports.SlowBuffer = Buffer
+exports.INSPECT_MAX_BYTES = 50
+Buffer.poolSize = 8192
+
+/**
+ * If `Buffer._useTypedArrays`:
+ *   === true    Use Uint8Array implementation (fastest)
+ *   === false   Use Object implementation (compatible down to IE6)
+ */
+Buffer._useTypedArrays = (function () {
+  // Detect if browser supports Typed Arrays. Supported browsers are IE 10+, Firefox 4+,
+  // Chrome 7+, Safari 5.1+, Opera 11.6+, iOS 4.2+. If the browser does not support adding
+  // properties to `Uint8Array` instances, then that's the same as no `Uint8Array` support
+  // because we need to be able to add all the node Buffer API methods. This is an issue
+  // in Firefox 4-29. Now fixed: https://bugzilla.mozilla.org/show_bug.cgi?id=695438
+  try {
+    var buf = new ArrayBuffer(0)
+    var arr = new Uint8Array(buf)
+    arr.foo = function () { return 42 }
+    return 42 === arr.foo() &&
+        typeof arr.subarray === 'function' // Chrome 9-10 lack `subarray`
+  } catch (e) {
+    return false
+  }
+})()
+
+/**
+ * Class: Buffer
+ * =============
+ *
+ * The Buffer constructor returns instances of `Uint8Array` that are augmented
+ * with function properties for all the node `Buffer` API functions. We use
+ * `Uint8Array` so that square bracket notation works as expected -- it returns
+ * a single octet.
+ *
+ * By augmenting the instances, we can avoid modifying the `Uint8Array`
+ * prototype.
+ */
+function Buffer (subject, encoding, noZero) {
+  if (!(this instanceof Buffer))
+    return new Buffer(subject, encoding, noZero)
+
+  var type = typeof subject
+
+  // Workaround: node's base64 implementation allows for non-padded strings
+  // while base64-js does not.
+  if (encoding === 'base64' && type === 'string') {
+    subject = stringtrim(subject)
+    while (subject.length % 4 !== 0) {
+      subject = subject + '='
+    }
+  }
+
+  // Find the length
+  var length
+  if (type === 'number')
+    length = coerce(subject)
+  else if (type === 'string')
+    length = Buffer.byteLength(subject, encoding)
+  else if (type === 'object')
+    length = coerce(subject.length) // assume that object is array-like
+  else
+    throw new Error('First argument needs to be a number, array or string.')
+
+  var buf
+  if (Buffer._useTypedArrays) {
+    // Preferred: Return an augmented `Uint8Array` instance for best performance
+    buf = Buffer._augment(new Uint8Array(length))
+  } else {
+    // Fallback: Return THIS instance of Buffer (created by `new`)
+    buf = this
+    buf.length = length
+    buf._isBuffer = true
+  }
+
+  var i
+  if (Buffer._useTypedArrays && typeof subject.byteLength === 'number') {
+    // Speed optimization -- use set if we're copying from a typed array
+    buf._set(subject)
+  } else if (isArrayish(subject)) {
+    // Treat array-ish objects as a byte array
+    for (i = 0; i < length; i++) {
+      if (Buffer.isBuffer(subject))
+        buf[i] = subject.readUInt8(i)
+      else
+        buf[i] = subject[i]
+    }
+  } else if (type === 'string') {
+    buf.write(subject, 0, encoding)
+  } else if (type === 'number' && !Buffer._useTypedArrays && !noZero) {
+    for (i = 0; i < length; i++) {
+      buf[i] = 0
+    }
+  }
+
+  return buf
+}
+
+// STATIC METHODS
+// ==============
+
+Buffer.isEncoding = function (encoding) {
+  switch (String(encoding).toLowerCase()) {
+    case 'hex':
+    case 'utf8':
+    case 'utf-8':
+    case 'ascii':
+    case 'binary':
+    case 'base64':
+    case 'raw':
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      return true
+    default:
+      return false
+  }
+}
+
+Buffer.isBuffer = function (b) {
+  return !!(b !== null && b !== undefined && b._isBuffer)
+}
+
+Buffer.byteLength = function (str, encoding) {
+  var ret
+  str = str + ''
+  switch (encoding || 'utf8') {
+    case 'hex':
+      ret = str.length / 2
+      break
+    case 'utf8':
+    case 'utf-8':
+      ret = utf8ToBytes(str).length
+      break
+    case 'ascii':
+    case 'binary':
+    case 'raw':
+      ret = str.length
+      break
+    case 'base64':
+      ret = base64ToBytes(str).length
+      break
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      ret = str.length * 2
+      break
+    default:
+      throw new Error('Unknown encoding')
+  }
+  return ret
+}
+
+Buffer.concat = function (list, totalLength) {
+  assert(isArray(list), 'Usage: Buffer.concat(list, [totalLength])\n' +
+      'list should be an Array.')
+
+  if (list.length === 0) {
+    return new Buffer(0)
+  } else if (list.length === 1) {
+    return list[0]
+  }
+
+  var i
+  if (typeof totalLength !== 'number') {
+    totalLength = 0
+    for (i = 0; i < list.length; i++) {
+      totalLength += list[i].length
+    }
+  }
+
+  var buf = new Buffer(totalLength)
+  var pos = 0
+  for (i = 0; i < list.length; i++) {
+    var item = list[i]
+    item.copy(buf, pos)
+    pos += item.length
+  }
+  return buf
+}
+
+// BUFFER INSTANCE METHODS
+// =======================
+
+function _hexWrite (buf, string, offset, length) {
+  offset = Number(offset) || 0
+  var remaining = buf.length - offset
+  if (!length) {
+    length = remaining
+  } else {
+    length = Number(length)
+    if (length > remaining) {
+      length = remaining
+    }
+  }
+
+  // must be an even number of digits
+  var strLen = string.length
+  assert(strLen % 2 === 0, 'Invalid hex string')
+
+  if (length > strLen / 2) {
+    length = strLen / 2
+  }
+  for (var i = 0; i < length; i++) {
+    var byte = parseInt(string.substr(i * 2, 2), 16)
+    assert(!isNaN(byte), 'Invalid hex string')
+    buf[offset + i] = byte
+  }
+  Buffer._charsWritten = i * 2
+  return i
+}
+
+function _utf8Write (buf, string, offset, length) {
+  var charsWritten = Buffer._charsWritten =
+    blitBuffer(utf8ToBytes(string), buf, offset, length)
+  return charsWritten
+}
+
+function _asciiWrite (buf, string, offset, length) {
+  var charsWritten = Buffer._charsWritten =
+    blitBuffer(asciiToBytes(string), buf, offset, length)
+  return charsWritten
+}
+
+function _binaryWrite (buf, string, offset, length) {
+  return _asciiWrite(buf, string, offset, length)
+}
+
+function _base64Write (buf, string, offset, length) {
+  var charsWritten = Buffer._charsWritten =
+    blitBuffer(base64ToBytes(string), buf, offset, length)
+  return charsWritten
+}
+
+function _utf16leWrite (buf, string, offset, length) {
+  var charsWritten = Buffer._charsWritten =
+    blitBuffer(utf16leToBytes(string), buf, offset, length)
+  return charsWritten
+}
+
+Buffer.prototype.write = function (string, offset, length, encoding) {
+  // Support both (string, offset, length, encoding)
+  // and the legacy (string, encoding, offset, length)
+  if (isFinite(offset)) {
+    if (!isFinite(length)) {
+      encoding = length
+      length = undefined
+    }
+  } else {  // legacy
+    var swap = encoding
+    encoding = offset
+    offset = length
+    length = swap
+  }
+
+  offset = Number(offset) || 0
+  var remaining = this.length - offset
+  if (!length) {
+    length = remaining
+  } else {
+    length = Number(length)
+    if (length > remaining) {
+      length = remaining
+    }
+  }
+  encoding = String(encoding || 'utf8').toLowerCase()
+
+  var ret
+  switch (encoding) {
+    case 'hex':
+      ret = _hexWrite(this, string, offset, length)
+      break
+    case 'utf8':
+    case 'utf-8':
+      ret = _utf8Write(this, string, offset, length)
+      break
+    case 'ascii':
+      ret = _asciiWrite(this, string, offset, length)
+      break
+    case 'binary':
+      ret = _binaryWrite(this, string, offset, length)
+      break
+    case 'base64':
+      ret = _base64Write(this, string, offset, length)
+      break
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      ret = _utf16leWrite(this, string, offset, length)
+      break
+    default:
+      throw new Error('Unknown encoding')
+  }
+  return ret
+}
+
+Buffer.prototype.toString = function (encoding, start, end) {
+  var self = this
+
+  encoding = String(encoding || 'utf8').toLowerCase()
+  start = Number(start) || 0
+  end = (end !== undefined)
+    ? Number(end)
+    : end = self.length
+
+  // Fastpath empty strings
+  if (end === start)
+    return ''
+
+  var ret
+  switch (encoding) {
+    case 'hex':
+      ret = _hexSlice(self, start, end)
+      break
+    case 'utf8':
+    case 'utf-8':
+      ret = _utf8Slice(self, start, end)
+      break
+    case 'ascii':
+      ret = _asciiSlice(self, start, end)
+      break
+    case 'binary':
+      ret = _binarySlice(self, start, end)
+      break
+    case 'base64':
+      ret = _base64Slice(self, start, end)
+      break
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      ret = _utf16leSlice(self, start, end)
+      break
+    default:
+      throw new Error('Unknown encoding')
+  }
+  return ret
+}
+
+Buffer.prototype.toJSON = function () {
+  return {
+    type: 'Buffer',
+    data: Array.prototype.slice.call(this._arr || this, 0)
+  }
+}
+
+// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
+Buffer.prototype.copy = function (target, target_start, start, end) {
+  var source = this
+
+  if (!start) start = 0
+  if (!end && end !== 0) end = this.length
+  if (!target_start) target_start = 0
+
+  // Copy 0 bytes; we're done
+  if (end === start) return
+  if (target.length === 0 || source.length === 0) return
+
+  // Fatal error conditions
+  assert(end >= start, 'sourceEnd < sourceStart')
+  assert(target_start >= 0 && target_start < target.length,
+      'targetStart out of bounds')
+  assert(start >= 0 && start < source.length, 'sourceStart out of bounds')
+  assert(end >= 0 && end <= source.length, 'sourceEnd out of bounds')
+
+  // Are we oob?
+  if (end > this.length)
+    end = this.length
+  if (target.length - target_start < end - start)
+    end = target.length - target_start + start
+
+  var len = end - start
+
+  if (len < 100 || !Buffer._useTypedArrays) {
+    for (var i = 0; i < len; i++)
+      target[i + target_start] = this[i + start]
+  } else {
+    target._set(this.subarray(start, start + len), target_start)
+  }
+}
+
+function _base64Slice (buf, start, end) {
+  if (start === 0 && end === buf.length) {
+    return base64.fromByteArray(buf)
+  } else {
+    return base64.fromByteArray(buf.slice(start, end))
+  }
+}
+
+function _utf8Slice (buf, start, end) {
+  var res = ''
+  var tmp = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; i++) {
+    if (buf[i] <= 0x7F) {
+      res += decodeUtf8Char(tmp) + String.fromCharCode(buf[i])
+      tmp = ''
+    } else {
+      tmp += '%' + buf[i].toString(16)
+    }
+  }
+
+  return res + decodeUtf8Char(tmp)
+}
+
+function _asciiSlice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; i++)
+    ret += String.fromCharCode(buf[i])
+  return ret
+}
+
+function _binarySlice (buf, start, end) {
+  return _asciiSlice(buf, start, end)
+}
+
+function _hexSlice (buf, start, end) {
+  var len = buf.length
+
+  if (!start || start < 0) start = 0
+  if (!end || end < 0 || end > len) end = len
+
+  var out = ''
+  for (var i = start; i < end; i++) {
+    out += toHex(buf[i])
+  }
+  return out
+}
+
+function _utf16leSlice (buf, start, end) {
+  var bytes = buf.slice(start, end)
+  var res = ''
+  for (var i = 0; i < bytes.length; i += 2) {
+    res += String.fromCharCode(bytes[i] + bytes[i+1] * 256)
+  }
+  return res
+}
+
+Buffer.prototype.slice = function (start, end) {
+  var len = this.length
+  start = clamp(start, len, 0)
+  end = clamp(end, len, len)
+
+  if (Buffer._useTypedArrays) {
+    return Buffer._augment(this.subarray(start, end))
+  } else {
+    var sliceLen = end - start
+    var newBuf = new Buffer(sliceLen, undefined, true)
+    for (var i = 0; i < sliceLen; i++) {
+      newBuf[i] = this[i + start]
+    }
+    return newBuf
+  }
+}
+
+// `get` will be removed in Node 0.13+
+Buffer.prototype.get = function (offset) {
+  console.log('.get() is deprecated. Access using array indexes instead.')
+  return this.readUInt8(offset)
+}
+
+// `set` will be removed in Node 0.13+
+Buffer.prototype.set = function (v, offset) {
+  console.log('.set() is deprecated. Access using array indexes instead.')
+  return this.writeUInt8(v, offset)
+}
+
+Buffer.prototype.readUInt8 = function (offset, noAssert) {
+  if (!noAssert) {
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset < this.length, 'Trying to read beyond buffer length')
+  }
+
+  if (offset >= this.length)
+    return
+
+  return this[offset]
+}
+
+function _readUInt16 (buf, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 1 < buf.length, 'Trying to read beyond buffer length')
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  var val
+  if (littleEndian) {
+    val = buf[offset]
+    if (offset + 1 < len)
+      val |= buf[offset + 1] << 8
+  } else {
+    val = buf[offset] << 8
+    if (offset + 1 < len)
+      val |= buf[offset + 1]
+  }
+  return val
+}
+
+Buffer.prototype.readUInt16LE = function (offset, noAssert) {
+  return _readUInt16(this, offset, true, noAssert)
+}
+
+Buffer.prototype.readUInt16BE = function (offset, noAssert) {
+  return _readUInt16(this, offset, false, noAssert)
+}
+
+function _readUInt32 (buf, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 3 < buf.length, 'Trying to read beyond buffer length')
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  var val
+  if (littleEndian) {
+    if (offset + 2 < len)
+      val = buf[offset + 2] << 16
+    if (offset + 1 < len)
+      val |= buf[offset + 1] << 8
+    val |= buf[offset]
+    if (offset + 3 < len)
+      val = val + (buf[offset + 3] << 24 >>> 0)
+  } else {
+    if (offset + 1 < len)
+      val = buf[offset + 1] << 16
+    if (offset + 2 < len)
+      val |= buf[offset + 2] << 8
+    if (offset + 3 < len)
+      val |= buf[offset + 3]
+    val = val + (buf[offset] << 24 >>> 0)
+  }
+  return val
+}
+
+Buffer.prototype.readUInt32LE = function (offset, noAssert) {
+  return _readUInt32(this, offset, true, noAssert)
+}
+
+Buffer.prototype.readUInt32BE = function (offset, noAssert) {
+  return _readUInt32(this, offset, false, noAssert)
+}
+
+Buffer.prototype.readInt8 = function (offset, noAssert) {
+  if (!noAssert) {
+    assert(offset !== undefined && offset !== null,
+        'missing offset')
+    assert(offset < this.length, 'Trying to read beyond buffer length')
+  }
+
+  if (offset >= this.length)
+    return
+
+  var neg = this[offset] & 0x80
+  if (neg)
+    return (0xff - this[offset] + 1) * -1
+  else
+    return this[offset]
+}
+
+function _readInt16 (buf, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 1 < buf.length, 'Trying to read beyond buffer length')
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  var val = _readUInt16(buf, offset, littleEndian, true)
+  var neg = val & 0x8000
+  if (neg)
+    return (0xffff - val + 1) * -1
+  else
+    return val
+}
+
+Buffer.prototype.readInt16LE = function (offset, noAssert) {
+  return _readInt16(this, offset, true, noAssert)
+}
+
+Buffer.prototype.readInt16BE = function (offset, noAssert) {
+  return _readInt16(this, offset, false, noAssert)
+}
+
+function _readInt32 (buf, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 3 < buf.length, 'Trying to read beyond buffer length')
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  var val = _readUInt32(buf, offset, littleEndian, true)
+  var neg = val & 0x80000000
+  if (neg)
+    return (0xffffffff - val + 1) * -1
+  else
+    return val
+}
+
+Buffer.prototype.readInt32LE = function (offset, noAssert) {
+  return _readInt32(this, offset, true, noAssert)
+}
+
+Buffer.prototype.readInt32BE = function (offset, noAssert) {
+  return _readInt32(this, offset, false, noAssert)
+}
+
+function _readFloat (buf, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset + 3 < buf.length, 'Trying to read beyond buffer length')
+  }
+
+  return ieee754.read(buf, offset, littleEndian, 23, 4)
+}
+
+Buffer.prototype.readFloatLE = function (offset, noAssert) {
+  return _readFloat(this, offset, true, noAssert)
+}
+
+Buffer.prototype.readFloatBE = function (offset, noAssert) {
+  return _readFloat(this, offset, false, noAssert)
+}
+
+function _readDouble (buf, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset + 7 < buf.length, 'Trying to read beyond buffer length')
+  }
+
+  return ieee754.read(buf, offset, littleEndian, 52, 8)
+}
+
+Buffer.prototype.readDoubleLE = function (offset, noAssert) {
+  return _readDouble(this, offset, true, noAssert)
+}
+
+Buffer.prototype.readDoubleBE = function (offset, noAssert) {
+  return _readDouble(this, offset, false, noAssert)
+}
+
+Buffer.prototype.writeUInt8 = function (value, offset, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset < this.length, 'trying to write beyond buffer length')
+    verifuint(value, 0xff)
+  }
+
+  if (offset >= this.length) return
+
+  this[offset] = value
+}
+
+function _writeUInt16 (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 1 < buf.length, 'trying to write beyond buffer length')
+    verifuint(value, 0xffff)
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  for (var i = 0, j = Math.min(len - offset, 2); i < j; i++) {
+    buf[offset + i] =
+        (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>>
+            (littleEndian ? i : 1 - i) * 8
+  }
+}
+
+Buffer.prototype.writeUInt16LE = function (value, offset, noAssert) {
+  _writeUInt16(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeUInt16BE = function (value, offset, noAssert) {
+  _writeUInt16(this, value, offset, false, noAssert)
+}
+
+function _writeUInt32 (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 3 < buf.length, 'trying to write beyond buffer length')
+    verifuint(value, 0xffffffff)
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  for (var i = 0, j = Math.min(len - offset, 4); i < j; i++) {
+    buf[offset + i] =
+        (value >>> (littleEndian ? i : 3 - i) * 8) & 0xff
+  }
+}
+
+Buffer.prototype.writeUInt32LE = function (value, offset, noAssert) {
+  _writeUInt32(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeUInt32BE = function (value, offset, noAssert) {
+  _writeUInt32(this, value, offset, false, noAssert)
+}
+
+Buffer.prototype.writeInt8 = function (value, offset, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset < this.length, 'Trying to write beyond buffer length')
+    verifsint(value, 0x7f, -0x80)
+  }
+
+  if (offset >= this.length)
+    return
+
+  if (value >= 0)
+    this.writeUInt8(value, offset, noAssert)
+  else
+    this.writeUInt8(0xff + value + 1, offset, noAssert)
+}
+
+function _writeInt16 (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 1 < buf.length, 'Trying to write beyond buffer length')
+    verifsint(value, 0x7fff, -0x8000)
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  if (value >= 0)
+    _writeUInt16(buf, value, offset, littleEndian, noAssert)
+  else
+    _writeUInt16(buf, 0xffff + value + 1, offset, littleEndian, noAssert)
+}
+
+Buffer.prototype.writeInt16LE = function (value, offset, noAssert) {
+  _writeInt16(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeInt16BE = function (value, offset, noAssert) {
+  _writeInt16(this, value, offset, false, noAssert)
+}
+
+function _writeInt32 (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 3 < buf.length, 'Trying to write beyond buffer length')
+    verifsint(value, 0x7fffffff, -0x80000000)
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  if (value >= 0)
+    _writeUInt32(buf, value, offset, littleEndian, noAssert)
+  else
+    _writeUInt32(buf, 0xffffffff + value + 1, offset, littleEndian, noAssert)
+}
+
+Buffer.prototype.writeInt32LE = function (value, offset, noAssert) {
+  _writeInt32(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeInt32BE = function (value, offset, noAssert) {
+  _writeInt32(this, value, offset, false, noAssert)
+}
+
+function _writeFloat (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 3 < buf.length, 'Trying to write beyond buffer length')
+    verifIEEE754(value, 3.4028234663852886e+38, -3.4028234663852886e+38)
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  ieee754.write(buf, value, offset, littleEndian, 23, 4)
+}
+
+Buffer.prototype.writeFloatLE = function (value, offset, noAssert) {
+  _writeFloat(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeFloatBE = function (value, offset, noAssert) {
+  _writeFloat(this, value, offset, false, noAssert)
+}
+
+function _writeDouble (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 7 < buf.length,
+        'Trying to write beyond buffer length')
+    verifIEEE754(value, 1.7976931348623157E+308, -1.7976931348623157E+308)
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  ieee754.write(buf, value, offset, littleEndian, 52, 8)
+}
+
+Buffer.prototype.writeDoubleLE = function (value, offset, noAssert) {
+  _writeDouble(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeDoubleBE = function (value, offset, noAssert) {
+  _writeDouble(this, value, offset, false, noAssert)
+}
+
+// fill(value, start=0, end=buffer.length)
+Buffer.prototype.fill = function (value, start, end) {
+  if (!value) value = 0
+  if (!start) start = 0
+  if (!end) end = this.length
+
+  if (typeof value === 'string') {
+    value = value.charCodeAt(0)
+  }
+
+  assert(typeof value === 'number' && !isNaN(value), 'value is not a number')
+  assert(end >= start, 'end < start')
+
+  // Fill 0 bytes; we're done
+  if (end === start) return
+  if (this.length === 0) return
+
+  assert(start >= 0 && start < this.length, 'start out of bounds')
+  assert(end >= 0 && end <= this.length, 'end out of bounds')
+
+  for (var i = start; i < end; i++) {
+    this[i] = value
+  }
+}
+
+Buffer.prototype.inspect = function () {
+  var out = []
+  var len = this.length
+  for (var i = 0; i < len; i++) {
+    out[i] = toHex(this[i])
+    if (i === exports.INSPECT_MAX_BYTES) {
+      out[i + 1] = '...'
+      break
+    }
+  }
+  return '<Buffer ' + out.join(' ') + '>'
+}
+
+/**
+ * Creates a new `ArrayBuffer` with the *copied* memory of the buffer instance.
+ * Added in Node 0.12. Only available in browsers that support ArrayBuffer.
+ */
+Buffer.prototype.toArrayBuffer = function () {
+  if (typeof Uint8Array !== 'undefined') {
+    if (Buffer._useTypedArrays) {
+      return (new Buffer(this)).buffer
+    } else {
+      var buf = new Uint8Array(this.length)
+      for (var i = 0, len = buf.length; i < len; i += 1)
+        buf[i] = this[i]
+      return buf.buffer
+    }
+  } else {
+    throw new Error('Buffer.toArrayBuffer not supported in this browser')
+  }
+}
+
+// HELPER FUNCTIONS
+// ================
+
+function stringtrim (str) {
+  if (str.trim) return str.trim()
+  return str.replace(/^\s+|\s+$/g, '')
+}
+
+var BP = Buffer.prototype
+
+/**
+ * Augment a Uint8Array *instance* (not the Uint8Array class!) with Buffer methods
+ */
+Buffer._augment = function (arr) {
+  arr._isBuffer = true
+
+  // save reference to original Uint8Array get/set methods before overwriting
+  arr._get = arr.get
+  arr._set = arr.set
+
+  // deprecated, will be removed in node 0.13+
+  arr.get = BP.get
+  arr.set = BP.set
+
+  arr.write = BP.write
+  arr.toString = BP.toString
+  arr.toLocaleString = BP.toString
+  arr.toJSON = BP.toJSON
+  arr.copy = BP.copy
+  arr.slice = BP.slice
+  arr.readUInt8 = BP.readUInt8
+  arr.readUInt16LE = BP.readUInt16LE
+  arr.readUInt16BE = BP.readUInt16BE
+  arr.readUInt32LE = BP.readUInt32LE
+  arr.readUInt32BE = BP.readUInt32BE
+  arr.readInt8 = BP.readInt8
+  arr.readInt16LE = BP.readInt16LE
+  arr.readInt16BE = BP.readInt16BE
+  arr.readInt32LE = BP.readInt32LE
+  arr.readInt32BE = BP.readInt32BE
+  arr.readFloatLE = BP.readFloatLE
+  arr.readFloatBE = BP.readFloatBE
+  arr.readDoubleLE = BP.readDoubleLE
+  arr.readDoubleBE = BP.readDoubleBE
+  arr.writeUInt8 = BP.writeUInt8
+  arr.writeUInt16LE = BP.writeUInt16LE
+  arr.writeUInt16BE = BP.writeUInt16BE
+  arr.writeUInt32LE = BP.writeUInt32LE
+  arr.writeUInt32BE = BP.writeUInt32BE
+  arr.writeInt8 = BP.writeInt8
+  arr.writeInt16LE = BP.writeInt16LE
+  arr.writeInt16BE = BP.writeInt16BE
+  arr.writeInt32LE = BP.writeInt32LE
+  arr.writeInt32BE = BP.writeInt32BE
+  arr.writeFloatLE = BP.writeFloatLE
+  arr.writeFloatBE = BP.writeFloatBE
+  arr.writeDoubleLE = BP.writeDoubleLE
+  arr.writeDoubleBE = BP.writeDoubleBE
+  arr.fill = BP.fill
+  arr.inspect = BP.inspect
+  arr.toArrayBuffer = BP.toArrayBuffer
+
+  return arr
+}
+
+// slice(start, end)
+function clamp (index, len, defaultValue) {
+  if (typeof index !== 'number') return defaultValue
+  index = ~~index;  // Coerce to integer.
+  if (index >= len) return len
+  if (index >= 0) return index
+  index += len
+  if (index >= 0) return index
+  return 0
+}
+
+function coerce (length) {
+  // Coerce length to a number (possibly NaN), round up
+  // in case it's fractional (e.g. 123.456) then do a
+  // double negate to coerce a NaN to 0. Easy, right?
+  length = ~~Math.ceil(+length)
+  return length < 0 ? 0 : length
+}
+
+function isArray (subject) {
+  return (Array.isArray || function (subject) {
+    return Object.prototype.toString.call(subject) === '[object Array]'
+  })(subject)
+}
+
+function isArrayish (subject) {
+  return isArray(subject) || Buffer.isBuffer(subject) ||
+      subject && typeof subject === 'object' &&
+      typeof subject.length === 'number'
+}
+
+function toHex (n) {
+  if (n < 16) return '0' + n.toString(16)
+  return n.toString(16)
+}
+
+function utf8ToBytes (str) {
+  var byteArray = []
+  for (var i = 0; i < str.length; i++) {
+    var b = str.charCodeAt(i)
+    if (b <= 0x7F)
+      byteArray.push(str.charCodeAt(i))
+    else {
+      var start = i
+      if (b >= 0xD800 && b <= 0xDFFF) i++
+      var h = encodeURIComponent(str.slice(start, i+1)).substr(1).split('%')
+      for (var j = 0; j < h.length; j++)
+        byteArray.push(parseInt(h[j], 16))
+    }
+  }
+  return byteArray
+}
+
+function asciiToBytes (str) {
+  var byteArray = []
+  for (var i = 0; i < str.length; i++) {
+    // Node's code seems to be doing this and not & 0x7F..
+    byteArray.push(str.charCodeAt(i) & 0xFF)
+  }
+  return byteArray
+}
+
+function utf16leToBytes (str) {
+  var c, hi, lo
+  var byteArray = []
+  for (var i = 0; i < str.length; i++) {
+    c = str.charCodeAt(i)
+    hi = c >> 8
+    lo = c % 256
+    byteArray.push(lo)
+    byteArray.push(hi)
+  }
+
+  return byteArray
+}
+
+function base64ToBytes (str) {
+  return base64.toByteArray(str)
+}
+
+function blitBuffer (src, dst, offset, length) {
+  var pos
+  for (var i = 0; i < length; i++) {
+    if ((i + offset >= dst.length) || (i >= src.length))
+      break
+    dst[i + offset] = src[i]
+  }
+  return i
+}
+
+function decodeUtf8Char (str) {
+  try {
+    return decodeURIComponent(str)
+  } catch (err) {
+    return String.fromCharCode(0xFFFD) // UTF 8 invalid char
+  }
+}
+
+/*
+ * We have to make sure that the value is a valid integer. This means that it
+ * is non-negative. It has no fractional component and that it does not
+ * exceed the maximum allowed value.
+ */
+function verifuint (value, max) {
+  assert(typeof value === 'number', 'cannot write a non-number as a number')
+  assert(value >= 0, 'specified a negative value for writing an unsigned value')
+  assert(value <= max, 'value is larger than maximum value for type')
+  assert(Math.floor(value) === value, 'value has a fractional component')
+}
+
+function verifsint (value, max, min) {
+  assert(typeof value === 'number', 'cannot write a non-number as a number')
+  assert(value <= max, 'value larger than maximum allowed value')
+  assert(value >= min, 'value smaller than minimum allowed value')
+  assert(Math.floor(value) === value, 'value has a fractional component')
+}
+
+function verifIEEE754 (value, max, min) {
+  assert(typeof value === 'number', 'cannot write a non-number as a number')
+  assert(value <= max, 'value larger than maximum allowed value')
+  assert(value >= min, 'value smaller than minimum allowed value')
+}
+
+function assert (test, message) {
+  if (!test) throw new Error(message || 'Failed assertion')
+}
+
+},{"base64-js":6,"ieee754":7}],6:[function(require,module,exports){
+var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+;(function (exports) {
+	'use strict';
+
+  var Arr = (typeof Uint8Array !== 'undefined')
+    ? Uint8Array
+    : Array
+
+	var PLUS   = '+'.charCodeAt(0)
+	var SLASH  = '/'.charCodeAt(0)
+	var NUMBER = '0'.charCodeAt(0)
+	var LOWER  = 'a'.charCodeAt(0)
+	var UPPER  = 'A'.charCodeAt(0)
+
+	function decode (elt) {
+		var code = elt.charCodeAt(0)
+		if (code === PLUS)
+			return 62 // '+'
+		if (code === SLASH)
+			return 63 // '/'
+		if (code < NUMBER)
+			return -1 //no match
+		if (code < NUMBER + 10)
+			return code - NUMBER + 26 + 26
+		if (code < UPPER + 26)
+			return code - UPPER
+		if (code < LOWER + 26)
+			return code - LOWER + 26
+	}
+
+	function b64ToByteArray (b64) {
+		var i, j, l, tmp, placeHolders, arr
+
+		if (b64.length % 4 > 0) {
+			throw new Error('Invalid string. Length must be a multiple of 4')
+		}
+
+		// the number of equal signs (place holders)
+		// if there are two placeholders, than the two characters before it
+		// represent one byte
+		// if there is only one, then the three characters before it represent 2 bytes
+		// this is just a cheap hack to not do indexOf twice
+		var len = b64.length
+		placeHolders = '=' === b64.charAt(len - 2) ? 2 : '=' === b64.charAt(len - 1) ? 1 : 0
+
+		// base64 is 4/3 + up to two characters of the original data
+		arr = new Arr(b64.length * 3 / 4 - placeHolders)
+
+		// if there are placeholders, only get up to the last complete 4 chars
+		l = placeHolders > 0 ? b64.length - 4 : b64.length
+
+		var L = 0
+
+		function push (v) {
+			arr[L++] = v
+		}
+
+		for (i = 0, j = 0; i < l; i += 4, j += 3) {
+			tmp = (decode(b64.charAt(i)) << 18) | (decode(b64.charAt(i + 1)) << 12) | (decode(b64.charAt(i + 2)) << 6) | decode(b64.charAt(i + 3))
+			push((tmp & 0xFF0000) >> 16)
+			push((tmp & 0xFF00) >> 8)
+			push(tmp & 0xFF)
+		}
+
+		if (placeHolders === 2) {
+			tmp = (decode(b64.charAt(i)) << 2) | (decode(b64.charAt(i + 1)) >> 4)
+			push(tmp & 0xFF)
+		} else if (placeHolders === 1) {
+			tmp = (decode(b64.charAt(i)) << 10) | (decode(b64.charAt(i + 1)) << 4) | (decode(b64.charAt(i + 2)) >> 2)
+			push((tmp >> 8) & 0xFF)
+			push(tmp & 0xFF)
+		}
+
+		return arr
+	}
+
+	function uint8ToBase64 (uint8) {
+		var i,
+			extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
+			output = "",
+			temp, length
+
+		function encode (num) {
+			return lookup.charAt(num)
+		}
+
+		function tripletToBase64 (num) {
+			return encode(num >> 18 & 0x3F) + encode(num >> 12 & 0x3F) + encode(num >> 6 & 0x3F) + encode(num & 0x3F)
+		}
+
+		// go through the array every three bytes, we'll deal with trailing stuff later
+		for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
+			temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
+			output += tripletToBase64(temp)
+		}
+
+		// pad the end with zeros, but make sure to not forget the extra bytes
+		switch (extraBytes) {
+			case 1:
+				temp = uint8[uint8.length - 1]
+				output += encode(temp >> 2)
+				output += encode((temp << 4) & 0x3F)
+				output += '=='
+				break
+			case 2:
+				temp = (uint8[uint8.length - 2] << 8) + (uint8[uint8.length - 1])
+				output += encode(temp >> 10)
+				output += encode((temp >> 4) & 0x3F)
+				output += encode((temp << 2) & 0x3F)
+				output += '='
+				break
+		}
+
+		return output
+	}
+
+	exports.toByteArray = b64ToByteArray
+	exports.fromByteArray = uint8ToBase64
+}(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
+
+},{}],7:[function(require,module,exports){
+exports.read = function(buffer, offset, isLE, mLen, nBytes) {
+  var e, m,
+      eLen = nBytes * 8 - mLen - 1,
+      eMax = (1 << eLen) - 1,
+      eBias = eMax >> 1,
+      nBits = -7,
+      i = isLE ? (nBytes - 1) : 0,
+      d = isLE ? -1 : 1,
+      s = buffer[offset + i];
+
+  i += d;
+
+  e = s & ((1 << (-nBits)) - 1);
+  s >>= (-nBits);
+  nBits += eLen;
+  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8);
+
+  m = e & ((1 << (-nBits)) - 1);
+  e >>= (-nBits);
+  nBits += mLen;
+  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8);
+
+  if (e === 0) {
+    e = 1 - eBias;
+  } else if (e === eMax) {
+    return m ? NaN : ((s ? -1 : 1) * Infinity);
+  } else {
+    m = m + Math.pow(2, mLen);
+    e = e - eBias;
+  }
+  return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
+};
+
+exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
+  var e, m, c,
+      eLen = nBytes * 8 - mLen - 1,
+      eMax = (1 << eLen) - 1,
+      eBias = eMax >> 1,
+      rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0),
+      i = isLE ? 0 : (nBytes - 1),
+      d = isLE ? 1 : -1,
+      s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
+
+  value = Math.abs(value);
+
+  if (isNaN(value) || value === Infinity) {
+    m = isNaN(value) ? 1 : 0;
+    e = eMax;
+  } else {
+    e = Math.floor(Math.log(value) / Math.LN2);
+    if (value * (c = Math.pow(2, -e)) < 1) {
+      e--;
+      c *= 2;
+    }
+    if (e + eBias >= 1) {
+      value += rt / c;
+    } else {
+      value += rt * Math.pow(2, 1 - eBias);
+    }
+    if (value * c >= 2) {
+      e++;
+      c /= 2;
+    }
+
+    if (e + eBias >= eMax) {
+      m = 0;
+      e = eMax;
+    } else if (e + eBias >= 1) {
+      m = (value * c - 1) * Math.pow(2, mLen);
+      e = e + eBias;
+    } else {
+      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
+      e = 0;
+    }
+  }
+
+  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8);
+
+  e = (e << mLen) | m;
+  eLen += mLen;
+  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8);
+
+  buffer[offset + i - d] |= s * 128;
+};
+
+},{}],8:[function(require,module,exports){
+var exec = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/ios/exec");
+
+var utils = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/utils");
 
 var moduleExports = module.exports;
 
 var typeMap = {
-    'A': 'Array',
-    'D': 'Date',
-    'N': 'Number',
-    'S': 'String',
-    'F': 'Function',
-    'O': 'Object'
+    A: "Array",
+    D: "Date",
+    N: "Number",
+    S: "String",
+    F: "Function",
+    O: "Object"
 };
 
 function extractParamName(callee, argIndex) {
-    return (/.*?\((.*?)\)/).exec(callee)[1].split(', ')[argIndex];
+    return /.*?\((.*?)\)/.exec(callee)[1].split(", ")[argIndex];
 }
 
 function checkArgs(spec, functionName, args, opt_callee) {
@@ -344,11 +3471,8 @@ function checkArgs(spec, functionName, args, opt_callee) {
     var errMsg = null;
     var typeName;
     for (var i = 0; i < spec.length; ++i) {
-        var c = spec.charAt(i),
-            cUpper = c.toUpperCase(),
-            arg = args[i];
-        // Asterix means allow anything.
-        if (c == '*') {
+        var c = spec.charAt(i), cUpper = c.toUpperCase(), arg = args[i];
+        if (c == "*") {
             continue;
         }
         typeName = utils.typeName(arg);
@@ -356,15 +3480,14 @@ function checkArgs(spec, functionName, args, opt_callee) {
             continue;
         }
         if (typeName != typeMap[cUpper]) {
-            errMsg = 'Expected ' + typeMap[cUpper];
+            errMsg = "Expected " + typeMap[cUpper];
             break;
         }
     }
     if (errMsg) {
-        errMsg += ', but got ' + typeName + '.';
-        errMsg = 'Wrong type for parameter "' + extractParamName(opt_callee || args.callee, i) + '" of ' + functionName + ': ' + errMsg;
-        // Don't log when running unit tests.
-        if (typeof jasmine == 'undefined') {
+        errMsg += ", but got " + typeName + ".";
+        errMsg = 'Wrong type for parameter "' + extractParamName(opt_callee || args.callee, i) + '" of ' + functionName + ": " + errMsg;
+        if (typeof jasmine == "undefined") {
             console.error(errMsg);
         }
         throw TypeError(errMsg);
@@ -376,15 +3499,12 @@ function getValue(value, defaultValue) {
 }
 
 moduleExports.checkArgs = checkArgs;
+
 moduleExports.getValue = getValue;
+
 moduleExports.enableChecks = true;
-
-
-});
-
-// file: src/common/base64.js
-define("cordova/base64", function(require, exports, module) {
-
+},{"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/utils":13,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/ios/exec":15}],9:[function(require,module,exports){
+(function (Buffer){
 var base64 = exports;
 
 base64.fromArrayBuffer = function(arrayBuffer) {
@@ -393,70 +3513,62 @@ base64.fromArrayBuffer = function(arrayBuffer) {
 };
 
 base64.toArrayBuffer = function(str) {
-    var decodedStr = typeof atob != 'undefined' ? atob(str) : new Buffer(str,'base64').toString('binary');
+    var decodedStr = typeof atob != "undefined" ? atob(str) : new Buffer(str, "base64").toString("binary");
     var arrayBuffer = new ArrayBuffer(decodedStr.length);
     var array = new Uint8Array(arrayBuffer);
-    for (var i=0, len=decodedStr.length; i < len; i++) {
+    for (var i = 0, len = decodedStr.length; i < len; i++) {
         array[i] = decodedStr.charCodeAt(i);
     }
     return arrayBuffer;
 };
 
-//------------------------------------------------------------------------------
-
-/* This code is based on the performance tests at http://jsperf.com/b64tests
- * This 12-bit-at-a-time algorithm was the best performing version on all
- * platforms tested.
- */
-
 var b64_6bit = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
 var b64_12bit;
 
 var b64_12bitTable = function() {
     b64_12bit = [];
-    for (var i=0; i<64; i++) {
-        for (var j=0; j<64; j++) {
-            b64_12bit[i*64+j] = b64_6bit[i] + b64_6bit[j];
+    for (var i = 0; i < 64; i++) {
+        for (var j = 0; j < 64; j++) {
+            b64_12bit[i * 64 + j] = b64_6bit[i] + b64_6bit[j];
         }
     }
-    b64_12bitTable = function() { return b64_12bit; };
+    b64_12bitTable = function() {
+        return b64_12bit;
+    };
     return b64_12bit;
 };
 
 function uint8ToBase64(rawData) {
     var numBytes = rawData.byteLength;
-    var output="";
+    var output = "";
     var segment;
     var table = b64_12bitTable();
-    for (var i=0;i<numBytes-2;i+=3) {
-        segment = (rawData[i] << 16) + (rawData[i+1] << 8) + rawData[i+2];
+    for (var i = 0; i < numBytes - 2; i += 3) {
+        segment = (rawData[i] << 16) + (rawData[i + 1] << 8) + rawData[i + 2];
         output += table[segment >> 12];
-        output += table[segment & 0xfff];
+        output += table[segment & 4095];
     }
     if (numBytes - i == 2) {
-        segment = (rawData[i] << 16) + (rawData[i+1] << 8);
+        segment = (rawData[i] << 16) + (rawData[i + 1] << 8);
         output += table[segment >> 12];
-        output += b64_6bit[(segment & 0xfff) >> 6];
-        output += '=';
+        output += b64_6bit[(segment & 4095) >> 6];
+        output += "=";
     } else if (numBytes - i == 1) {
-        segment = (rawData[i] << 16);
+        segment = rawData[i] << 16;
         output += table[segment >> 12];
-        output += '==';
+        output += "==";
     }
     return output;
 }
-
-});
-
-// file: src/common/builder.js
-define("cordova/builder", function(require, exports, module) {
-
-var utils = require('cordova/utils');
+}).call(this,require("buffer").Buffer)
+},{"buffer":5}],10:[function(require,module,exports){
+var utils = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/utils");
 
 function each(objects, func, context) {
     for (var prop in objects) {
         if (objects.hasOwnProperty(prop)) {
-            func.apply(context, [objects[prop], prop]);
+            func.apply(context, [ objects[prop], prop ]);
         }
     }
 }
@@ -464,7 +3576,6 @@ function each(objects, func, context) {
 function clobber(obj, key, value) {
     exports.replaceHookForTesting(obj, key);
     obj[key] = value;
-    // Getters can only be overridden by getters.
     if (obj[key] !== value) {
         utils.defineGetter(obj, key, function() {
             return value;
@@ -486,16 +3597,13 @@ function assignOrWrapInDeprecateGetter(obj, key, value, message) {
 }
 
 function include(parent, objects, clobber, merge) {
-    each(objects, function (obj, key) {
+    each(objects, function(obj, key) {
         try {
             var result = obj.path ? require(obj.path) : {};
-
             if (clobber) {
-                // Clobber if it doesn't exist.
-                if (typeof parent[key] === 'undefined') {
+                if (typeof parent[key] === "undefined") {
                     assignOrWrapInDeprecateGetter(parent, key, result, obj.deprecated);
-                } else if (typeof obj.path !== 'undefined') {
-                    // If merging, merge properties onto parent, otherwise, clobber.
+                } else if (typeof obj.path !== "undefined") {
                     if (merge) {
                         recursiveMerge(parent[key], result);
                     } else {
@@ -504,39 +3612,28 @@ function include(parent, objects, clobber, merge) {
                 }
                 result = parent[key];
             } else {
-                // Overwrite if not currently defined.
-                if (typeof parent[key] == 'undefined') {
+                if (typeof parent[key] == "undefined") {
                     assignOrWrapInDeprecateGetter(parent, key, result, obj.deprecated);
                 } else {
-                    // Set result to what already exists, so we can build children into it if they exist.
                     result = parent[key];
                 }
             }
-
             if (obj.children) {
                 include(result, obj.children, clobber, merge);
             }
-        } catch(e) {
-            utils.alert('Exception building Cordova JS globals: ' + e + ' for key "' + key + '"');
+        } catch (e) {
+            utils.alert("Exception building Cordova JS globals: " + e + ' for key "' + key + '"');
         }
     });
 }
 
-/**
- * Merge properties from one object onto another recursively.  Properties from
- * the src object will overwrite existing target property.
- *
- * @param target Object to merge properties into.
- * @param src Object to merge properties from.
- */
 function recursiveMerge(target, src) {
     for (var prop in src) {
         if (src.hasOwnProperty(prop)) {
             if (target.prototype && target.prototype.constructor === target) {
-                // If the target object is a constructor override off prototype.
                 clobber(target.prototype, prop, src[prop]);
             } else {
-                if (typeof src[prop] === 'object' && typeof target[prop] === 'object') {
+                if (typeof src[prop] === "object" && typeof target[prop] === "object") {
                     recursiveMerge(target[prop], src[prop]);
                 } else {
                     clobber(target, prop, src[prop]);
@@ -549,168 +3646,85 @@ function recursiveMerge(target, src) {
 exports.buildIntoButDoNotClobber = function(objects, target) {
     include(target, objects, false, false);
 };
+
 exports.buildIntoAndClobber = function(objects, target) {
     include(target, objects, true, false);
 };
+
 exports.buildIntoAndMerge = function(objects, target) {
     include(target, objects, true, true);
 };
+
 exports.recursiveMerge = recursiveMerge;
+
 exports.assignOrWrapInDeprecateGetter = assignOrWrapInDeprecateGetter;
+
 exports.replaceHookForTesting = function() {};
+},{"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/utils":13}],11:[function(require,module,exports){
+var utils = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/utils"), nextGuid = 1;
 
-});
-
-// file: src/common/channel.js
-define("cordova/channel", function(require, exports, module) {
-
-var utils = require('cordova/utils'),
-    nextGuid = 1;
-
-/**
- * Custom pub-sub "channel" that can have functions subscribed to it
- * This object is used to define and control firing of events for
- * cordova initialization, as well as for custom events thereafter.
- *
- * The order of events during page load and Cordova startup is as follows:
- *
- * onDOMContentLoaded*         Internal event that is received when the web page is loaded and parsed.
- * onNativeReady*              Internal event that indicates the Cordova native side is ready.
- * onCordovaReady*             Internal event fired when all Cordova JavaScript objects have been created.
- * onDeviceReady*              User event fired to indicate that Cordova is ready
- * onResume                    User event fired to indicate a start/resume lifecycle event
- * onPause                     User event fired to indicate a pause lifecycle event
- * onDestroy*                  Internal event fired when app is being destroyed (User should use window.onunload event, not this one).
- *
- * The events marked with an * are sticky. Once they have fired, they will stay in the fired state.
- * All listeners that subscribe after the event is fired will be executed right away.
- *
- * The only Cordova events that user code should register for are:
- *      deviceready           Cordova native code is initialized and Cordova APIs can be called from JavaScript
- *      pause                 App has moved to background
- *      resume                App has returned to foreground
- *
- * Listeners can be registered as:
- *      document.addEventListener("deviceready", myDeviceReadyListener, false);
- *      document.addEventListener("resume", myResumeListener, false);
- *      document.addEventListener("pause", myPauseListener, false);
- *
- * The DOM lifecycle events should be used for saving and restoring state
- *      window.onload
- *      window.onunload
- *
- */
-
-/**
- * Channel
- * @constructor
- * @param type  String the channel name
- */
 var Channel = function(type, sticky) {
     this.type = type;
-    // Map of guid -> function.
     this.handlers = {};
-    // 0 = Non-sticky, 1 = Sticky non-fired, 2 = Sticky fired.
     this.state = sticky ? 1 : 0;
-    // Used in sticky mode to remember args passed to fire().
     this.fireArgs = null;
-    // Used by onHasSubscribersChange to know if there are any listeners.
     this.numHandlers = 0;
-    // Function that is called when the first listener is subscribed, or when
-    // the last listener is unsubscribed.
     this.onHasSubscribersChange = null;
-},
-    channel = {
-        /**
-         * Calls the provided function only after all of the channels specified
-         * have been fired. All channels must be sticky channels.
-         */
-        join: function(h, c) {
-            var len = c.length,
-                i = len,
-                f = function() {
-                    if (!(--i)) h();
-                };
-            for (var j=0; j<len; j++) {
-                if (c[j].state === 0) {
-                    throw Error('Can only use join with sticky channels.');
-                }
-                c[j].subscribe(f);
+}, channel = {
+    join: function(h, c) {
+        var len = c.length, i = len, f = function() {
+            if (!--i) h();
+        };
+        for (var j = 0; j < len; j++) {
+            if (c[j].state === 0) {
+                throw Error("Can only use join with sticky channels.");
             }
-            if (!len) h();
-        },
-        create: function(type) {
-            return channel[type] = new Channel(type, false);
-        },
-        createSticky: function(type) {
-            return channel[type] = new Channel(type, true);
-        },
-
-        /**
-         * cordova Channels that must fire before "deviceready" is fired.
-         */
-        deviceReadyChannelsArray: [],
-        deviceReadyChannelsMap: {},
-
-        /**
-         * Indicate that a feature needs to be initialized before it is ready to be used.
-         * This holds up Cordova's "deviceready" event until the feature has been initialized
-         * and Cordova.initComplete(feature) is called.
-         *
-         * @param feature {String}     The unique feature name
-         */
-        waitForInitialization: function(feature) {
-            if (feature) {
-                var c = channel[feature] || this.createSticky(feature);
-                this.deviceReadyChannelsMap[feature] = c;
-                this.deviceReadyChannelsArray.push(c);
-            }
-        },
-
-        /**
-         * Indicate that initialization code has completed and the feature is ready to be used.
-         *
-         * @param feature {String}     The unique feature name
-         */
-        initializationComplete: function(feature) {
-            var c = this.deviceReadyChannelsMap[feature];
-            if (c) {
-                c.fire();
-            }
+            c[j].subscribe(f);
         }
-    };
+        if (!len) h();
+    },
+    create: function(type) {
+        return channel[type] = new Channel(type, false);
+    },
+    createSticky: function(type) {
+        return channel[type] = new Channel(type, true);
+    },
+    deviceReadyChannelsArray: [],
+    deviceReadyChannelsMap: {},
+    waitForInitialization: function(feature) {
+        if (feature) {
+            var c = channel[feature] || this.createSticky(feature);
+            this.deviceReadyChannelsMap[feature] = c;
+            this.deviceReadyChannelsArray.push(c);
+        }
+    },
+    initializationComplete: function(feature) {
+        var c = this.deviceReadyChannelsMap[feature];
+        if (c) {
+            c.fire();
+        }
+    }
+};
 
 function forceFunction(f) {
-    if (typeof f != 'function') throw "Function required as first argument!";
+    if (typeof f != "function") throw "Function required as first argument!";
 }
 
-/**
- * Subscribes the given function to the channel. Any time that
- * Channel.fire is called so too will the function.
- * Optionally specify an execution context for the function
- * and a guid that can be used to stop subscribing to the channel.
- * Returns the guid.
- */
 Channel.prototype.subscribe = function(f, c) {
-    // need a function to call
     forceFunction(f);
     if (this.state == 2) {
         f.apply(c || this, this.fireArgs);
         return;
     }
-
-    var func = f,
-        guid = f.observer_guid;
-    if (typeof c == "object") { func = utils.close(c, f); }
-
+    var func = f, guid = f.observer_guid;
+    if (typeof c == "object") {
+        func = utils.close(c, f);
+    }
     if (!guid) {
-        // first time any channel has seen this subscriber
-        guid = '' + nextGuid++;
+        guid = "" + nextGuid++;
     }
     func.observer_guid = guid;
     f.observer_guid = guid;
-
-    // Don't add the same handler more than once.
     if (!this.handlers[guid]) {
         this.handlers[guid] = func;
         this.numHandlers++;
@@ -720,15 +3734,9 @@ Channel.prototype.subscribe = function(f, c) {
     }
 };
 
-/**
- * Unsubscribes the function with the given guid from the channel.
- */
 Channel.prototype.unsubscribe = function(f) {
-    // need a function to unsubscribe
     forceFunction(f);
-
-    var guid = f.observer_guid,
-        handler = this.handlers[guid];
+    var guid = f.observer_guid, handler = this.handlers[guid];
     if (handler) {
         delete this.handlers[guid];
         this.numHandlers--;
@@ -738,20 +3746,13 @@ Channel.prototype.unsubscribe = function(f) {
     }
 };
 
-/**
- * Calls all functions subscribed to this channel.
- */
 Channel.prototype.fire = function(e) {
-    var fail = false,
-        fireArgs = Array.prototype.slice.call(arguments);
-    // Apply stickiness.
+    var fail = false, fireArgs = Array.prototype.slice.call(arguments);
     if (this.state == 1) {
         this.state = 2;
         this.fireArgs = fireArgs;
     }
     if (this.numHandlers) {
-        // Copy the values first so that it is safe to modify it from within
-        // callbacks.
         var toCall = [];
         for (var item in this.handlers) {
             toCall.push(this.handlers[item]);
@@ -767,845 +3768,124 @@ Channel.prototype.fire = function(e) {
     }
 };
 
+channel.createSticky("onDOMContentLoaded");
 
-// defining them here so they are ready super fast!
-// DOM event that is received when the web page is loaded and parsed.
-channel.createSticky('onDOMContentLoaded');
+channel.createSticky("onNativeReady");
 
-// Event to indicate the Cordova native side is ready.
-channel.createSticky('onNativeReady');
+channel.createSticky("onCordovaReady");
 
-// Event to indicate that all Cordova JavaScript objects have been created
-// and it's time to run plugin constructors.
-channel.createSticky('onCordovaReady');
+channel.createSticky("onPluginsReady");
 
-// Event to indicate that all automatically loaded JS plugins are loaded and ready.
-// FIXME remove this
-channel.createSticky('onPluginsReady');
+channel.createSticky("onDeviceReady");
 
-// Event to indicate that Cordova is ready
-channel.createSticky('onDeviceReady');
+channel.create("onResume");
 
-// Event to indicate a resume lifecycle event
-channel.create('onResume');
+channel.create("onPause");
 
-// Event to indicate a pause lifecycle event
-channel.create('onPause');
+channel.createSticky("onDestroy");
 
-// Event to indicate a destroy lifecycle event
-channel.createSticky('onDestroy');
+channel.waitForInitialization("onCordovaReady");
 
-// Channels that must fire before "deviceready" is fired.
-channel.waitForInitialization('onCordovaReady');
-channel.waitForInitialization('onDOMContentLoaded');
+channel.waitForInitialization("onDOMContentLoaded");
 
 module.exports = channel;
+},{"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/utils":13}],12:[function(require,module,exports){
+var channel = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/channel");
 
-});
+var cordova = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/cordova_b");
 
-// file: src/ios/exec.js
-define("cordova/exec", function(require, exports, module) {
+var platform = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/ios/platform");
 
-/**
- * Creates a gap bridge iframe used to notify the native code about queued
- * commands.
- */
-var cordova = require('cordova'),
-    channel = require('cordova/channel'),
-    utils = require('cordova/utils'),
-    base64 = require('cordova/base64'),
-    // XHR mode does not work on iOS 4.2.
-    // XHR mode's main advantage is working around a bug in -webkit-scroll, which
-    // doesn't exist only on iOS 5.x devices.
-    // IFRAME_NAV is the fastest.
-    // IFRAME_HASH could be made to enable synchronous bridge calls if we wanted this feature.
-    jsToNativeModes = {
-        IFRAME_NAV: 0,
-        XHR_NO_PAYLOAD: 1,
-        XHR_WITH_PAYLOAD: 2,
-        XHR_OPTIONAL_PAYLOAD: 3,
-        IFRAME_HASH_NO_PAYLOAD: 4,
-        // Bundling the payload turns out to be slower. Probably since it has to be URI encoded / decoded.
-        IFRAME_HASH_WITH_PAYLOAD: 5,
-        WK_WEBVIEW_BINDING: 6
-    },
-    bridgeMode,
-    execIframe,
-    execHashIframe,
-    hashToggle = 1,
-    execXhr,
-    requestCount = 0,
-    vcHeaderValue = null,
-    commandQueue = [], // Contains pending JS->Native messages.
-    isInContextOfEvalJs = 0;
+var platformInitChannelsArray = [ channel.onDOMContentLoaded, channel.onNativeReady ];
 
-function createExecIframe() {
-    var iframe = document.createElement("iframe");
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-    return iframe;
-}
-
-function createHashIframe() {
-    var ret = createExecIframe();
-    // Hash changes don't work on about:blank, so switch it to file:///.
-    ret.contentWindow.history.replaceState(null, null, 'file:///#');
-    return ret;
-}
-
-function shouldBundleCommandJson() {
-    if (bridgeMode === jsToNativeModes.XHR_WITH_PAYLOAD) {
-        return true;
-    }
-    if (bridgeMode === jsToNativeModes.XHR_OPTIONAL_PAYLOAD) {
-        var payloadLength = 0;
-        for (var i = 0; i < commandQueue.length; ++i) {
-            payloadLength += commandQueue[i].length;
-        }
-        // The value here was determined using the benchmark within CordovaLibApp on an iPad 3.
-        return payloadLength < 4500;
-    }
-    return false;
-}
-
-function massageArgsJsToNative(args) {
-    if (!args || utils.typeName(args) != 'Array') {
-        return args;
-    }
-    var ret = [];
-    args.forEach(function(arg, i) {
-        if (utils.typeName(arg) == 'ArrayBuffer') {
-            ret.push({
-                'CDVType': 'ArrayBuffer',
-                'data': base64.fromArrayBuffer(arg)
-            });
-        } else {
-            ret.push(arg);
-        }
-    });
-    return ret;
-}
-
-function massageMessageNativeToJs(message) {
-    if (message.CDVType == 'ArrayBuffer') {
-        var stringToArrayBuffer = function(str) {
-            var ret = new Uint8Array(str.length);
-            for (var i = 0; i < str.length; i++) {
-                ret[i] = str.charCodeAt(i);
-            }
-            return ret.buffer;
-        };
-        var base64ToArrayBuffer = function(b64) {
-            return stringToArrayBuffer(atob(b64));
-        };
-        message = base64ToArrayBuffer(message.data);
-    }
-    return message;
-}
-
-function convertMessageToArgsNativeToJs(message) {
-    var args = [];
-    if (!message || !message.hasOwnProperty('CDVType')) {
-        args.push(message);
-    } else if (message.CDVType == 'MultiPart') {
-        message.messages.forEach(function(e) {
-            args.push(massageMessageNativeToJs(e));
-        });
-    } else {
-        args.push(massageMessageNativeToJs(message));
-    }
-    return args;
-}
-
-function iOSExec() {
-    // Use XHR for iOS 5 to work around a bug in -webkit-scroll.
-    // Use IFRAME_NAV elsewhere since it's faster and XHR bridge
-    // seems to have bugs in newer OS's (CB-3900, CB-3359, CB-5457, CB-4970, CB-4998, CB-5134)
-    if (bridgeMode === undefined) {
-        if (navigator.userAgent) {
-            bridgeMode = navigator.userAgent.indexOf(' 5_') == -1 ? jsToNativeModes.IFRAME_NAV: jsToNativeModes.XHR_NO_PAYLOAD;
-        } else {
-            bridgeMode = jsToNativeModes.IFRAME_NAV;
-        }
-    }
-
-    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.cordova && window.webkit.messageHandlers.cordova.postMessage) {
-        bridgeMode = jsToNativeModes.WK_WEBVIEW_BINDING;
-    }
-
-    var successCallback, failCallback, service, action, actionArgs, splitCommand;
-    var callbackId = null;
-    if (typeof arguments[0] !== "string") {
-        // FORMAT ONE
-        successCallback = arguments[0];
-        failCallback = arguments[1];
-        service = arguments[2];
-        action = arguments[3];
-        actionArgs = arguments[4];
-
-        // Since we need to maintain backwards compatibility, we have to pass
-        // an invalid callbackId even if no callback was provided since plugins
-        // will be expecting it. The Cordova.exec() implementation allocates
-        // an invalid callbackId and passes it even if no callbacks were given.
-        callbackId = 'INVALID';
-    } else {
-        // FORMAT TWO, REMOVED
-        try {
-            splitCommand = arguments[0].split(".");
-            action = splitCommand.pop();
-            service = splitCommand.join(".");
-            actionArgs = Array.prototype.splice.call(arguments, 1);
-
-            console.log('The old format of this exec call has been removed (deprecated since 2.1). Change to: ' +
-                       "cordova.exec(null, null, \"" + service + "\", \"" + action + "\"," + JSON.stringify(actionArgs) + ");"
-            );
-            return;
-        } catch (e) {}
-    }
-
-    // If actionArgs is not provided, default to an empty array
-    actionArgs = actionArgs || [];
-
-    // Register the callbacks and add the callbackId to the positional
-    // arguments if given.
-    if (successCallback || failCallback) {
-        callbackId = service + cordova.callbackId++;
-        cordova.callbacks[callbackId] =
-            {success:successCallback, fail:failCallback};
-    }
-
-    actionArgs = massageArgsJsToNative(actionArgs);
-
-    var command = [callbackId, service, action, actionArgs];
-
-    // Stringify and queue the command. We stringify to command now to
-    // effectively clone the command arguments in case they are mutated before
-    // the command is executed.
-    commandQueue.push(JSON.stringify(command));
-    
-    if (bridgeMode === jsToNativeModes.WK_WEBVIEW_BINDING) {
-        window.webkit.messageHandlers.cordova.postMessage(command);
-    } else {
-        // If we're in the context of a stringByEvaluatingJavaScriptFromString call,
-        // then the queue will be flushed when it returns; no need for a poke.
-        // Also, if there is already a command in the queue, then we've already
-        // poked the native side, so there is no reason to do so again.
-        if (!isInContextOfEvalJs && commandQueue.length == 1) {
-            switch (bridgeMode) {
-            case jsToNativeModes.XHR_NO_PAYLOAD:
-            case jsToNativeModes.XHR_WITH_PAYLOAD:
-            case jsToNativeModes.XHR_OPTIONAL_PAYLOAD:
-                pokeNativeViaXhr();
-                break;
-            default: // iframe-based.
-                pokeNativeViaIframe();
-            }
-        }
-    }
-}
-
-function pokeNativeViaXhr() {
-    // This prevents sending an XHR when there is already one being sent.
-    // This should happen only in rare circumstances (refer to unit tests).
-    if (execXhr && execXhr.readyState != 4) {
-        execXhr = null;
-    }
-    // Re-using the XHR improves exec() performance by about 10%.
-    execXhr = execXhr || new XMLHttpRequest();
-    // Changing this to a GET will make the XHR reach the URIProtocol on 4.2.
-    // For some reason it still doesn't work though...
-    // Add a timestamp to the query param to prevent caching.
-    execXhr.open('HEAD', "/!gap_exec?" + (+new Date()), true);
-    if (!vcHeaderValue) {
-        vcHeaderValue = /.*\((.*)\)/.exec(navigator.userAgent)[1];
-    }
-    execXhr.setRequestHeader('vc', vcHeaderValue);
-    execXhr.setRequestHeader('rc', ++requestCount);
-    if (shouldBundleCommandJson()) {
-        execXhr.setRequestHeader('cmds', iOSExec.nativeFetchMessages());
-    }
-    execXhr.send(null);
-}
-
-function pokeNativeViaIframe() {
-    // CB-5488 - Don't attempt to create iframe before document.body is available.
-    if (!document.body) {
-        setTimeout(pokeNativeViaIframe);
-        return;
-    }
-    if (bridgeMode === jsToNativeModes.IFRAME_HASH_NO_PAYLOAD || bridgeMode === jsToNativeModes.IFRAME_HASH_WITH_PAYLOAD) {
-        execHashIframe = execHashIframe || createHashIframe();
-        // Check if they've removed it from the DOM, and put it back if so.
-        if (!execHashIframe.contentWindow) {
-            execHashIframe = createHashIframe();
-        }
-        // The delegate method is called only when the hash changes, so toggle it back and forth.
-        hashToggle = hashToggle ^ 3;
-        var hashValue = '%0' + hashToggle;
-        if (bridgeMode === jsToNativeModes.IFRAME_HASH_WITH_PAYLOAD) {
-            hashValue += iOSExec.nativeFetchMessages();
-        }
-        execHashIframe.contentWindow.location.hash = hashValue;
-    } else {
-        execIframe = execIframe || createExecIframe();
-        // Check if they've removed it from the DOM, and put it back if so.
-        if (!execIframe.contentWindow) {
-            execIframe = createExecIframe();
-        }
-        execIframe.src = "gap://ready";
-    }
-}
-
-iOSExec.jsToNativeModes = jsToNativeModes;
-
-iOSExec.setJsToNativeBridgeMode = function(mode) {
-    // Remove the iFrame since it may be no longer required, and its existence
-    // can trigger browser bugs.
-    // https://issues.apache.org/jira/browse/CB-593
-    if (execIframe) {
-        execIframe.parentNode.removeChild(execIframe);
-        execIframe = null;
-    }
-    bridgeMode = mode;
-};
-
-iOSExec.nativeFetchMessages = function() {
-    // Each entry in commandQueue is a JSON string already.
-    if (!commandQueue.length) {
-        return '';
-    }
-    var json = '[' + commandQueue.join(',') + ']';
-    commandQueue.length = 0;
-    return json;
-};
-
-iOSExec.nativeCallback = function(callbackId, status, message, keepCallback) {
-    return iOSExec.nativeEvalAndFetch(function() {
-        var success = status === 0 || status === 1;
-        var args = convertMessageToArgsNativeToJs(message);
-        cordova.callbackFromNative(callbackId, success, status, args, keepCallback);
-    });
-};
-
-iOSExec.nativeEvalAndFetch = function(func) {
-    // This shouldn't be nested, but better to be safe.
-    isInContextOfEvalJs++;
-    try {
-        func();
-        return iOSExec.nativeFetchMessages();
-    } finally {
-        isInContextOfEvalJs--;
-    }
-};
-
-module.exports = iOSExec;
-
-});
-
-// file: src/common/exec/proxy.js
-define("cordova/exec/proxy", function(require, exports, module) {
-
-
-// internal map of proxy function
-var CommandProxyMap = {};
-
-module.exports = {
-
-    // example: cordova.commandProxy.add("Accelerometer",{getCurrentAcceleration: function(successCallback, errorCallback, options) {...},...);
-    add:function(id,proxyObj) {
-        console.log("adding proxy for " + id);
-        CommandProxyMap[id] = proxyObj;
-        return proxyObj;
-    },
-
-    // cordova.commandProxy.remove("Accelerometer");
-    remove:function(id) {
-        var proxy = CommandProxyMap[id];
-        delete CommandProxyMap[id];
-        CommandProxyMap[id] = null;
-        return proxy;
-    },
-
-    get:function(service,action) {
-        return ( CommandProxyMap[service] ? CommandProxyMap[service][action] : null );
-    }
-};
-});
-
-// file: src/common/init.js
-define("cordova/init", function(require, exports, module) {
-
-var channel = require('cordova/channel');
-var cordova = require('cordova');
-var modulemapper = require('cordova/modulemapper');
-var platform = require('cordova/platform');
-var pluginloader = require('cordova/pluginloader');
-
-var platformInitChannelsArray = [channel.onNativeReady, channel.onPluginsReady];
+cordova.exec = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/ios/exec");
 
 function logUnfiredChannels(arr) {
     for (var i = 0; i < arr.length; ++i) {
         if (arr[i].state != 2) {
-            console.log('Channel not fired: ' + arr[i].type);
+            console.log("Channel not fired: " + arr[i].type);
         }
     }
 }
 
 window.setTimeout(function() {
     if (channel.onDeviceReady.state != 2) {
-        console.log('deviceready has not fired after 5 seconds.');
+        console.log("deviceready has not fired after 5 seconds.");
         logUnfiredChannels(platformInitChannelsArray);
         logUnfiredChannels(channel.deviceReadyChannelsArray);
     }
-}, 5000);
+}, 5e3);
 
-// Replace navigator before any modules are required(), to ensure it happens as soon as possible.
-// We replace it so that properties that can't be clobbered can instead be overridden.
 function replaceNavigator(origNavigator) {
     var CordovaNavigator = function() {};
     CordovaNavigator.prototype = origNavigator;
     var newNavigator = new CordovaNavigator();
-    // This work-around really only applies to new APIs that are newer than Function.bind.
-    // Without it, APIs such as getGamepads() break.
     if (CordovaNavigator.bind) {
         for (var key in origNavigator) {
-            if (typeof origNavigator[key] == 'function') {
+            if (typeof origNavigator[key] == "function") {
                 newNavigator[key] = origNavigator[key].bind(origNavigator);
-            }
-        }
-    }
-    return newNavigator;
-}
-if (window.navigator) {
-    window.navigator = replaceNavigator(window.navigator);
-}
-
-if (!window.console) {
-    window.console = {
-        log: function(){}
-    };
-}
-if (!window.console.warn) {
-    window.console.warn = function(msg) {
-        this.log("warn: " + msg);
-    };
-}
-
-// Register pause, resume and deviceready channels as events on document.
-channel.onPause = cordova.addDocumentEventHandler('pause');
-channel.onResume = cordova.addDocumentEventHandler('resume');
-channel.onDeviceReady = cordova.addStickyDocumentEventHandler('deviceready');
-
-// Listen for DOMContentLoaded and notify our channel subscribers.
-if (document.readyState == 'complete' || document.readyState == 'interactive') {
-    channel.onDOMContentLoaded.fire();
-} else {
-    document.addEventListener('DOMContentLoaded', function() {
-        channel.onDOMContentLoaded.fire();
-    }, false);
-}
-
-// _nativeReady is global variable that the native side can set
-// to signify that the native code is ready. It is a global since
-// it may be called before any cordova JS is ready.
-if (window._nativeReady) {
-    channel.onNativeReady.fire();
-}
-
-modulemapper.clobbers('cordova', 'cordova');
-modulemapper.clobbers('cordova/exec', 'cordova.exec');
-modulemapper.clobbers('cordova/exec', 'Cordova.exec');
-
-// Call the platform-specific initialization.
-platform.bootstrap && platform.bootstrap();
-
-// Wrap in a setTimeout to support the use-case of having plugin JS appended to cordova.js.
-// The delay allows the attached modules to be defined before the plugin loader looks for them.
-setTimeout(function() {
-    pluginloader.load(function() {
-        channel.onPluginsReady.fire();
-    });
-}, 0);
-
-/**
- * Create all cordova objects once native side is ready.
- */
-channel.join(function() {
-    modulemapper.mapModules(window);
-
-    platform.initialize && platform.initialize();
-
-    // Fire event to notify that all objects are created
-    channel.onCordovaReady.fire();
-
-    // Fire onDeviceReady event once page has fully loaded, all
-    // constructors have run and cordova info has been received from native
-    // side.
-    channel.join(function() {
-        require('cordova').fireDocumentEvent('deviceready');
-    }, channel.deviceReadyChannelsArray);
-
-}, platformInitChannelsArray);
-
-
-});
-
-// file: src/common/init_b.js
-define("cordova/init_b", function(require, exports, module) {
-
-var channel = require('cordova/channel');
-var cordova = require('cordova');
-var platform = require('cordova/platform');
-
-var platformInitChannelsArray = [channel.onDOMContentLoaded, channel.onNativeReady];
-
-// setting exec
-cordova.exec = require('cordova/exec');
-
-function logUnfiredChannels(arr) {
-    for (var i = 0; i < arr.length; ++i) {
-        if (arr[i].state != 2) {
-            console.log('Channel not fired: ' + arr[i].type);
-        }
-    }
-}
-
-window.setTimeout(function() {
-    if (channel.onDeviceReady.state != 2) {
-        console.log('deviceready has not fired after 5 seconds.');
-        logUnfiredChannels(platformInitChannelsArray);
-        logUnfiredChannels(channel.deviceReadyChannelsArray);
-    }
-}, 5000);
-
-// Replace navigator before any modules are required(), to ensure it happens as soon as possible.
-// We replace it so that properties that can't be clobbered can instead be overridden.
-function replaceNavigator(origNavigator) {
-    var CordovaNavigator = function() {};
-    CordovaNavigator.prototype = origNavigator;
-    var newNavigator = new CordovaNavigator();
-    // This work-around really only applies to new APIs that are newer than Function.bind.
-    // Without it, APIs such as getGamepads() break.
-    if (CordovaNavigator.bind) {
-        for (var key in origNavigator) {
-            if (typeof origNavigator[key] == 'function') {
-                newNavigator[key] = origNavigator[key].bind(origNavigator);
-            }
-        }
-    }
-    return newNavigator;
-}
-if (window.navigator) {
-    window.navigator = replaceNavigator(window.navigator);
-}
-
-if (!window.console) {
-    window.console = {
-        log: function(){}
-    };
-}
-if (!window.console.warn) {
-    window.console.warn = function(msg) {
-        this.log("warn: " + msg);
-    };
-}
-
-// Register pause, resume and deviceready channels as events on document.
-channel.onPause = cordova.addDocumentEventHandler('pause');
-channel.onResume = cordova.addDocumentEventHandler('resume');
-channel.onDeviceReady = cordova.addStickyDocumentEventHandler('deviceready');
-
-// Listen for DOMContentLoaded and notify our channel subscribers.
-if (document.readyState == 'complete' || document.readyState == 'interactive') {
-    channel.onDOMContentLoaded.fire();
-} else {
-    document.addEventListener('DOMContentLoaded', function() {
-        channel.onDOMContentLoaded.fire();
-    }, false);
-}
-
-// _nativeReady is global variable that the native side can set
-// to signify that the native code is ready. It is a global since
-// it may be called before any cordova JS is ready.
-if (window._nativeReady) {
-    channel.onNativeReady.fire();
-}
-
-// Call the platform-specific initialization.
-platform.bootstrap && platform.bootstrap();
-
-/**
- * Create all cordova objects once native side is ready.
- */
-channel.join(function() {
-    
-    platform.initialize && platform.initialize();
-
-    // Fire event to notify that all objects are created
-    channel.onCordovaReady.fire();
-
-    // Fire onDeviceReady event once page has fully loaded, all
-    // constructors have run and cordova info has been received from native
-    // side.
-    channel.join(function() {
-        require('cordova').fireDocumentEvent('deviceready');
-    }, channel.deviceReadyChannelsArray);
-
-}, platformInitChannelsArray);
-
-});
-
-// file: src/common/modulemapper.js
-define("cordova/modulemapper", function(require, exports, module) {
-
-var builder = require('cordova/builder'),
-    moduleMap = define.moduleMap,
-    symbolList,
-    deprecationMap;
-
-exports.reset = function() {
-    symbolList = [];
-    deprecationMap = {};
-};
-
-function addEntry(strategy, moduleName, symbolPath, opt_deprecationMessage) {
-    if (!(moduleName in moduleMap)) {
-        throw new Error('Module ' + moduleName + ' does not exist.');
-    }
-    symbolList.push(strategy, moduleName, symbolPath);
-    if (opt_deprecationMessage) {
-        deprecationMap[symbolPath] = opt_deprecationMessage;
-    }
-}
-
-// Note: Android 2.3 does have Function.bind().
-exports.clobbers = function(moduleName, symbolPath, opt_deprecationMessage) {
-    addEntry('c', moduleName, symbolPath, opt_deprecationMessage);
-};
-
-exports.merges = function(moduleName, symbolPath, opt_deprecationMessage) {
-    addEntry('m', moduleName, symbolPath, opt_deprecationMessage);
-};
-
-exports.defaults = function(moduleName, symbolPath, opt_deprecationMessage) {
-    addEntry('d', moduleName, symbolPath, opt_deprecationMessage);
-};
-
-exports.runs = function(moduleName) {
-    addEntry('r', moduleName, null);
-};
-
-function prepareNamespace(symbolPath, context) {
-    if (!symbolPath) {
-        return context;
-    }
-    var parts = symbolPath.split('.');
-    var cur = context;
-    for (var i = 0, part; part = parts[i]; ++i) {
-        cur = cur[part] = cur[part] || {};
-    }
-    return cur;
-}
-
-exports.mapModules = function(context) {
-    var origSymbols = {};
-    context.CDV_origSymbols = origSymbols;
-    for (var i = 0, len = symbolList.length; i < len; i += 3) {
-        var strategy = symbolList[i];
-        var moduleName = symbolList[i + 1];
-        var module = require(moduleName);
-        // <runs/>
-        if (strategy == 'r') {
-            continue;
-        }
-        var symbolPath = symbolList[i + 2];
-        var lastDot = symbolPath.lastIndexOf('.');
-        var namespace = symbolPath.substr(0, lastDot);
-        var lastName = symbolPath.substr(lastDot + 1);
-
-        var deprecationMsg = symbolPath in deprecationMap ? 'Access made to deprecated symbol: ' + symbolPath + '. ' + deprecationMsg : null;
-        var parentObj = prepareNamespace(namespace, context);
-        var target = parentObj[lastName];
-
-        if (strategy == 'm' && target) {
-            builder.recursiveMerge(target, module);
-        } else if ((strategy == 'd' && !target) || (strategy != 'd')) {
-            if (!(symbolPath in origSymbols)) {
-                origSymbols[symbolPath] = target;
-            }
-            builder.assignOrWrapInDeprecateGetter(parentObj, lastName, module, deprecationMsg);
-        }
-    }
-};
-
-exports.getOriginalSymbol = function(context, symbolPath) {
-    var origSymbols = context.CDV_origSymbols;
-    if (origSymbols && (symbolPath in origSymbols)) {
-        return origSymbols[symbolPath];
-    }
-    var parts = symbolPath.split('.');
-    var obj = context;
-    for (var i = 0; i < parts.length; ++i) {
-        obj = obj && obj[parts[i]];
-    }
-    return obj;
-};
-
-exports.reset();
-
-
-});
-
-// file: src/ios/platform.js
-define("cordova/platform", function(require, exports, module) {
-
-module.exports = {
-    id: 'ios',
-    bootstrap: function() {
-        require('cordova/channel').onNativeReady.fire();
-    }
-};
-
-
-});
-
-// file: src/common/pluginloader.js
-define("cordova/pluginloader", function(require, exports, module) {
-
-var modulemapper = require('cordova/modulemapper');
-var urlutil = require('cordova/urlutil');
-
-// Helper function to inject a <script> tag.
-// Exported for testing.
-exports.injectScript = function(url, onload, onerror) {
-    var script = document.createElement("script");
-    // onload fires even when script fails loads with an error.
-    script.onload = onload;
-    // onerror fires for malformed URLs.
-    script.onerror = onerror;
-    script.src = url;
-    document.head.appendChild(script);
-};
-
-function injectIfNecessary(id, url, onload, onerror) {
-    onerror = onerror || onload;
-    if (id in define.moduleMap) {
-        onload();
-    } else {
-        exports.injectScript(url, function() {
-            if (id in define.moduleMap) {
-                onload();
             } else {
-                onerror();
-            }
-        }, onerror);
-    }
-}
-
-function onScriptLoadingComplete(moduleList, finishPluginLoading) {
-    // Loop through all the plugins and then through their clobbers and merges.
-    for (var i = 0, module; module = moduleList[i]; i++) {
-        if (module.clobbers && module.clobbers.length) {
-            for (var j = 0; j < module.clobbers.length; j++) {
-                modulemapper.clobbers(module.id, module.clobbers[j]);
+                (function(k) {
+                    Object.defineProperty(newNavigator, k, {
+                        get: function() {
+                            return origNavigator[k];
+                        },
+                        configurable: true,
+                        enumerable: true
+                    });
+                })(key);
             }
         }
-
-        if (module.merges && module.merges.length) {
-            for (var k = 0; k < module.merges.length; k++) {
-                modulemapper.merges(module.id, module.merges[k]);
-            }
-        }
-
-        // Finally, if runs is truthy we want to simply require() the module.
-        if (module.runs) {
-            modulemapper.runs(module.id);
-        }
     }
-
-    finishPluginLoading();
+    return newNavigator;
 }
 
-// Handler for the cordova_plugins.js content.
-// See plugman's plugin_loader.js for the details of this object.
-// This function is only called if the really is a plugins array that isn't empty.
-// Otherwise the onerror response handler will just call finishPluginLoading().
-function handlePluginsObject(path, moduleList, finishPluginLoading) {
-    // Now inject the scripts.
-    var scriptCounter = moduleList.length;
-
-    if (!scriptCounter) {
-        finishPluginLoading();
-        return;
-    }
-    function scriptLoadedCallback() {
-        if (!--scriptCounter) {
-            onScriptLoadingComplete(moduleList, finishPluginLoading);
-        }
-    }
-
-    for (var i = 0; i < moduleList.length; i++) {
-        injectIfNecessary(moduleList[i].id, path + moduleList[i].file, scriptLoadedCallback);
-    }
+if (window.navigator) {
+    window.navigator = replaceNavigator(window.navigator);
 }
 
-function findCordovaPath() {
-    var path = null;
-    var scripts = document.getElementsByTagName('script');
-    var term = '/cordova.js';
-    for (var n = scripts.length-1; n>-1; n--) {
-        var src = scripts[n].src.replace(/\?.*$/, ''); // Strip any query param (CB-6007).
-        if (src.indexOf(term) == (src.length - term.length)) {
-            path = src.substring(0, src.length - term.length) + '/';
-            break;
-        }
-    }
-    return path;
+if (!window.console) {
+    window.console = {
+        log: function() {}
+    };
 }
 
-// Tries to load all plugins' js-modules.
-// This is an async process, but onDeviceReady is blocked on onPluginsReady.
-// onPluginsReady is fired when there are no plugins to load, or they are all done.
-exports.load = function(callback) {
-    var pathPrefix = findCordovaPath();
-    if (pathPrefix === null) {
-        console.log('Could not find cordova.js script tag. Plugin loading may fail.');
-        pathPrefix = '';
-    }
-    injectIfNecessary('cordova/plugin_list', pathPrefix + 'cordova_plugins.js', function() {
-        var moduleList = require("cordova/plugin_list");
-        handlePluginsObject(pathPrefix, moduleList, callback);
-    }, callback);
-};
+if (!window.console.warn) {
+    window.console.warn = function(msg) {
+        this.log("warn: " + msg);
+    };
+}
 
+channel.onPause = cordova.addDocumentEventHandler("pause");
 
-});
+channel.onResume = cordova.addDocumentEventHandler("resume");
 
-// file: src/common/urlutil.js
-define("cordova/urlutil", function(require, exports, module) {
+channel.onDeviceReady = cordova.addStickyDocumentEventHandler("deviceready");
 
+if (document.readyState == "complete" || document.readyState == "interactive") {
+    channel.onDOMContentLoaded.fire();
+} else {
+    document.addEventListener("DOMContentLoaded", function() {
+        channel.onDOMContentLoaded.fire();
+    }, false);
+}
 
-/**
- * For already absolute URLs, returns what is passed in.
- * For relative URLs, converts them to absolute ones.
- */
-exports.makeAbsolute = function makeAbsolute(url) {
-    var anchorEl = document.createElement('a');
-    anchorEl.href = url;
-    return anchorEl.href;
-};
+if (window._nativeReady) {
+    channel.onNativeReady.fire();
+}
 
+platform.bootstrap && platform.bootstrap();
 
-});
-
-// file: src/common/utils.js
-define("cordova/utils", function(require, exports, module) {
-
+channel.join(function() {
+    platform.initialize && platform.initialize();
+    channel.onCordovaReady.fire();
+    channel.join(function() {
+        require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/cordova_b").fireDocumentEvent("deviceready");
+    }, channel.deviceReadyChannelsArray);
+}, platformInitChannelsArray);
+},{"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/channel":11,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/cordova_b":14,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/ios/exec":15,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/ios/platform":16}],13:[function(require,module,exports){
 var utils = exports;
 
-/**
- * Defines a property getter / setter for obj[key].
- */
 utils.defineGetterSetter = function(obj, key, getFunc, opt_setFunc) {
     if (Object.defineProperty) {
         var desc = {
@@ -1624,9 +3904,6 @@ utils.defineGetterSetter = function(obj, key, getFunc, opt_setFunc) {
     }
 };
 
-/**
- * Defines a property getter for obj[key].
- */
 utils.defineGetter = utils.defineGetterSetter;
 
 utils.arrayIndexOf = function(a, item) {
@@ -1642,9 +3919,6 @@ utils.arrayIndexOf = function(a, item) {
     return -1;
 };
 
-/**
- * Returns whether the item was found in the array.
- */
 utils.arrayRemove = function(a, item) {
     var index = utils.arrayIndexOf(a, item);
     if (index != -1) {
@@ -1657,52 +3931,37 @@ utils.typeName = function(val) {
     return Object.prototype.toString.call(val).slice(8, -1);
 };
 
-/**
- * Returns an indication of whether the argument is an array or not
- */
 utils.isArray = function(a) {
-    return utils.typeName(a) == 'Array';
+    return utils.typeName(a) == "Array";
 };
 
-/**
- * Returns an indication of whether the argument is a Date or not
- */
 utils.isDate = function(d) {
-    return utils.typeName(d) == 'Date';
+    return utils.typeName(d) == "Date";
 };
 
-/**
- * Does a deep clone of the object.
- */
 utils.clone = function(obj) {
-    if(!obj || typeof obj == 'function' || utils.isDate(obj) || typeof obj != 'object') {
+    if (!obj || typeof obj == "function" || utils.isDate(obj) || typeof obj != "object") {
         return obj;
     }
-
     var retVal, i;
-
-    if(utils.isArray(obj)){
+    if (utils.isArray(obj)) {
         retVal = [];
-        for(i = 0; i < obj.length; ++i){
+        for (i = 0; i < obj.length; ++i) {
             retVal.push(utils.clone(obj[i]));
         }
         return retVal;
     }
-
     retVal = {};
-    for(i in obj){
-        if(!(i in retVal) || retVal[i] != obj[i]) {
+    for (i in obj) {
+        if (!(i in retVal) || retVal[i] != obj[i]) {
             retVal[i] = utils.clone(obj[i]);
         }
     }
     return retVal;
 };
 
-/**
- * Returns a wrapped version of the function
- */
 utils.close = function(context, func, params) {
-    if (typeof params == 'undefined') {
+    if (typeof params == "undefined") {
         return function() {
             return func.apply(context, arguments);
         };
@@ -1713,36 +3972,20 @@ utils.close = function(context, func, params) {
     }
 };
 
-/**
- * Create a UUID
- */
 utils.createUUID = function() {
-    return UUIDcreatePart(4) + '-' +
-        UUIDcreatePart(2) + '-' +
-        UUIDcreatePart(2) + '-' +
-        UUIDcreatePart(2) + '-' +
-        UUIDcreatePart(6);
+    return UUIDcreatePart(4) + "-" + UUIDcreatePart(2) + "-" + UUIDcreatePart(2) + "-" + UUIDcreatePart(2) + "-" + UUIDcreatePart(6);
 };
 
-/**
- * Extends a child object from a parent object using classical inheritance
- * pattern.
- */
-utils.extend = (function() {
-    // proxy used to establish prototype chain
+utils.extend = function() {
     var F = function() {};
-    // extend Child from Parent
     return function(Child, Parent) {
         F.prototype = Parent.prototype;
         Child.prototype = new F();
         Child.__super__ = Parent.prototype;
         Child.prototype.constructor = Child;
     };
-}());
+}();
 
-/**
- * Alerts a message in any available way: alert or console.log.
- */
 utils.alert = function(msg) {
     if (window.alert) {
         window.alert(msg);
@@ -1751,12 +3994,10 @@ utils.alert = function(msg) {
     }
 };
 
-
-//------------------------------------------------------------------------------
 function UUIDcreatePart(length) {
     var uuidpart = "";
-    for (var i=0; i<length; i++) {
-        var uuidchar = parseInt((Math.random() * 256), 10).toString(16);
+    for (var i = 0; i < length; i++) {
+        var uuidchar = parseInt(Math.random() * 256, 10).toString(16);
         if (uuidchar.length == 1) {
             uuidchar = "0" + uuidchar;
         }
@@ -1764,13 +4005,424 @@ function UUIDcreatePart(length) {
     }
     return uuidpart;
 }
+},{}],14:[function(require,module,exports){
+var channel = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/channel");
 
+var platform = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/ios/platform");
 
-});
+var m_document_addEventListener = document.addEventListener;
 
-window.cordova = require('cordova');
-// file: src/scripts/bootstrap.js
+var m_document_removeEventListener = document.removeEventListener;
 
-require('cordova/init');
+var m_window_addEventListener = window.addEventListener;
 
-})();
+var m_window_removeEventListener = window.removeEventListener;
+
+var documentEventHandlers = {}, windowEventHandlers = {};
+
+document.addEventListener = function(evt, handler, capture) {
+    var e = evt.toLowerCase();
+    if (typeof documentEventHandlers[e] != "undefined") {
+        documentEventHandlers[e].subscribe(handler);
+    } else {
+        m_document_addEventListener.call(document, evt, handler, capture);
+    }
+};
+
+window.addEventListener = function(evt, handler, capture) {
+    var e = evt.toLowerCase();
+    if (typeof windowEventHandlers[e] != "undefined") {
+        windowEventHandlers[e].subscribe(handler);
+    } else {
+        m_window_addEventListener.call(window, evt, handler, capture);
+    }
+};
+
+document.removeEventListener = function(evt, handler, capture) {
+    var e = evt.toLowerCase();
+    if (typeof documentEventHandlers[e] != "undefined") {
+        documentEventHandlers[e].unsubscribe(handler);
+    } else {
+        m_document_removeEventListener.call(document, evt, handler, capture);
+    }
+};
+
+window.removeEventListener = function(evt, handler, capture) {
+    var e = evt.toLowerCase();
+    if (typeof windowEventHandlers[e] != "undefined") {
+        windowEventHandlers[e].unsubscribe(handler);
+    } else {
+        m_window_removeEventListener.call(window, evt, handler, capture);
+    }
+};
+
+function createEvent(type, data) {
+    var event = document.createEvent("Events");
+    event.initEvent(type, false, false);
+    if (data) {
+        for (var i in data) {
+            if (data.hasOwnProperty(i)) {
+                event[i] = data[i];
+            }
+        }
+    }
+    return event;
+}
+
+var cordova = {
+    platformVersion: PLATFORM_VERSION_BUILD_LABEL,
+    version: PLATFORM_VERSION_BUILD_LABEL,
+    require: function(module) {
+        if (module === "cordova/exec") {
+            return cordova.exec;
+        }
+        if (module === "org.apache.cordova.media.Media") {
+            return window.Media;
+        }
+        return require(module);
+    },
+    platformId: platform.id,
+    addWindowEventHandler: function(event) {
+        return windowEventHandlers[event] = channel.create(event);
+    },
+    addStickyDocumentEventHandler: function(event) {
+        return documentEventHandlers[event] = channel.createSticky(event);
+    },
+    addDocumentEventHandler: function(event) {
+        return documentEventHandlers[event] = channel.create(event);
+    },
+    removeWindowEventHandler: function(event) {
+        delete windowEventHandlers[event];
+    },
+    removeDocumentEventHandler: function(event) {
+        delete documentEventHandlers[event];
+    },
+    getOriginalHandlers: function() {
+        return {
+            document: {
+                addEventListener: m_document_addEventListener,
+                removeEventListener: m_document_removeEventListener
+            },
+            window: {
+                addEventListener: m_window_addEventListener,
+                removeEventListener: m_window_removeEventListener
+            }
+        };
+    },
+    fireDocumentEvent: function(type, data, bNoDetach) {
+        var evt = createEvent(type, data);
+        if (typeof documentEventHandlers[type] != "undefined") {
+            if (bNoDetach) {
+                documentEventHandlers[type].fire(evt);
+            } else {
+                setTimeout(function() {
+                    if (type == "deviceready") {
+                        document.dispatchEvent(evt);
+                    }
+                    documentEventHandlers[type].fire(evt);
+                }, 0);
+            }
+        } else {
+            document.dispatchEvent(evt);
+        }
+    },
+    fireWindowEvent: function(type, data) {
+        var evt = createEvent(type, data);
+        if (typeof windowEventHandlers[type] != "undefined") {
+            setTimeout(function() {
+                windowEventHandlers[type].fire(evt);
+            }, 0);
+        } else {
+            window.dispatchEvent(evt);
+        }
+    },
+    callbackId: Math.floor(Math.random() * 2e9),
+    callbacks: {},
+    callbackStatus: {
+        NO_RESULT: 0,
+        OK: 1,
+        CLASS_NOT_FOUND_EXCEPTION: 2,
+        ILLEGAL_ACCESS_EXCEPTION: 3,
+        INSTANTIATION_EXCEPTION: 4,
+        MALFORMED_URL_EXCEPTION: 5,
+        IO_EXCEPTION: 6,
+        INVALID_ACTION: 7,
+        JSON_EXCEPTION: 8,
+        ERROR: 9
+    },
+    callbackSuccess: function(callbackId, args) {
+        this.callbackFromNative(callbackId, true, args.status, [ args.message ], args.keepCallback);
+    },
+    callbackError: function(callbackId, args) {
+        this.callbackFromNative(callbackId, false, args.status, [ args.message ], args.keepCallback);
+    },
+    callbackFromNative: function(callbackId, isSuccess, status, args, keepCallback) {
+        try {
+            var callback = cordova.callbacks[callbackId];
+            if (callback) {
+                if (isSuccess && status == cordova.callbackStatus.OK) {
+                    callback.success && callback.success.apply(null, args);
+                } else {
+                    callback.fail && callback.fail.apply(null, args);
+                }
+                if (!keepCallback) {
+                    delete cordova.callbacks[callbackId];
+                }
+            }
+        } catch (err) {
+            var msg = "Error in " + (isSuccess ? "Success" : "Error") + " callbackId: " + callbackId + " : " + err;
+            console && console.log && console.log(msg);
+            this.fireWindowEvent("cordovacallbackerror", {
+                message: msg
+            });
+            throw err;
+        }
+    },
+    addConstructor: function(func) {
+        channel.onCordovaReady.subscribe(function() {
+            try {
+                func();
+            } catch (e) {
+                console.log("Failed to run constructor: " + e);
+            }
+        });
+    }
+};
+
+window.cordova = module.exports = cordova;
+},{"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/channel":11,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/ios/platform":16}],15:[function(require,module,exports){
+var cordova = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/cordova_b"), channel = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/channel"), utils = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/utils"), base64 = require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/base64"), jsToNativeModes = {
+    IFRAME_NAV: 0,
+    XHR_NO_PAYLOAD: 1,
+    XHR_WITH_PAYLOAD: 2,
+    XHR_OPTIONAL_PAYLOAD: 3,
+    IFRAME_HASH_NO_PAYLOAD: 4,
+    IFRAME_HASH_WITH_PAYLOAD: 5,
+    WK_WEBVIEW_BINDING: 6
+}, bridgeMode, execIframe, execHashIframe, hashToggle = 1, execXhr, requestCount = 0, vcHeaderValue = null, commandQueue = [], isInContextOfEvalJs = 0;
+
+function createExecIframe() {
+    var iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+    return iframe;
+}
+
+function createHashIframe() {
+    var ret = createExecIframe();
+    ret.contentWindow.history.replaceState(null, null, "file:///#");
+    return ret;
+}
+
+function shouldBundleCommandJson() {
+    if (bridgeMode === jsToNativeModes.XHR_WITH_PAYLOAD) {
+        return true;
+    }
+    if (bridgeMode === jsToNativeModes.XHR_OPTIONAL_PAYLOAD) {
+        var payloadLength = 0;
+        for (var i = 0; i < commandQueue.length; ++i) {
+            payloadLength += commandQueue[i].length;
+        }
+        return payloadLength < 4500;
+    }
+    return false;
+}
+
+function massageArgsJsToNative(args) {
+    if (!args || utils.typeName(args) != "Array") {
+        return args;
+    }
+    var ret = [];
+    args.forEach(function(arg, i) {
+        if (utils.typeName(arg) == "ArrayBuffer") {
+            ret.push({
+                CDVType: "ArrayBuffer",
+                data: base64.fromArrayBuffer(arg)
+            });
+        } else {
+            ret.push(arg);
+        }
+    });
+    return ret;
+}
+
+function massageMessageNativeToJs(message) {
+    if (message.CDVType == "ArrayBuffer") {
+        var stringToArrayBuffer = function(str) {
+            var ret = new Uint8Array(str.length);
+            for (var i = 0; i < str.length; i++) {
+                ret[i] = str.charCodeAt(i);
+            }
+            return ret.buffer;
+        };
+        var base64ToArrayBuffer = function(b64) {
+            return stringToArrayBuffer(atob(b64));
+        };
+        message = base64ToArrayBuffer(message.data);
+    }
+    return message;
+}
+
+function convertMessageToArgsNativeToJs(message) {
+    var args = [];
+    if (!message || !message.hasOwnProperty("CDVType")) {
+        args.push(message);
+    } else if (message.CDVType == "MultiPart") {
+        message.messages.forEach(function(e) {
+            args.push(massageMessageNativeToJs(e));
+        });
+    } else {
+        args.push(massageMessageNativeToJs(message));
+    }
+    return args;
+}
+
+function iOSExec() {
+    if (bridgeMode === undefined) {
+        if (navigator.userAgent) {
+            bridgeMode = navigator.userAgent.indexOf(" 5_") == -1 ? jsToNativeModes.IFRAME_NAV : jsToNativeModes.XHR_NO_PAYLOAD;
+        } else {
+            bridgeMode = jsToNativeModes.IFRAME_NAV;
+        }
+    }
+    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.cordova && window.webkit.messageHandlers.cordova.postMessage) {
+        bridgeMode = jsToNativeModes.WK_WEBVIEW_BINDING;
+    }
+    var successCallback, failCallback, service, action, actionArgs, splitCommand;
+    var callbackId = null;
+    if (typeof arguments[0] !== "string") {
+        successCallback = arguments[0];
+        failCallback = arguments[1];
+        service = arguments[2];
+        action = arguments[3];
+        actionArgs = arguments[4];
+        callbackId = "INVALID";
+    } else {
+        try {
+            splitCommand = arguments[0].split(".");
+            action = splitCommand.pop();
+            service = splitCommand.join(".");
+            actionArgs = Array.prototype.splice.call(arguments, 1);
+            console.log("The old format of this exec call has been removed (deprecated since 2.1). Change to: " + 'cordova.exec(null, null, "' + service + '", "' + action + '",' + JSON.stringify(actionArgs) + ");");
+            return;
+        } catch (e) {}
+    }
+    actionArgs = actionArgs || [];
+    if (successCallback || failCallback) {
+        callbackId = service + cordova.callbackId++;
+        cordova.callbacks[callbackId] = {
+            success: successCallback,
+            fail: failCallback
+        };
+    }
+    actionArgs = massageArgsJsToNative(actionArgs);
+    var command = [ callbackId, service, action, actionArgs ];
+    commandQueue.push(JSON.stringify(command));
+    if (bridgeMode === jsToNativeModes.WK_WEBVIEW_BINDING) {
+        window.webkit.messageHandlers.cordova.postMessage(command);
+    } else {
+        if (!isInContextOfEvalJs && commandQueue.length == 1) {
+            switch (bridgeMode) {
+              case jsToNativeModes.XHR_NO_PAYLOAD:
+              case jsToNativeModes.XHR_WITH_PAYLOAD:
+              case jsToNativeModes.XHR_OPTIONAL_PAYLOAD:
+                pokeNativeViaXhr();
+                break;
+
+              default:
+                pokeNativeViaIframe();
+            }
+        }
+    }
+}
+
+function pokeNativeViaXhr() {
+    if (execXhr && execXhr.readyState != 4) {
+        execXhr = null;
+    }
+    execXhr = execXhr || new XMLHttpRequest();
+    execXhr.open("HEAD", "/!gap_exec?" + +new Date(), true);
+    if (!vcHeaderValue) {
+        vcHeaderValue = /.*\((.*)\)/.exec(navigator.userAgent)[1];
+    }
+    execXhr.setRequestHeader("vc", vcHeaderValue);
+    execXhr.setRequestHeader("rc", ++requestCount);
+    if (shouldBundleCommandJson()) {
+        execXhr.setRequestHeader("cmds", iOSExec.nativeFetchMessages());
+    }
+    execXhr.send(null);
+}
+
+function pokeNativeViaIframe() {
+    if (!document.body) {
+        setTimeout(pokeNativeViaIframe);
+        return;
+    }
+    if (bridgeMode === jsToNativeModes.IFRAME_HASH_NO_PAYLOAD || bridgeMode === jsToNativeModes.IFRAME_HASH_WITH_PAYLOAD) {
+        execHashIframe = execHashIframe || createHashIframe();
+        if (!execHashIframe.contentWindow) {
+            execHashIframe = createHashIframe();
+        }
+        hashToggle = hashToggle ^ 3;
+        var hashValue = "%0" + hashToggle;
+        if (bridgeMode === jsToNativeModes.IFRAME_HASH_WITH_PAYLOAD) {
+            hashValue += iOSExec.nativeFetchMessages();
+        }
+        execHashIframe.contentWindow.location.hash = hashValue;
+    } else {
+        execIframe = execIframe || createExecIframe();
+        if (!execIframe.contentWindow) {
+            execIframe = createExecIframe();
+        }
+        execIframe.src = "gap://ready";
+    }
+}
+
+iOSExec.jsToNativeModes = jsToNativeModes;
+
+iOSExec.setJsToNativeBridgeMode = function(mode) {
+    if (execIframe) {
+        execIframe.parentNode.removeChild(execIframe);
+        execIframe = null;
+    }
+    bridgeMode = mode;
+};
+
+iOSExec.nativeFetchMessages = function() {
+    if (!commandQueue.length) {
+        return "";
+    }
+    var json = "[" + commandQueue.join(",") + "]";
+    commandQueue.length = 0;
+    return json;
+};
+
+iOSExec.nativeCallback = function(callbackId, status, message, keepCallback) {
+    return iOSExec.nativeEvalAndFetch(function() {
+        var success = status === 0 || status === 1;
+        var args = convertMessageToArgsNativeToJs(message);
+        cordova.callbackFromNative(callbackId, success, status, args, keepCallback);
+    });
+};
+
+iOSExec.nativeEvalAndFetch = function(func) {
+    isInContextOfEvalJs++;
+    try {
+        func();
+        return iOSExec.nativeFetchMessages();
+    } finally {
+        isInContextOfEvalJs--;
+    }
+};
+
+module.exports = iOSExec;
+},{"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/base64":9,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/channel":11,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/utils":13,"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/cordova_b":14}],16:[function(require,module,exports){
+module.exports = {
+    id: "ios",
+    bootstrap: function() {
+        require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/channel").onNativeReady.fire();
+    }
+};
+},{"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/channel":11}],17:[function(require,module,exports){
+require("/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/init_b");
+},{"/usr/local/lib/node_modules/cordova/node_modules/cordova-lib/node_modules/cordova-js/src/common/init_b":12}]},{},[15,16,17,3,1,2,4])

@@ -1,0 +1,222 @@
+// @import url(//fonts.googleapis.com/css?family=Roboto:400,700); chris removed
+
+// chris added icomoon styles to his global
+//@import '../../fonts/lib/icomoon/style.css';
+
+// @import 'global/fonts'; chris removed, defined in global
+// @import 'global/colors'; chris copied hao colors to his global colors
+
+// html, body { chris removed
+//   margin: 0;
+// }
+
+.service-view {
+  // ^^^chris added:
+  background-color: white; 
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  @include display(flex);
+  @include flex-direction(column);
+  .statusbar-buffer {
+    height: 20px;
+    background-color: rgba(40, 0, 48, 0.87);
+    position: absolute;
+    z-index: 500;
+    width: 100%;
+    html.android & {
+      display: none;
+    }
+  }
+  .menu-buffer {
+    height: 36px;
+  }
+  .list-container {
+    @include flex(1);
+    position: relative;
+    .type {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      &.detail .service-listitem {
+        height: auto !important;
+        .details {
+          display: block !important;
+        }
+      }
+      .list-scrollable {
+        padding-top: 20px;
+        padding-bottom: 10px;
+        html.android & {
+          padding-top: 0;
+        }
+        .service-listitem {
+          background-color: lightgray;
+          position: relative;
+          box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+          height: 120px;
+          overflow: hidden;
+          border-radius: 3px;
+          margin-top: 10px;
+          margin-left: 10px;
+          margin-right: 10px;
+
+          .details {
+            display: none;
+            
+          }
+          .overview {
+            .service-image {
+              width: 100%;
+              margin-left: -20px;
+              margin-top: -20px;
+            }
+            .service-info {
+              padding:10px;
+              position:absolute;
+              top: 0;
+              bottom: 0;
+              background-color: rgba(0, 0, 0, 0.6);
+              width: calc(100% - 80px);
+              .service-name {
+                color: white;
+                font-size: 1.2em;
+              }
+              .service-description {
+                color: white;
+                font-size: 0.8em;
+              }
+            }
+            
+          }
+          .overview-actions {
+            position: absolute;
+            right: 0;
+            top: 0;
+            .action {
+              width: 60px;
+              height: 60px;
+              text-align: center;
+              line-height: 60px;
+              font-size: 2.4em;
+              i {
+                color: white;
+              }
+
+            }
+            .phone-action {
+              background-color: $blue;
+              text-align: center;
+            }
+
+            .mail-action {
+              background-color: $cyan;
+            }
+
+            .detail-action {
+              background-color: $gray;
+            }
+          }
+        }
+      }
+      
+    }
+    .detail {
+      
+      .service-listitem {
+        &.closed {
+          display: none;
+        }
+        position: relative;
+        height: calc(100vh - 20px);
+        margin: 10px;
+        background-color: #EDEDED !important;
+        color: black !important;
+        padding: 10px;
+        box-sizing: border-box;
+        border-radius: 3px;
+        box-shadow: 0 3px 14px rgba(0, 0, 0, 0.5);
+        .overview {
+          display: none;
+        }
+        .overview-actions {
+          display: none;
+        }
+        .details-actions {
+          position: absolute;
+          right: 0;
+          top: 0;
+          z-index: 1;
+          .close-action {
+            text-align: center;
+            background-color: rgba($amber, 0.5);
+            width: 50px;
+            height: 50px;
+            i {
+              line-height: 50px;
+              color: white;
+              font-size: 2.2em;
+            }
+          }
+        }
+        .details {
+          .title-section {
+            position:absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            overflow: hidden;
+            z-index: 0;
+            .service-image {
+              width: 100%;
+            }
+            .service-name {
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              color: white;
+              font-size: 1.6em;
+              padding: 5px;
+              background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(127,127,127,0)), color-stop(100%,rgba(25,25,25,0.8)));
+              background: linear-gradient(to bottom, rgba(127,127,127,0) 0%,rgba(25,25,25,0.8) 100%)
+            }
+          }
+          .info-section {
+            margin-top: 200px;
+            .action-section {
+              position: relative;
+              height: 1.4em;
+              line-height: 1.4em;
+              .info {
+                font-size: 1.2em;
+              }
+              .action {
+                position: absolute;
+                right: 0;
+                top: 0;
+              }
+            }
+          }
+          .location-section {
+            .map {
+              display: inline-block;
+              img {
+                width: 50%;
+              }
+            }
+            .address {
+              width: 40%;
+              display: inline-block;
+            }
+          }
+        }
+      }
+    }
+  }
+  // $$$ chris added
+
+}

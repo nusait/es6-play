@@ -9,24 +9,33 @@ class XHRLoader {
         this.Xhr_ = XMLHttpRequest || global.XMLHttpRequest;
     }
     send(method, {url, timeout = 5000, headers = {}, responseType = 'json'}) {
-
+        log(`:: xhrloader.send`);
         var xhr = new this.Xhr_();
 
         var promise = new Promise((resolve, reject) => {
             
             xhr.open(method, url);
-
+            log(`:: xhrloader.send-promise`);
             if (responseType === 'json') {
                 xhr.setRequestHeader('Accept', 'application/json');
+                this.responseType = responseType;
             }
 
             entries(headers).forEach(entry => xhr.setRequestHeader(...entry));
 
+            log(`:: xhrloader.xhr-before-eassign`);
+
+            // setting responseType breaks android at least <= 4.3
+            
             assign(xhr, {
                 resolve, reject,
-                responseType, timeout, 
-                onload, ontimeout, onerror, 
-            }).send();
+                /*responseType,*/ timeout, 
+                onload: onload.bind(this), 
+                ontimeout: ontimeout.bind(this), 
+                onerror: onerror.bind(this), 
+            });
+
+            xhr.send();
         });
  
         promise.cancel = xhr.abort.bind(xhr);
@@ -34,17 +43,20 @@ class XHRLoader {
         return promise;
     }
     get(...args) {
-
+        log(`:: xhrloader.get`);
         return this.send('GET', ...args);
     }
 }
 
 function onload({target: xhr}) {
-
+    
     var {response, status, statusText, resolve} = xhr;
 
-    if (isString(response) && xhr.responseType === 'json')
-        response = JSON.parse(response);
+    var wantsJson = 
+        (xhr.responseType  === 'json')  || 
+        (this.responseType === 'json');
+
+    if (isString(response) && wantsJson) response = JSON.parse(response);
 
     resolve(response);
 }

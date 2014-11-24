@@ -1,0 +1,812 @@
+/*style.css*/
+@font-face {
+  font-family: 'icomoon';
+  src: url("fonts/icomoon.eot?v6zaba");
+  src: url("fonts/icomoon.eot?#iefixv6zaba") format("embedded-opentype"), url("fonts/icomoon.woff?v6zaba") format("woff"), url("fonts/icomoon.ttf?v6zaba") format("truetype"), url("fonts/icomoon.svg?v6zaba#icomoon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+[class^="icon-"], [class*=" icon-"] {
+  font-family: 'icomoon';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-announcement:before {
+  content: "\e60d";
+}
+
+.icon-exit-to-app:before {
+  content: "\e60e";
+}
+
+.icon-explore:before {
+  content: "\e601";
+}
+
+.icon-face-unlock:before {
+  content: "\e60f";
+}
+
+.icon-home:before {
+  content: "\e610";
+}
+
+.icon-info:before {
+  content: "\e621";
+}
+
+.icon-info-outline:before {
+  content: "\e622";
+}
+
+.icon-language:before {
+  content: "\e611";
+}
+
+.icon-reorder:before {
+  content: "\e612";
+}
+
+.icon-room:before {
+  content: "\e613";
+}
+
+.icon-view-list:before {
+  content: "\e602";
+}
+
+.icon-visibility:before {
+  content: "\e614";
+}
+
+.icon-error:before {
+  content: "\e615";
+}
+
+.icon-warning:before {
+  content: "\e623";
+}
+
+.icon-subtitles:before {
+  content: "\e624";
+}
+
+.icon-call:before {
+  content: "\e600";
+}
+
+.icon-live-help:before {
+  content: "\e625";
+}
+
+.icon-mail:before {
+  content: "\e603";
+}
+
+.icon-gps-fixed:before {
+  content: "\e604";
+}
+
+.icon-location-disabled:before {
+  content: "\e605";
+}
+
+.icon-location-searching:before {
+  content: "\e606";
+}
+
+.icon-brightness-7:before {
+  content: "\e626";
+}
+
+.icon-camera-alt:before {
+  content: "\e616";
+}
+
+.icon-style:before {
+  content: "\e627";
+}
+
+.icon-tag-faces:before {
+  content: "\e607";
+}
+
+.icon-timer-auto:before {
+  content: "\e608";
+}
+
+.icon-local-hospital:before {
+  content: "\e617";
+}
+
+.icon-local-library:before {
+  content: "\e618";
+}
+
+.icon-local-phone:before {
+  content: "\e619";
+}
+
+.icon-map:before {
+  content: "\e61a";
+}
+
+.icon-place:before {
+  content: "\e609";
+}
+
+.icon-arrow-back:before {
+  content: "\e61b";
+}
+
+.icon-arrow-forward:before {
+  content: "\e61c";
+}
+
+.icon-cancel:before {
+  content: "\e628";
+}
+
+.icon-check:before {
+  content: "\e629";
+}
+
+.icon-chevron-left:before {
+  content: "\e61d";
+}
+
+.icon-chevron-right:before {
+  content: "\e61e";
+}
+
+.icon-close:before {
+  content: "\e60a";
+}
+
+.icon-expand-less:before {
+  content: "\e61f";
+}
+
+.icon-expand-more:before {
+  content: "\e620";
+}
+
+.icon-menu:before {
+  content: "\e62a";
+}
+
+.icon-more-horiz:before {
+  content: "\e60b";
+}
+
+.icon-people:before {
+  content: "\e60c";
+}
+
+.icon-publ:before {
+  content: "\e62b";
+}
+
+/* Google Colors */
+button, input, textarea, label, a, h1[tabindex] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, label,
+h1, h2, h3,
+div, span, p, img, i, b {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+h1, h2, h3 {
+  font-weight: normal;
+}
+
+h1:focus, input:focus {
+  outline: none !important;
+}
+
+p, h1, h2, h3, h4 {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  -webkit-touch-callout: none;
+}
+
+button {
+  background-image: none;
+  padding: 0;
+  border: none;
+  font-family: inherit;
+  color: inherit;
+  font-size: inherit;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center center;
+  text-shadow: inherit;
+  margin: 0;
+}
+button:focus {
+  outline: none;
+}
+
+ul, dl {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+dd {
+  margin: 0;
+}
+
+input {
+  background-image: none;
+}
+
+input[type=checkbox] {
+  position: absolute;
+  opacity: 0;
+}
+
+b {
+  font-weight: inherit;
+}
+
+i {
+  font-style: inherit;
+}
+
+html[data-platform=Android][data-version^="4.0"] input[type=text],
+html[data-platform=Android][data-version^="4.0"] input[type=email],
+html[data-platform=Android][data-version^="4.0"] input[type=date],
+html[data-platform=Android][data-version^="4.0"] input[type=password],
+html[data-platform=Android][data-version^="4.0"] textarea {
+  position: relative;
+  -webkit-transform: translate(0px, 500px);
+  top: -500px;
+}
+
+.menu-view {
+  height: 36px;
+  width: 100%;
+}
+.menu-view.show {
+  position: absolute;
+  height: 100%;
+}
+.menu-view .screen {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.menu-view .screen.hide {
+  display: none;
+}
+.menu-view .screen button {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+.menu-view .moveable {
+  -webkit-backface-visibility: hidden;
+  background-color: darkblue;
+  color: white;
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  -webkit-transition: 0s all;
+  transition: 0s all;
+}
+.menu-view .moveable.transition {
+  -webkit-transition: 0.3s all;
+  transition: 0.3s all;
+}
+.menu-view .moveable.show {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+.menu-view .moveable.show .menu {
+  display: block;
+}
+.menu-view .moveable {
+  -webkit-transform: translate3d(0, 170px, 0);
+  transform: translate3d(0, 170px, 0);
+}
+.menu-view .moveable .menu {
+  display: block;
+}
+.menu-view .moveable.done {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+.menu-view .moveable.done .menu {
+  height: 0;
+  overflow: hidden;
+}
+.menu-view .moveable .bar {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -moz-box-orient: horizontal;
+  -moz-box-direction: normal;
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  height: 36px;
+  background-color: #1f1f1f;
+  color: #9c9c9c;
+}
+.menu-view .moveable .bar .message {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -moz-box-orient: horizontal;
+  -moz-box-direction: normal;
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -moz-box-align: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.menu-view .moveable .bar .menu-btn {
+  position: relative;
+  width: 60px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -moz-box-orient: horizontal;
+  -moz-box-direction: normal;
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -moz-box-align: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  border-left: 1px dotted grey;
+}
+.menu-view .moveable .bar .menu-btn button {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+.menu-view .moveable .bar .menu-btn button i {
+  position: absolute;
+  height: 0;
+  width: 0;
+  overflow: hidden;
+}
+.menu-view .moveable .bar .menu-btn button b {
+  font-size: 30px;
+  font-family: arial;
+}
+.menu-view .moveable .bar .menu-btn button.active, .no-touch .menu-view .moveable .bar .menu-btn button:active {
+  background-color: purple;
+}
+.menu-view .moveable .menu {
+  background-color: #e9e9e9;
+  -webkit-transition: 0.3s all;
+  transition: 0.3s all;
+}
+.menu-view .moveable .menu .two-row {
+  padding: 3px;
+}
+.menu-view .moveable .menu .two-row .row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -moz-box-orient: horizontal;
+  -moz-box-direction: normal;
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+.menu-view .moveable .menu .two-row .row div {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  border-width: 0 0 1px 0;
+  border-style: solid;
+  margin: 2px;
+  height: 75px;
+  margin: 3px;
+  position: relative;
+}
+.menu-view .moveable .menu .two-row .row div.active, .no-touch .menu-view .moveable .menu .two-row .row div:active {
+  opacity: 0.6;
+}
+.menu-view .moveable .menu .two-row .row div.bluelights {
+  background-color: #826994;
+  border-color: #695476;
+}
+.menu-view .moveable .menu .two-row .row div.call {
+  background-color: #f18268;
+  border-color: #ba5332;
+}
+.menu-view .moveable .menu .two-row .row div.report {
+  background-color: #77b9a8;
+  border-color: #478978;
+}
+.menu-view .moveable .menu .two-row .row div.about {
+  background-color: #d74d58;
+  border-color: #a52330;
+}
+.menu-view .moveable .menu .two-row .row div.services {
+  background-color: #edb178;
+  border-color: #bb8955;
+}
+.menu-view .moveable .menu .two-row .row div.profile {
+  background-color: #38a6bd;
+  border-color: #00768c;
+}
+.menu-view .moveable .menu .two-row .row div button {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+.menu-view .moveable .menu .two-row .row div button b {
+  font-family: "helvetica neue", roboto, "segoe ui", sans-serif;
+  font-size: 13.3px;
+  width: 100%;
+  text-align: center;
+  bottom: 8px;
+  left: 0;
+  position: absolute;
+  font-weight: 500;
+  color: white;
+}
+
+.about-view {
+  display: none;
+  background-color: red;
+}
+
+.service-view {
+  background-color: white;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -moz-box-orient: vertical;
+  -moz-box-direction: normal;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+.service-view .statusbar-buffer {
+  height: 20px;
+  background-color: rgba(74, 79, 102, 0.87);
+  position: absolute;
+  z-index: 500;
+  width: 100%;
+}
+html.android .service-view .statusbar-buffer {
+  display: none;
+}
+.service-view .menu-buffer {
+  height: 36px;
+}
+.service-view .list-container {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  position: relative;
+}
+.service-view .list-container .type {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.service-view .list-container .type.detail .service-listitem {
+  height: auto !important;
+}
+.service-view .list-container .type.detail .service-listitem .details {
+  display: block !important;
+}
+.service-view .list-container .type .list-scrollable {
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+html.android .service-view .list-container .type .list-scrollable {
+  padding-top: 0;
+}
+.service-view .list-container .type .list-scrollable .service-listitem {
+  background-color: lightgray;
+  position: relative;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+  height: 120px;
+  overflow: hidden;
+  border-radius: 3px;
+  margin-top: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.service-view .list-container .type .list-scrollable .service-listitem .details {
+  display: none;
+}
+.service-view .list-container .type .list-scrollable .service-listitem .overview .service-image {
+  width: 100%;
+  margin-left: -20px;
+  margin-top: -20px;
+}
+.service-view .list-container .type .list-scrollable .service-listitem .overview .service-info {
+  padding: 10px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  width: calc(100% - 80px);
+}
+.service-view .list-container .type .list-scrollable .service-listitem .overview .service-info .service-name {
+  color: white;
+  font-size: 1.2em;
+}
+.service-view .list-container .type .list-scrollable .service-listitem .overview .service-info .service-description {
+  color: white;
+  font-size: 0.8em;
+}
+.service-view .list-container .type .list-scrollable .service-listitem .overview-actions {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.service-view .list-container .type .list-scrollable .service-listitem .overview-actions .action {
+  width: 60px;
+  height: 60px;
+  text-align: center;
+  line-height: 60px;
+  font-size: 2.4em;
+}
+.service-view .list-container .type .list-scrollable .service-listitem .overview-actions .action i {
+  color: white;
+}
+.service-view .list-container .type .list-scrollable .service-listitem .overview-actions .phone-action {
+  background-color: #5677fc;
+  text-align: center;
+}
+.service-view .list-container .type .list-scrollable .service-listitem .overview-actions .mail-action {
+  background-color: #00bcd4;
+}
+.service-view .list-container .type .list-scrollable .service-listitem .overview-actions .detail-action {
+  background-color: #9e9e9e;
+}
+.service-view .list-container .detail .service-listitem {
+  position: relative;
+  height: calc(100vh - 20px);
+  margin: 10px;
+  background-color: #EDEDED !important;
+  color: black !important;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 3px;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.5);
+}
+.service-view .list-container .detail .service-listitem.closed {
+  display: none;
+}
+.service-view .list-container .detail .service-listitem .overview {
+  display: none;
+}
+.service-view .list-container .detail .service-listitem .overview-actions {
+  display: none;
+}
+.service-view .list-container .detail .service-listitem .details-actions {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
+.service-view .list-container .detail .service-listitem .details-actions .close-action {
+  text-align: center;
+  background-color: rgba(255, 193, 7, 0.5);
+  width: 50px;
+  height: 50px;
+}
+.service-view .list-container .detail .service-listitem .details-actions .close-action i {
+  line-height: 50px;
+  color: white;
+  font-size: 2.2em;
+}
+.service-view .list-container .detail .service-listitem .details .title-section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  overflow: hidden;
+  z-index: 0;
+}
+.service-view .list-container .detail .service-listitem .details .title-section .service-image {
+  width: 100%;
+}
+.service-view .list-container .detail .service-listitem .details .title-section .service-name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  color: white;
+  font-size: 1.6em;
+  padding: 5px;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(127, 127, 127, 0)), color-stop(100%, rgba(25, 25, 25, 0.8)));
+  background: linear-gradient(to bottom, rgba(127, 127, 127, 0) 0%, rgba(25, 25, 25, 0.8) 100%);
+}
+.service-view .list-container .detail .service-listitem .details .info-section {
+  margin-top: 200px;
+}
+.service-view .list-container .detail .service-listitem .details .info-section .action-section {
+  position: relative;
+  height: 1.4em;
+  line-height: 1.4em;
+}
+.service-view .list-container .detail .service-listitem .details .info-section .action-section .info {
+  font-size: 1.2em;
+}
+.service-view .list-container .detail .service-listitem .details .info-section .action-section .action {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.service-view .list-container .detail .service-listitem .details .location-section .map {
+  display: inline-block;
+}
+.service-view .list-container .detail .service-listitem .details .location-section .map img {
+  width: 50%;
+}
+.service-view .list-container .detail .service-listitem .details .location-section .address {
+  width: 40%;
+  display: inline-block;
+}
+
+html {
+  font-family: "helvetica neue", roboto, "segoe ui", sans-serif;
+  background-color: rgba(0, 0, 255, 0.28);
+  color: white;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+html body {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -moz-box-orient: vertical;
+  -moz-box-direction: normal;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+html body .wrapper {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  background-color: orange;
+}
+
+.statusbar-container {
+  font-size: 12px;
+  background-color: transparent;
+  color: white;
+  display: none;
+  position: absolute;
+  height: 20px;
+  width: 100%;
+  z-index: 10000;
+}
+html.browser .statusbar-container {
+  height: 20px;
+  display: block;
+}
+html.android .statusbar-container {
+  position: relative;
+  background-color: black;
+}
+.statusbar-container .statusbar-faker {
+  height: 100%;
+  display: flex;
+  position: relative;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -moz-box-orient: vertical;
+  -moz-box-direction: normal;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+.statusbar-container .statusbar-faker > div {
+  width: 100%;
+  position: relative;
+}
+.statusbar-container .statusbar-faker > div > div {
+  position: absolute;
+}
+.statusbar-container .statusbar-faker > div > div.left {
+  top: 0;
+  left: 5px;
+}
+.statusbar-container .statusbar-faker > div > div.middle {
+  position: relative;
+  width: 100%;
+  text-align: center;
+}
+.statusbar-container .statusbar-faker > div > div.right {
+  top: 0;
+  right: 5px;
+}

@@ -8,7 +8,7 @@ class BluelightRepository {
         this.loader = loader;
     }
     *get() {
-
+        log(`:: BluelightRepository.get`)
     	var {app, loader, baseUrl} = this;
     	var {BluelightCollection} = app;
     	var url = `${baseUrl}bluelights`;

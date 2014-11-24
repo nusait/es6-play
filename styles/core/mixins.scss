@@ -1,0 +1,16 @@
+// misc.scss
+
+@mixin visual-hide {
+	position: absolute;
+	height: 0;
+	width: 0;
+	overflow: hidden;
+}
+
+@mixin fill-parent {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+}

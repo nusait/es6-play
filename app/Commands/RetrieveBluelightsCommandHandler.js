@@ -10,20 +10,21 @@ class RetrieveBluelightsCommandHandler extends CommandHandler {
         var commandName  = command.constructor.getName();
         
         try {
-
             var bluelight = yield Bluelight.get();
+            log(':: crap 2');
             this.dispatchEventsFor(bluelight);   
             return bluelight.collection;
 
         } catch(err) {
-
+        
+            log(`:: big error`);
             events.emit(commandName, err);
             throw err;
         }
     }
 }
 
-var {asyncMethods} = helpers;
+var {asyncMethods, log} = helpers;
 
 asyncMethods(RetrieveBluelightsCommandHandler.prototype, 'handle');
 

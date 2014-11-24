@@ -1,41 +1,52 @@
 <!DOCTYPE html>
-<!--
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-     KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
--->
-<html>
+<!DOCTYPE html>
+<html lang="en" class="no-touch">
     <head>
+        <title>App</title>
         <meta charset="utf-8" />
         <meta name="format-detection" content="telephone=no" />
-        <meta name="msapplication-tap-highlight" content="no" />
-        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-        <link rel="stylesheet" type="text/css" href="css/index.css" />
-        <title>Hello World</title>
+        <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA1BMVEVRAGMev0m/AAAADElEQVQImWNgIA0AAAAwAAFDlLdnAAAAAElFTkSuQmCC" />
+        <link href="css/initial.css" rel="stylesheet" />
     </head>
     <body>
-        <div class="app">
-            <h1>Apache Cordova</h1>
-            <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
-            </div>
-        </div>
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
+        <script src="cordova.js?4.0.0"></script>
+        <script src="js/boot.js?0.0.1"></script>
+        <script>
+        (function(global) {
+
+            var navigator = global.navigator;
+            var localStorage = global.localStorage;
+            var document = global.document;
+
+            var userAgent = navigator.userAgent;
+
+            // if (/Cyn/.test(userAgent) && /SCH-I500/.test(userAgent)) {
+            //     alert('lcoal!');
+            //     localStorage.env = 'local';
+            // };
+            localStorage.env = 'local';
+
+            var androidBefore4_4 = /Android 4\.[0-3]/.test(userAgent);
+            var isLocal = (localStorage.env === 'local');
+
+            var scripter = function(src, onload) {
+                var script = document.createElement('script');
+                script.src = src;
+                script.onload = onload;
+                document.head.appendChild(script);
+                return script;
+            }
+
+            if (androidBefore4_4 && isLocal) {
+                // var src = 'http://10.0.2.2:8080/target/target-script-min.js';
+                var src = 'http://10.0.1.5:8080/target/target-script-min.js';
+                scripter(src, function() {
+                    document.documentElement.className += ' weinre';
+                });
+            }
+
+        })(window);
+        </script>
     </body>
-</html>
+</html> 

@@ -1,6 +1,5 @@
-var ServiceProvider = require('Wildcat.Support.ServiceProvider');
-
-var Report = require('App.Entities.Reports.Report');
+var ServiceProvider  = require('Wildcat.Support.ServiceProvider');
+var Report           = require('App.Entities.Reports.Report');
 var ReportWasPosted  = require('App.Entities.Reports.Events.ReportWasPosted');
 var ReportRepository = require('App.Repositories.ReportRepository');
 
@@ -9,10 +8,11 @@ var BluelightCollection = require('App.Entities.Bluelights.BluelightCollection')
 var BluelightRepository = require('App.Repositories.BluelightRepository');
 var BluelightsDelivered = require('App.Entities.Bluelights.Events.BluelightsDelivered');
 
-var XHRLoader = require('Wildcat.Loaders.XHRLoader');
+var XHRLoader   = require('Wildcat.Loaders.XHRLoader');
+var ViewManager = require('../Browser/Views/ViewManager');
 
-var helpers = require('Wildcat.Support.helpers');
-
+var helpers     = require('Wildcat.Support.helpers');
+ 
 class AppServiceProvider extends ServiceProvider {
 
     boot() {
@@ -24,9 +24,16 @@ class AppServiceProvider extends ServiceProvider {
         
         registerEntities.call(this);
         registerRepositories.call(this);
+        registerOthers.call(this);
     }
 }
 
+function registerOthers() {
+
+    var {app} = this;
+
+    app.bindShared('viewManager', app => new ViewManager(app));
+}
 function registerEntities() {
 
     var {app} = this;

@@ -16,30 +16,36 @@ var auroraOpts    = require('./gulp/auroraOpts');
 var mold          = require('mold-source-map');
 var shell         = require('gulp-shell');
 var concat        = require('gulp-concat');
+var rsync         = require('gulp-rsync');
+var sass          = require('gulp-ruby-sass');
+var gutil         = require('gulp-util');
+var path          = require('path');
+var hbsy          = require('hbsfy');
 
 var dumpautoload  = require('./dumpautoload');
 
 // aliases, closeurs, etc.
 var log = console.log.bind(log);
+var basename = path.basename.bind(path);
 
 function uglifyTask() {
 
-    // return gulp.src(['./node_modules/traceur/bin/traceur-runtime.js', './public/js/bundle.js'])
     gulp.src('./public/js/bundle.js')
         .pipe(uglify({
             mangle: false,
             output: {beautify: true},
             compress: false,
         }))
-        // .pipe(beautify({preserveNewlines: false}))
         .pipe(rename('bundle-beautified.js'))
         .pipe(gulp.dest('./public/js/'))
+
         .pipe(uglify({
             mangle: true,
             output: {beautify: false},
         }))
         .pipe(rename('bundle-min.js'))
         .pipe(gulp.dest('./public/js/'))
+
         .pipe(beautify())
         .pipe(rename('bundle-min-beautified.js'))
         .pipe(gulp.dest('./public/js/'))
@@ -62,6 +68,7 @@ function jsTask(e) {
     
     return browserify({debug: true, standalone: 'App'})
         .transform(es6ify.configure(/(app|config|framework).*\.js$/))
+        .transform(hbsy.configure({ extensions: ['hbs'] }))
         .require(
             require.resolve('./app/main.js'), 
             { entry: true }
@@ -72,7 +79,8 @@ function jsTask(e) {
         .pipe(source('bundle.js'))
         .pipe(gulp.dest('./public/js/'))
         .on('end', function() {
-            log('end jsTask');
+            log('$$$ end jsTask');
+            gutil.beep();
         });
 }
 function bootstrapTaskWithAutoload() {
@@ -87,16 +95,19 @@ function bootstrapTask() {
         .transform(es6ify)
         .require(require.resolve('./bootstrap/start.js'), { entry: true })
         .bundle()
+
+        // doesn't work below:
         // .pipe(mold.transformSourcesRelativeTo(jsRoot))
 
         .pipe(source('boot.js'))
 
         .pipe(gulp.dest('./public/js/'))
         .on('end', function() {
+            gutil.beep();
             log('end bootstrapTask: ' + Date.now());
             return gulp.src('./public/js/boot.js')
                 .pipe(uglify({
-                    mangle: true,
+                    mangle: false,
                     output: {beautify: true},
                     compress: false,
                 }))
@@ -108,21 +119,99 @@ function yuidocTask() {
 
     // todo
 }
+function sassTask(e) {
+
+    var filename      = basename(e.path);
+    var reBundleThese = /(initial|colors|bundled)/;
+    var isInit        = reBundleThese.test(filename);
+    var destination   = './public/css/';
+
+    var options = {
+        trace: true,
+        style: isInit ? 'expanded' : 'expanded' /*'compressed'*/,
+        noCache: false,
+        sourcemap: 'none', // could be `auto`
+    };
+
+    log('file changed: ' + filename);
+
+    if (isInit) {
+        return gulp.src('./styles/initial.scss')
+            .pipe(sass(options))
+            .pipe(gulp.dest(destination))
+            // .pipe(livereload())
+            .on('end', function() {
+                gutil.beep();
+            });
+    } else {
+        return gulp.src('./styles/main.scss')
+            .pipe(sass(options))
+            .pipe(gulp.dest(destination))
+            // .pipe(livereload())
+            .on('end', function() {
+                gutil.beep();
+            }); 
+    }
+}  
+function cordovacopyTask() {
+    log('cordova copy task');
+
+    return gulp.src(['public'])
+        .pipe(rsync({
+            root: 'public',
+            progress: true,
+            emptyDirectories: true,
+            exclude: ['cordova.js','boot-min.js'],
+            clean: true,
+            recursive: true,
+            incremental: true,
+            destination: 'cordova/www'
+        }))
+        // .then( function() {
+        //     log('$$$ cordovacopyTask');
+        // });
+        .on('end', function() {
+            log('$$$ cordovacopyTask');
+            gutil.beep();
+        });
+}
+function cordovaconfigTask() {
+    log('cordova config task');
+
+    return gulp.src(['cordova-assets/config.xml'])
+        .pipe(rsync({
+            root: 'cordova-assets',
+            progress: true,
+            incremental: false,
+            destination: 'cordova'
+        }));
+}
 function watchTask() {
 
-    gulp.watch('framework/**/helpers.js', function() {
-        console.log('=== helpers.js');
-        bootstrapTask()
-    });
+    gulp.watch(['styles/**/*'], sassTask);
 
-    gulp.watch('framework/**/*.js', jsTaskWithAutoload);
-    gulp.watch('app/**/*.js',       jsTaskWithAutoload);
-    gulp.watch('config/**/*.js',    jsTaskWithAutoload);
-    gulp.watch('public/js/bundle.js', uglifyTask);
+    gulp.watch(
+        ['framework/**/*.js','app/**/*.js','config/**/*.js','templates/built/**/*'], 
+    // jsTaskWithAutoload);
+    jsTask);
 
-    gulp.watch('bootstrap/**/*.js', bootstrapTask);
+    gulp.watch(['bootstrap/**/*.js','framework/**/helpers.js'], bootstrapTask);
+    // gulp.watch('public/js/bundle.js', uglifyTask);
+
+
+    // ready assets for cordova:
+    // (try reacting to just one file at once, ergo specifying folders)
+    gulp.watch([
+        'public/js/**',
+        'public/index.html',
+        'public/css/**'
+    ], cordovacopyTask);
+
+    gulp.watch(['cordova-assets/config.xml'], cordovaconfigTask);
 }
-function registerGulpTasks() {     
+function registerGulpTasks() {
+    gulp.task('cordovacopy', cordovacopyTask);
+    gulp.task('cordovaconfig', cordovaconfigTask);
     gulp.task('watch', watchTask);
     gulp.task('js', jsTask);     
     gulp.task('uglify', uglifyTask);  
@@ -131,6 +220,25 @@ function registerGulpTasks() {
     ]));
     gulp.task('bootstrap', bootstrapTaskWithAutoload);
     gulp.task('dumpautoload', dumpautoload);
+
+    gulp.task('ios', function() {
+
+        var templateData = {};
+        var options = {
+            cwd: './cordova',
+            templateData: templateData
+        };
+
+        return gulp.src('', {read:false})
+            .pipe(shell([
+                'cordova build ios',
+                'ios-sim launch ' +
+                    './platforms/ios/build/emulator/NUHelp.app ' +  
+                    '--exit ' +
+                    '--devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-6-Plus, 8.1"',
+            ], options));
+
+    });
 }
 
 registerGulpTasks();

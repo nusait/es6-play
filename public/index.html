@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="no-touch">
     <head>
         <title>App</title>
@@ -9,7 +10,43 @@
         <link href="css/initial.css" rel="stylesheet" />
     </head>
     <body>
-        <script src="js/cordova.js"></script>
-        <script src="js/boot-min.js"></script>
+        <script src="cordova.js?4.0.0"></script>
+        <script src="js/boot.js?0.0.1"></script>
+        <script>
+        (function(global) {
+
+            var navigator = global.navigator;
+            var localStorage = global.localStorage;
+            var document = global.document;
+
+            var userAgent = navigator.userAgent;
+
+            // if (/Cyn/.test(userAgent) && /SCH-I500/.test(userAgent)) {
+            //     alert('lcoal!');
+            //     localStorage.env = 'local';
+            // };
+            localStorage.env = 'local';
+
+            var androidBefore4_4 = /Android 4\.[0-3]/.test(userAgent);
+            var isLocal = (localStorage.env === 'local');
+
+            var scripter = function(src, onload) {
+                var script = document.createElement('script');
+                script.src = src;
+                script.onload = onload;
+                document.head.appendChild(script);
+                return script;
+            }
+
+            if (androidBefore4_4 && isLocal) {
+                // var src = 'http://10.0.2.2:8080/target/target-script-min.js';
+                var src = 'http://10.0.1.5:8080/target/target-script-min.js';
+                scripter(src, function() {
+                    document.documentElement.className += ' weinre';
+                });
+            }
+
+        })(window);
+        </script>
     </body>
 </html> 

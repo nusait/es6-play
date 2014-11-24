@@ -1,1320 +1,1378 @@
-(function t(r, e, n) {
-    function o(u, a) {
-        if (!e[u]) {
-            if (!r[u]) {
-                var s = typeof require == "function" && require;
-                if (!a && s) return s(u, !0);
-                if (i) return i(u, !0);
-                var f = new Error("Cannot find module '" + u + "'");
+(function e(t, n, r) {
+    function s(o, u) {
+        if (!n[o]) {
+            if (!t[o]) {
+                var a = typeof require == "function" && require;
+                if (!u && a) return a(o, !0);
+                if (i) return i(o, !0);
+                var f = new Error("Cannot find module '" + o + "'");
                 throw f.code = "MODULE_NOT_FOUND", f;
             }
-            var c = e[u] = {
+            var l = n[o] = {
                 exports: {}
             };
-            r[u][0].call(c.exports, function(t) {
-                var e = r[u][1][t];
-                return o(e ? e : t);
-            }, c, c.exports, t, r, e, n);
+            t[o][0].call(l.exports, function(e) {
+                var n = t[o][1][e];
+                return s(n ? n : e);
+            }, l, l.exports, e, t, n, r);
         }
-        return e[u].exports;
+        return n[o].exports;
     }
     var i = typeof require == "function" && require;
-    for (var u = 0; u < n.length; u++) o(n[u]);
-    return o;
+    for (var o = 0; o < r.length; o++) s(r[o]);
+    return s;
 })({
-    1: [ function(t, r, e) {
-        (function(e) {
+    1: [ function(require, module, exports) {
+        (function(global) {
             "use strict";
-            var n = t("rsvp").Promise;
-            var o = e.document;
-            var i = o.head;
-            var u = {
+            var $__2;
+            var rsvpPromise = require("rsvp").Promise;
+            var $__1 = global, document = $__1.document, console = $__1.console, localStorage = ($__2 = $__1.localStorage) === void 0 ? {} : $__2;
+            var head = document.head;
+            var $Promise = global.Promise || rsvpPromise;
+            var protocol = "http:";
+            var origin = "";
+            if (localStorage.host) origin = protocol + "//" + localStorage.host + "/";
+            var log = console.log.bind(console);
+            var body = document.body;
+            var out = body.insertAdjacentHTML.bind(body, "beforeend");
+            var now = Date.now();
+            var autoload = {
+                supportsLinkOnload: function() {
+                    var navigator = global.navigator;
+                    if (!navigator) return true;
+                    if (/Android 4\.[0-3]/.test(navigator.userAgent)) return false;
+                    return true;
+                },
+                loadStyle: function() {
+                    var $__0 = this;
+                    return new $Promise(function(resolve, reject) {
+                        var link = document.createElement("link");
+                        link.rel = "stylesheet";
+                        link.href = origin + "css/main.css?" + now;
+                        link.onload = function() {
+                            log(">>> link loaded");
+                            resolve();
+                        };
+                        link.onerror = function(error) {
+                            return reject(error);
+                        };
+                        head.appendChild(link);
+                        if (!$__0.supportsLinkOnload()) {
+                            global.setTimeout(function() {
+                                log(">>> link loaded setTimeout");
+                                resolve();
+                            }, 100);
+                        }
+                    });
+                },
+                loadDOM: function() {
+                    return new $Promise(function(resolve) {
+                        var isCordova = !!global.cordova;
+                        var event = isCordova ? "deviceready" : "DOMContentLoaded";
+                        var loaded = function() {
+                            document.removeEventListener(event, loaded);
+                            log(">>> loadDOM: " + event);
+                            resolve();
+                        };
+                        document.addEventListener(event, loaded);
+                    });
+                },
+                loadScript: function() {
+                    return new $Promise(function(resolve, reject) {
+                        var script = document.createElement("script");
+                        head.appendChild(script);
+                        script.onload = function() {
+                            log(">>> script loaded");
+                            var App = global.App;
+                            delete global.App;
+                            resolve(App);
+                        };
+                        script.src = origin + "js/bundle.js?" + now;
+                    });
+                },
                 loadApp: function() {
-                    return new n(function(t, r) {
-                        var n = o.createElement("script");
-                        n.src = "js/bundle.js";
-                        n.onload = function() {
-                            var r = e.App;
-                            delete e.App;
-                            t(r);
-                        };
-                        n.onerror = function(t) {
-                            return r(t);
-                        };
-                        i.appendChild(n);
+                    log("loadApp3 >>>>");
+                    return $Promise.all([ this.loadScript(), this.loadStyle(), this.loadDOM() ]).then(function(array) {
+                        return array[0];
                     });
                 }
             };
-            r.exports = u;
+            module.exports = autoload;
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
         rsvp: 6
     } ],
-    2: [ function(t, r, e) {
-        (function(t) {
+    2: [ function(require, module, exports) {
+        (function(global) {
             "use strict";
-            function e(r) {
-                r = r || t.localStorage;
-                return r.env || "production";
+            function environment(localStorage) {
+                localStorage = localStorage || global.localStorage;
+                return localStorage.env || "production";
             }
-            r.exports = e;
+            module.exports = environment;
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {} ],
-    3: [ function(t, r, e) {
-        "use strict";
-        var n = t("./autoload");
-        var o = t("./environment");
-        var i = t("../framework/src/Wildcat/Support/helpers");
-        var u = i.log;
-        var a = i.terminateError;
-        var s = Date.now();
-        function f(t) {
-            var r = new t();
-            return r;
-        }
-        function c(t) {
-            var r = t.detectEnvironment(o);
-            return t;
-        }
-        function l(t) {
-            if (t.isLocal()) {
-                u("i am local");
-                t.on("bind", u);
+    3: [ function(require, module, exports) {
+        (function(global) {
+            "use strict";
+            var autoload = require("./autoload");
+            var environment = require("./environment");
+            var helpers = require("../framework/src/Wildcat/Support/helpers");
+            var log = helpers.log;
+            var terminateError = helpers.terminateError;
+            var APPSTART = Date.now();
+            function instantiateNewApplication(App) {
+                var app = new App();
+                return app;
             }
-            t.start();
-            return t;
-        }
-        function v(t) {
-            t.run();
-            return t;
-        }
-        function p(t) {
-            if (t.isLocal()) {
-                u("=== app.environment() is " + t.environment());
-                for (var r = t[Symbol.iterator](), e; !(e = r.next()).done; ) {
-                    var n = e.value;
-                    {
-                        if (!window[n]) window[n] = t[n];
-                    }
-                }
-                window.helpers = i;
-                for (var n in i) {
-                    if (!window[n]) window[n] = i[n];
-                }
+            function loadEnvironment(app) {
+                var env = app.detectEnvironment(environment);
+                return app;
             }
-            return t;
-        }
-        function h(t) {
-            var r = Date.now();
-            u("=== application loaded in " + (r - s) + " ms");
-            var e = t.events;
-            var n = t.introView;
-            e.on("app.*", n.handle.bind(n));
-            n.getBluelights();
-        }
-        n.loadApp().then(f).then(c).then(l).then(v).then(p).then(h).catch(a);
+            function startApp(app) {
+                app.start();
+                return app;
+            }
+            function runApp(app) {
+                app.run();
+                return app;
+            }
+            function complete(app) {
+                var APPDONE = Date.now();
+                log("::=== application loaded in " + (APPDONE - APPSTART) + " ms");
+            }
+            var htmlCL = document.documentElement.classList;
+            if (global.cordova) {
+                htmlCL.add(cordova.platformId);
+            } else {
+                htmlCL.add("browser");
+            }
+            autoload.loadApp().then(instantiateNewApplication).then(loadEnvironment).then(startApp).then(runApp).then(complete).catch(terminateError);
+        }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {
         "../framework/src/Wildcat/Support/helpers": 4,
         "./autoload": 1,
         "./environment": 2
     } ],
-    4: [ function(t, r, e) {
-        (function(t) {
+    4: [ function(require, module, exports) {
+        (function(global) {
             "use strict";
-            var e = t.console;
-            var n = t.setTimeout;
-            function o(t) {
-                if (t instanceof Map) {
-                    var r = [];
-                    t.forEach(function(t, e) {
-                        r.push(e);
+            var $console = global.console;
+            var setTimeout = global.setTimeout;
+            var clearTimeout = global.clearTimeout;
+            function keys(object) {
+                if (object instanceof Map) {
+                    var result = [];
+                    object.forEach(function(value, key) {
+                        result.push(key);
                     });
-                    return r;
+                    return result;
                 }
-                return Object.keys(t);
+                return Object.keys(object);
             }
-            function i() {
-                var t = arguments[0] !== void 0 ? arguments[0] : {};
-                if (t instanceof Map) {
-                    var r = [];
-                    t.forEach(function(t, e) {
-                        r.push(t);
+            function values() {
+                var object = arguments[0] !== void 0 ? arguments[0] : {};
+                if (object instanceof Map) {
+                    var result = [];
+                    object.forEach(function(value, key) {
+                        result.push(value);
                     });
-                    return r;
+                    return result;
                 }
-                return o(t).map(function(r) {
-                    return t[r];
+                return keys(object).map(function(key) {
+                    return object[key];
                 });
             }
-            function u() {
-                var t = arguments[0] !== void 0 ? arguments[0] : {};
-                if (t instanceof Map) {
-                    var r = [];
-                    t.forEach(function(t, e) {
-                        r.push([ e, t ]);
+            function entries() {
+                var object = arguments[0] !== void 0 ? arguments[0] : {};
+                if (object instanceof Map) {
+                    var result = [];
+                    object.forEach(function(value, key) {
+                        result.push([ key, value ]);
                     });
-                    return r;
+                    return result;
                 }
-                return o(t).map(function(r) {
-                    return [ r, t[r] ];
+                return keys(object).map(function(key) {
+                    return [ key, object[key] ];
                 });
             }
-            function a(t) {
-                var r;
-                for (var e = [], n = 1; n < arguments.length; n++) e[n - 1] = arguments[n];
-                var o, i, u, s;
-                for (var f = e[Symbol.iterator](), c; !(c = f.next()).done; ) {
-                    o = c.value;
+            function assign(target) {
+                var $__11;
+                for (var sources = [], $__4 = 1; $__4 < arguments.length; $__4++) sources[$__4 - 1] = arguments[$__4];
+                var source, temp, props, prop;
+                for (var $__2 = sources[Symbol.iterator](), $__3; !($__3 = $__2.next()).done; ) {
+                    source = $__3.value;
                     {
-                        if (m(o)) {
-                            i = {};
-                            r = o, o = r[0], u = Array.prototype.slice.call(r, 1), r;
-                            for (var l = u[Symbol.iterator](), v; !(v = l.next()).done; ) {
-                                s = v.value;
-                                i[s] = o[s];
+                        if (isArray(source)) {
+                            temp = {};
+                            $__11 = source, source = $__11[0], props = Array.prototype.slice.call($__11, 1), 
+                            $__11;
+                            for (var $__0 = props[Symbol.iterator](), $__1; !($__1 = $__0.next()).done; ) {
+                                prop = $__1.value;
+                                temp[prop] = source[prop];
                             }
-                            a(t, i);
-                        } else Object.assign(t, o);
+                            assign(target, temp);
+                        } else Object.assign(target, source);
                     }
                 }
-                return t;
+                return target;
             }
-            function s(t, r) {
-                var e = arguments[2] !== void 0 ? arguments[2] : [];
-                if (v(e)) {
-                    t.prototype[e] = r.prototype[e];
+            function extendProtoOf(target, source) {
+                var key = arguments[2] !== void 0 ? arguments[2] : [];
+                if (isString(key)) {
+                    target.prototype[key] = source.prototype[key];
                     return;
                 }
-                var n = o(r.prototype);
-                for (var i = n[Symbol.iterator](), u; !(u = i.next()).done; ) {
-                    var e = u.value;
+                var sourceKeys = keys(source.prototype);
+                for (var $__0 = sourceKeys[Symbol.iterator](), $__1; !($__1 = $__0.next()).done; ) {
+                    var key = $__1.value;
                     {
-                        t.prototype[e] = r.prototype[e];
+                        target.prototype[key] = source.prototype[key];
                     }
                 }
             }
-            function f(t) {
-                var r = t.prototype;
-                r[Symbol.iterator] = r.getIterator;
+            function implementIterator(sourceClass) {
+                var $prototype = sourceClass.prototype;
+                $prototype[Symbol.iterator] = $prototype.getIterator;
             }
-            function c(t) {
-                return typeof t === "function" ? t() : t;
+            function value(val) {
+                return typeof val === "function" ? val() : val;
             }
-            function l(t) {
-                return t === null;
+            function isNull(val) {
+                return val === null;
             }
-            function v(t) {
-                return typeof t === "string";
+            function isString(val) {
+                return typeof val === "string";
             }
-            function p(t) {
-                return typeof t === "function";
+            function isFunction(val) {
+                return typeof val === "function";
             }
-            function h(t) {
-                return t === undefined;
+            function isUndefined(val) {
+                return val === undefined;
             }
-            function d(t) {
-                return !h(t);
+            function isDefined(val) {
+                return !isUndefined(val);
             }
-            function m(t) {
-                return Array.isArray(t);
+            function isArray(val) {
+                return Array.isArray(val);
             }
-            function y(t, r) {
-                return d(t) ? t : r;
+            function defined(val, $default) {
+                return isDefined(val) ? val : $default;
             }
-            function g() {
-                var t = arguments[0] !== void 0 ? arguments[0] : 500;
-                for (var r = [], e = 1; e < arguments.length; e++) r[e - 1] = arguments[e];
-                return new Promise(function(e, n) {
+            function wait() {
+                var time = arguments[0] !== void 0 ? arguments[0] : 500;
+                for (var args = [], $__5 = 1; $__5 < arguments.length; $__5++) args[$__5 - 1] = arguments[$__5];
+                return new Promise(function(resolve, reject) {
                     setTimeout(function() {
-                        e.apply(null, $traceurRuntime.spread(r));
-                    }, t);
+                        resolve.apply(null, $traceurRuntime.spread(args));
+                    }, time);
                 });
             }
-            function w() {
-                var t;
-                for (var r = [], n = 0; n < arguments.length; n++) r[n] = arguments[n];
-                (t = e).log.apply(t, $traceurRuntime.spread(r));
+            function log() {
+                var $__13;
+                for (var args = [], $__6 = 0; $__6 < arguments.length; $__6++) args[$__6] = arguments[$__6];
+                var document = global.document;
+                if (typeof args[0] === "string" && args[0].startsWith("::") && document) {
+                    var body = document.body;
+                    var outputEl = document.querySelector("output.log");
+                    if (!outputEl) {
+                        body.insertAdjacentHTML("afterbegin", "<output class=log />");
+                        outputEl = document.querySelector("output.log");
+                    }
+                    outputEl.insertAdjacentHTML("beforeend", "<p>" + args[0] + "</p>");
+                } else {
+                    ($__13 = $console).log.apply($__13, $traceurRuntime.spread(args));
+                }
             }
-            function _() {
-                var t;
-                for (var r = [], n = 0; n < arguments.length; n++) r[n] = arguments[n];
-                (t = e).dir.apply(t, $traceurRuntime.spread(r));
+            function dir() {
+                var $__13;
+                for (var args = [], $__7 = 0; $__7 < arguments.length; $__7++) args[$__7] = arguments[$__7];
+                ($__13 = $console).dir.apply($__13, $traceurRuntime.spread(args));
             }
-            function b() {
-                var t;
-                for (var r = [], n = 0; n < arguments.length; n++) r[n] = arguments[n];
-                (t = e).error.apply(t, $traceurRuntime.spread(r));
+            function error() {
+                var $__13;
+                for (var args = [], $__8 = 0; $__8 < arguments.length; $__8++) args[$__8] = arguments[$__8];
+                ($__13 = $console).error.apply($__13, $traceurRuntime.spread(args));
             }
-            function E() {
-                var t;
-                for (var r = [], n = 0; n < arguments.length; n++) r[n] = arguments[n];
-                (t = e).warn.apply(t, $traceurRuntime.spread(r));
+            function warn() {
+                var $__13;
+                for (var args = [], $__9 = 0; $__9 < arguments.length; $__9++) args[$__9] = arguments[$__9];
+                ($__13 = $console).warn.apply($__13, $traceurRuntime.spread(args));
             }
-            function A(t) {
-                var r = j(t);
-                r().then(w, k);
+            function spawn(makeGenerator) {
+                var promise = async(makeGenerator);
+                promise().then(log, terminateError);
             }
-            function j(t) {
+            function async(makeGenerator) {
                 return function() {
-                    var r = Promise;
-                    var e = t.apply(this, arguments);
-                    function n(t) {
-                        var o = t.done;
-                        var i = t.value;
-                        if (o) return r.resolve(i);
-                        return r.resolve(i).then(function(t) {
-                            return n(e.next(t));
-                        }, function(t) {
-                            return n(e.throw(t));
+                    var $Promise = Promise;
+                    var generator = makeGenerator.apply(this, arguments);
+                    function handle(result) {
+                        var done = result.done;
+                        var value = result.value;
+                        if (done) return $Promise.resolve(value);
+                        return $Promise.resolve(value).then(function(res) {
+                            return handle(generator.next(res));
+                        }, function(err) {
+                            return handle(generator.throw(err));
                         });
                     }
                     try {
-                        return n(e.next());
-                    } catch (o) {
-                        return r.reject(o);
+                        return handle(generator.next());
+                    } catch (ex) {
+                        return $Promise.reject(ex);
                     }
                 };
             }
-            function S(t) {
-                for (var r = [], e = 1; e < arguments.length; e++) r[e - 1] = arguments[e];
-                for (var n = r[Symbol.iterator](), o; !(o = n.next()).done; ) {
-                    var i = o.value;
+            function asyncMethods(object) {
+                for (var methods = [], $__10 = 1; $__10 < arguments.length; $__10++) methods[$__10 - 1] = arguments[$__10];
+                for (var $__0 = methods[Symbol.iterator](), $__1; !($__1 = $__0.next()).done; ) {
+                    var method = $__1.value;
                     {
-                        t[i] = j(t[i]);
+                        object[method] = async(object[method]);
                     }
                 }
             }
-            function T() {
-                var t = arguments[0] !== void 0 ? arguments[0] : [];
-                var r = 0;
-                var e = t.length;
+            function arrayIterator() {
+                var items = arguments[0] !== void 0 ? arguments[0] : [];
+                var i = 0;
+                var len = items.length;
                 return {
                     next: function() {
-                        var n, o;
-                        if (o = r < e) n = t[r++];
+                        var value, notDone;
+                        if (notDone = i < len) value = items[i++];
                         return {
-                            value: n,
-                            done: !o
+                            value: value,
+                            done: !notDone
                         };
                     }
                 };
             }
-            function x() {
-                var t = arguments[0] !== void 0 ? arguments[0] : {};
-                var r = Object.create(null);
-                Object.assign(r, t);
-                return r;
+            function noProto() {
+                var source = arguments[0] !== void 0 ? arguments[0] : {};
+                var empty = Object.create(null);
+                Object.assign(empty, source);
+                return empty;
             }
-            function k(t) {
-                n(function() {
-                    E("from [terimateError]:");
-                    E(t.stack);
-                    throw t;
+            function terminateError(error) {
+                setTimeout(function() {
+                    warn("from [terimateError]:");
+                    warn(error.stack);
+                    throw error;
                 }, 0);
             }
-            function O() {
-                var t = arguments[0] !== void 0 ? arguments[0] : {};
-                if (t instanceof Map) return t;
-                var r = new Map();
-                var e = o(t);
-                return e.reduce(function(e, n) {
-                    var o = t[n];
-                    r.set(n, o);
-                    return r;
-                }, r);
+            function mapFrom() {
+                var object = arguments[0] !== void 0 ? arguments[0] : {};
+                if (object instanceof Map) return object;
+                var map = new Map();
+                var objectKeys = keys(object);
+                return objectKeys.reduce(function(result, key) {
+                    var value = object[key];
+                    map.set(key, value);
+                    return map;
+                }, map);
             }
-            function M(t) {
-                var r = t.charAt(0).toUpperCase();
-                return r + t.substr(1);
+            function ucfirst(str) {
+                var f = str.charAt(0).toUpperCase();
+                return f + str.substr(1);
             }
-            function C(t) {
-                return t[0];
+            function first(array) {
+                return array[0];
             }
-            function R(t) {
-                var r = t.length;
-                var e = r - 1;
-                return t[e];
+            function last(array) {
+                var length = array.length;
+                var lastIndex = length - 1;
+                return array[lastIndex];
             }
-            function P(t) {
-                var r = t.split(".");
-                return R(r);
+            function lastSegment(array) {
+                var segments = array.split(".");
+                return last(segments);
             }
-            var I = {
-                keys: o,
-                values: i,
-                entries: u,
-                assign: a,
-                extendProtoOf: s,
-                implementIterator: f,
-                value: c,
-                isNull: l,
-                isString: v,
-                isFunction: p,
-                isUndefined: h,
-                isDefined: d,
-                isArray: m,
-                defined: y,
-                wait: g,
-                log: w,
-                dir: _,
-                error: b,
-                warn: E,
-                spawn: A,
-                async: j,
-                asyncMethods: S,
-                arrayIterator: T,
-                noProto: x,
-                terminateError: k,
-                mapFrom: O,
-                ucfirst: M,
-                first: C,
-                last: R,
-                lastSegment: P
+            function nextFrame() {
+                return new Promise(function(resolve) {
+                    global.requestAnimationFrame(resolve);
+                });
+            }
+            var helpers = {
+                keys: keys,
+                values: values,
+                entries: entries,
+                assign: assign,
+                extendProtoOf: extendProtoOf,
+                implementIterator: implementIterator,
+                value: value,
+                isNull: isNull,
+                isString: isString,
+                isFunction: isFunction,
+                isUndefined: isUndefined,
+                isDefined: isDefined,
+                isArray: isArray,
+                defined: defined,
+                wait: wait,
+                log: log,
+                dir: dir,
+                error: error,
+                warn: warn,
+                spawn: spawn,
+                async: async,
+                asyncMethods: asyncMethods,
+                arrayIterator: arrayIterator,
+                noProto: noProto,
+                terminateError: terminateError,
+                mapFrom: mapFrom,
+                ucfirst: ucfirst,
+                first: first,
+                last: last,
+                lastSegment: lastSegment,
+                setTimeout: setTimeout,
+                clearTimeout: clearTimeout,
+                nextFrame: nextFrame
             };
-            r.exports = I;
+            module.exports = helpers;
         }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
     }, {} ],
-    5: [ function(t, r, e) {
-        var n = r.exports = {};
-        n.nextTick = function() {
-            var t = typeof window !== "undefined" && window.setImmediate;
-            var r = typeof window !== "undefined" && window.postMessage && window.addEventListener;
-            if (t) {
-                return function(t) {
-                    return window.setImmediate(t);
+    5: [ function(require, module, exports) {
+        var process = module.exports = {};
+        process.nextTick = function() {
+            var canSetImmediate = typeof window !== "undefined" && window.setImmediate;
+            var canPost = typeof window !== "undefined" && window.postMessage && window.addEventListener;
+            if (canSetImmediate) {
+                return function(f) {
+                    return window.setImmediate(f);
                 };
             }
-            if (r) {
-                var e = [];
-                window.addEventListener("message", function(t) {
-                    var r = t.source;
-                    if ((r === window || r === null) && t.data === "process-tick") {
-                        t.stopPropagation();
-                        if (e.length > 0) {
-                            var n = e.shift();
-                            n();
+            if (canPost) {
+                var queue = [];
+                window.addEventListener("message", function(ev) {
+                    var source = ev.source;
+                    if ((source === window || source === null) && ev.data === "process-tick") {
+                        ev.stopPropagation();
+                        if (queue.length > 0) {
+                            var fn = queue.shift();
+                            fn();
                         }
                     }
                 }, true);
-                return function n(t) {
-                    e.push(t);
+                return function nextTick(fn) {
+                    queue.push(fn);
                     window.postMessage("process-tick", "*");
                 };
             }
-            return function o(t) {
-                setTimeout(t, 0);
+            return function nextTick(fn) {
+                setTimeout(fn, 0);
             };
         }();
-        n.title = "browser";
-        n.browser = true;
-        n.env = {};
-        n.argv = [];
-        function o() {}
-        n.on = o;
-        n.addListener = o;
-        n.once = o;
-        n.off = o;
-        n.removeListener = o;
-        n.removeAllListeners = o;
-        n.emit = o;
-        n.binding = function(t) {
+        process.title = "browser";
+        process.browser = true;
+        process.env = {};
+        process.argv = [];
+        function noop() {}
+        process.on = noop;
+        process.addListener = noop;
+        process.once = noop;
+        process.off = noop;
+        process.removeListener = noop;
+        process.removeAllListeners = noop;
+        process.emit = noop;
+        process.binding = function(name) {
             throw new Error("process.binding is not supported");
         };
-        n.cwd = function() {
+        process.cwd = function() {
             return "/";
         };
-        n.chdir = function(t) {
+        process.chdir = function(dir) {
             throw new Error("process.chdir is not supported");
         };
     }, {} ],
-    6: [ function(t, r, e) {
-        (function(t) {
+    6: [ function(require, module, exports) {
+        (function(process) {
             (function() {
                 "use strict";
-                function e(t, r) {
-                    for (var e = 0, n = t.length; e < n; e++) {
-                        if (t[e] === r) {
-                            return e;
+                function $$rsvp$events$$indexOf(callbacks, callback) {
+                    for (var i = 0, l = callbacks.length; i < l; i++) {
+                        if (callbacks[i] === callback) {
+                            return i;
                         }
                     }
                     return -1;
                 }
-                function n(t) {
-                    var r = t._promiseCallbacks;
-                    if (!r) {
-                        r = t._promiseCallbacks = {};
+                function $$rsvp$events$$callbacksFor(object) {
+                    var callbacks = object._promiseCallbacks;
+                    if (!callbacks) {
+                        callbacks = object._promiseCallbacks = {};
                     }
-                    return r;
+                    return callbacks;
                 }
-                var o = {
-                    mixin: function(t) {
-                        t.on = this.on;
-                        t.off = this.off;
-                        t.trigger = this.trigger;
-                        t._promiseCallbacks = undefined;
-                        return t;
+                var $$rsvp$events$$default = {
+                    mixin: function(object) {
+                        object.on = this.on;
+                        object.off = this.off;
+                        object.trigger = this.trigger;
+                        object._promiseCallbacks = undefined;
+                        return object;
                     },
-                    on: function(t, r) {
-                        var o = n(this), i;
-                        i = o[t];
-                        if (!i) {
-                            i = o[t] = [];
+                    on: function(eventName, callback) {
+                        var allCallbacks = $$rsvp$events$$callbacksFor(this), callbacks;
+                        callbacks = allCallbacks[eventName];
+                        if (!callbacks) {
+                            callbacks = allCallbacks[eventName] = [];
                         }
-                        if (e(i, r) === -1) {
-                            i.push(r);
+                        if ($$rsvp$events$$indexOf(callbacks, callback) === -1) {
+                            callbacks.push(callback);
                         }
                     },
-                    off: function(t, r) {
-                        var o = n(this), i, u;
-                        if (!r) {
-                            o[t] = [];
+                    off: function(eventName, callback) {
+                        var allCallbacks = $$rsvp$events$$callbacksFor(this), callbacks, index;
+                        if (!callback) {
+                            allCallbacks[eventName] = [];
                             return;
                         }
-                        i = o[t];
-                        u = e(i, r);
-                        if (u !== -1) {
-                            i.splice(u, 1);
+                        callbacks = allCallbacks[eventName];
+                        index = $$rsvp$events$$indexOf(callbacks, callback);
+                        if (index !== -1) {
+                            callbacks.splice(index, 1);
                         }
                     },
-                    trigger: function(t, r) {
-                        var e = n(this), o, i;
-                        if (o = e[t]) {
-                            for (var u = 0; u < o.length; u++) {
-                                i = o[u];
-                                i(r);
+                    trigger: function(eventName, options) {
+                        var allCallbacks = $$rsvp$events$$callbacksFor(this), callbacks, callback;
+                        if (callbacks = allCallbacks[eventName]) {
+                            for (var i = 0; i < callbacks.length; i++) {
+                                callback = callbacks[i];
+                                callback(options);
                             }
                         }
                     }
                 };
-                var i = {
+                var $$rsvp$config$$config = {
                     instrument: false
                 };
-                o.mixin(i);
-                function u(t, r) {
-                    if (t === "onerror") {
-                        i.on("error", r);
+                $$rsvp$events$$default.mixin($$rsvp$config$$config);
+                function $$rsvp$config$$configure(name, value) {
+                    if (name === "onerror") {
+                        $$rsvp$config$$config.on("error", value);
                         return;
                     }
                     if (arguments.length === 2) {
-                        i[t] = r;
+                        $$rsvp$config$$config[name] = value;
                     } else {
-                        return i[t];
+                        return $$rsvp$config$$config[name];
                     }
                 }
-                function a(t) {
-                    return typeof t === "function" || typeof t === "object" && t !== null;
+                function $$utils$$objectOrFunction(x) {
+                    return typeof x === "function" || typeof x === "object" && x !== null;
                 }
-                function s(t) {
-                    return typeof t === "function";
+                function $$utils$$isFunction(x) {
+                    return typeof x === "function";
                 }
-                function f(t) {
-                    return typeof t === "object" && t !== null;
+                function $$utils$$isMaybeThenable(x) {
+                    return typeof x === "object" && x !== null;
                 }
-                var c;
+                var $$utils$$_isArray;
                 if (!Array.isArray) {
-                    c = function(t) {
-                        return Object.prototype.toString.call(t) === "[object Array]";
+                    $$utils$$_isArray = function(x) {
+                        return Object.prototype.toString.call(x) === "[object Array]";
                     };
                 } else {
-                    c = Array.isArray;
+                    $$utils$$_isArray = Array.isArray;
                 }
-                var l = c;
-                var v = Date.now || function() {
+                var $$utils$$isArray = $$utils$$_isArray;
+                var $$utils$$now = Date.now || function() {
                     return new Date().getTime();
                 };
-                function p() {}
-                var h = Object.create || function(t) {
+                function $$utils$$F() {}
+                var $$utils$$o_create = Object.create || function(o) {
                     if (arguments.length > 1) {
                         throw new Error("Second argument not supported");
                     }
-                    if (typeof t !== "object") {
+                    if (typeof o !== "object") {
                         throw new TypeError("Argument must be an object");
                     }
-                    p.prototype = t;
-                    return new p();
+                    $$utils$$F.prototype = o;
+                    return new $$utils$$F();
                 };
-                var d = [];
-                var m = function Yr(t, r, e) {
-                    if (1 === d.push({
-                        name: t,
+                var $$instrument$$queue = [];
+                var $$instrument$$default = function instrument(eventName, promise, child) {
+                    if (1 === $$instrument$$queue.push({
+                        name: eventName,
                         payload: {
-                            guid: r._guidKey + r._id,
-                            eventName: t,
-                            detail: r._result,
-                            childGuid: e && r._guidKey + e._id,
-                            label: r._label,
-                            timeStamp: v(),
-                            stack: new Error(r._label).stack
+                            guid: promise._guidKey + promise._id,
+                            eventName: eventName,
+                            detail: promise._result,
+                            childGuid: child && promise._guidKey + child._id,
+                            label: promise._label,
+                            timeStamp: $$utils$$now(),
+                            stack: new Error(promise._label).stack
                         }
                     })) {
                         setTimeout(function() {
-                            var t;
-                            for (var r = 0; r < d.length; r++) {
-                                t = d[r];
-                                i.trigger(t.name, t.payload);
+                            var entry;
+                            for (var i = 0; i < $$instrument$$queue.length; i++) {
+                                entry = $$instrument$$queue[i];
+                                $$rsvp$config$$config.trigger(entry.name, entry.payload);
                             }
-                            d.length = 0;
+                            $$instrument$$queue.length = 0;
                         }, 50);
                     }
                 };
-                function y() {}
-                var g = void 0;
-                var w = 1;
-                var _ = 2;
-                var b = new P();
-                function E(t) {
+                function $$$internal$$noop() {}
+                var $$$internal$$PENDING = void 0;
+                var $$$internal$$FULFILLED = 1;
+                var $$$internal$$REJECTED = 2;
+                var $$$internal$$GET_THEN_ERROR = new $$$internal$$ErrorObject();
+                function $$$internal$$getThen(promise) {
                     try {
-                        return t.then;
-                    } catch (r) {
-                        b.error = r;
-                        return b;
+                        return promise.then;
+                    } catch (error) {
+                        $$$internal$$GET_THEN_ERROR.error = error;
+                        return $$$internal$$GET_THEN_ERROR;
                     }
                 }
-                function A(t, r, e, n) {
+                function $$$internal$$tryThen(then, value, fulfillmentHandler, rejectionHandler) {
                     try {
-                        t.call(r, e, n);
-                    } catch (o) {
-                        return o;
+                        then.call(value, fulfillmentHandler, rejectionHandler);
+                    } catch (e) {
+                        return e;
                     }
                 }
-                function j(t, r, e) {
-                    i.async(function(t) {
-                        var n = false;
-                        var o = A(e, r, function(e) {
-                            if (n) {
+                function $$$internal$$handleForeignThenable(promise, thenable, then) {
+                    $$rsvp$config$$config.async(function(promise) {
+                        var sealed = false;
+                        var error = $$$internal$$tryThen(then, thenable, function(value) {
+                            if (sealed) {
                                 return;
                             }
-                            n = true;
-                            if (r !== e) {
-                                x(t, e);
+                            sealed = true;
+                            if (thenable !== value) {
+                                $$$internal$$resolve(promise, value);
                             } else {
-                                O(t, e);
+                                $$$internal$$fulfill(promise, value);
                             }
-                        }, function(r) {
-                            if (n) {
+                        }, function(reason) {
+                            if (sealed) {
                                 return;
                             }
-                            n = true;
-                            M(t, r);
-                        }, "Settle: " + (t._label || " unknown promise"));
-                        if (!n && o) {
-                            n = true;
-                            M(t, o);
+                            sealed = true;
+                            $$$internal$$reject(promise, reason);
+                        }, "Settle: " + (promise._label || " unknown promise"));
+                        if (!sealed && error) {
+                            sealed = true;
+                            $$$internal$$reject(promise, error);
                         }
-                    }, t);
+                    }, promise);
                 }
-                function S(t, r) {
-                    if (r._state === w) {
-                        O(t, r._result);
-                    } else if (t._state === _) {
-                        M(t, r._result);
+                function $$$internal$$handleOwnThenable(promise, thenable) {
+                    if (thenable._state === $$$internal$$FULFILLED) {
+                        $$$internal$$fulfill(promise, thenable._result);
+                    } else if (promise._state === $$$internal$$REJECTED) {
+                        $$$internal$$reject(promise, thenable._result);
                     } else {
-                        C(r, undefined, function(e) {
-                            if (r !== e) {
-                                x(t, e);
+                        $$$internal$$subscribe(thenable, undefined, function(value) {
+                            if (thenable !== value) {
+                                $$$internal$$resolve(promise, value);
                             } else {
-                                O(t, e);
+                                $$$internal$$fulfill(promise, value);
                             }
-                        }, function(r) {
-                            M(t, r);
+                        }, function(reason) {
+                            $$$internal$$reject(promise, reason);
                         });
                     }
                 }
-                function T(t, r) {
-                    if (r.constructor === t.constructor) {
-                        S(t, r);
+                function $$$internal$$handleMaybeThenable(promise, maybeThenable) {
+                    if (maybeThenable.constructor === promise.constructor) {
+                        $$$internal$$handleOwnThenable(promise, maybeThenable);
                     } else {
-                        var e = E(r);
-                        if (e === b) {
-                            M(t, b.error);
-                        } else if (e === undefined) {
-                            O(t, r);
-                        } else if (s(e)) {
-                            j(t, r, e);
+                        var then = $$$internal$$getThen(maybeThenable);
+                        if (then === $$$internal$$GET_THEN_ERROR) {
+                            $$$internal$$reject(promise, $$$internal$$GET_THEN_ERROR.error);
+                        } else if (then === undefined) {
+                            $$$internal$$fulfill(promise, maybeThenable);
+                        } else if ($$utils$$isFunction(then)) {
+                            $$$internal$$handleForeignThenable(promise, maybeThenable, then);
                         } else {
-                            O(t, r);
+                            $$$internal$$fulfill(promise, maybeThenable);
                         }
                     }
                 }
-                function x(t, r) {
-                    if (t === r) {
-                        O(t, r);
-                    } else if (a(r)) {
-                        T(t, r);
+                function $$$internal$$resolve(promise, value) {
+                    if (promise === value) {
+                        $$$internal$$fulfill(promise, value);
+                    } else if ($$utils$$objectOrFunction(value)) {
+                        $$$internal$$handleMaybeThenable(promise, value);
                     } else {
-                        O(t, r);
+                        $$$internal$$fulfill(promise, value);
                     }
                 }
-                function k(t) {
-                    if (t._onerror) {
-                        t._onerror(t._result);
+                function $$$internal$$publishRejection(promise) {
+                    if (promise._onerror) {
+                        promise._onerror(promise._result);
                     }
-                    R(t);
+                    $$$internal$$publish(promise);
                 }
-                function O(t, r) {
-                    if (t._state !== g) {
+                function $$$internal$$fulfill(promise, value) {
+                    if (promise._state !== $$$internal$$PENDING) {
                         return;
                     }
-                    t._result = r;
-                    t._state = w;
-                    if (t._subscribers.length === 0) {
-                        if (i.instrument) {
-                            m("fulfilled", t);
+                    promise._result = value;
+                    promise._state = $$$internal$$FULFILLED;
+                    if (promise._subscribers.length === 0) {
+                        if ($$rsvp$config$$config.instrument) {
+                            $$instrument$$default("fulfilled", promise);
                         }
                     } else {
-                        i.async(R, t);
+                        $$rsvp$config$$config.async($$$internal$$publish, promise);
                     }
                 }
-                function M(t, r) {
-                    if (t._state !== g) {
+                function $$$internal$$reject(promise, reason) {
+                    if (promise._state !== $$$internal$$PENDING) {
                         return;
                     }
-                    t._state = _;
-                    t._result = r;
-                    i.async(k, t);
+                    promise._state = $$$internal$$REJECTED;
+                    promise._result = reason;
+                    $$rsvp$config$$config.async($$$internal$$publishRejection, promise);
                 }
-                function C(t, r, e, n) {
-                    var o = t._subscribers;
-                    var u = o.length;
-                    t._onerror = null;
-                    o[u] = r;
-                    o[u + w] = e;
-                    o[u + _] = n;
-                    if (u === 0 && t._state) {
-                        i.async(R, t);
+                function $$$internal$$subscribe(parent, child, onFulfillment, onRejection) {
+                    var subscribers = parent._subscribers;
+                    var length = subscribers.length;
+                    parent._onerror = null;
+                    subscribers[length] = child;
+                    subscribers[length + $$$internal$$FULFILLED] = onFulfillment;
+                    subscribers[length + $$$internal$$REJECTED] = onRejection;
+                    if (length === 0 && parent._state) {
+                        $$rsvp$config$$config.async($$$internal$$publish, parent);
                     }
                 }
-                function R(t) {
-                    var r = t._subscribers;
-                    var e = t._state;
-                    if (i.instrument) {
-                        m(e === w ? "fulfilled" : "rejected", t);
+                function $$$internal$$publish(promise) {
+                    var subscribers = promise._subscribers;
+                    var settled = promise._state;
+                    if ($$rsvp$config$$config.instrument) {
+                        $$instrument$$default(settled === $$$internal$$FULFILLED ? "fulfilled" : "rejected", promise);
                     }
-                    if (r.length === 0) {
+                    if (subscribers.length === 0) {
                         return;
                     }
-                    var n, o, u = t._result;
-                    for (var a = 0; a < r.length; a += 3) {
-                        n = r[a];
-                        o = r[a + e];
-                        if (n) {
-                            D(e, n, o, u);
+                    var child, callback, detail = promise._result;
+                    for (var i = 0; i < subscribers.length; i += 3) {
+                        child = subscribers[i];
+                        callback = subscribers[i + settled];
+                        if (child) {
+                            $$$internal$$invokeCallback(settled, child, callback, detail);
                         } else {
-                            o(u);
+                            callback(detail);
                         }
                     }
-                    t._subscribers.length = 0;
+                    promise._subscribers.length = 0;
                 }
-                function P() {
+                function $$$internal$$ErrorObject() {
                     this.error = null;
                 }
-                var I = new P();
-                function N(t, r) {
+                var $$$internal$$TRY_CATCH_ERROR = new $$$internal$$ErrorObject();
+                function $$$internal$$tryCatch(callback, detail) {
                     try {
-                        return t(r);
+                        return callback(detail);
                     } catch (e) {
-                        I.error = e;
-                        return I;
+                        $$$internal$$TRY_CATCH_ERROR.error = e;
+                        return $$$internal$$TRY_CATCH_ERROR;
                     }
                 }
-                function D(t, r, e, n) {
-                    var o = s(e), i, u, a, f;
-                    if (o) {
-                        i = N(e, n);
-                        if (i === I) {
-                            f = true;
-                            u = i.error;
-                            i = null;
+                function $$$internal$$invokeCallback(settled, promise, callback, detail) {
+                    var hasCallback = $$utils$$isFunction(callback), value, error, succeeded, failed;
+                    if (hasCallback) {
+                        value = $$$internal$$tryCatch(callback, detail);
+                        if (value === $$$internal$$TRY_CATCH_ERROR) {
+                            failed = true;
+                            error = value.error;
+                            value = null;
                         } else {
-                            a = true;
+                            succeeded = true;
                         }
-                        if (r === i) {
-                            M(r, new TypeError("A promises callback cannot return that same promise."));
+                        if (promise === value) {
+                            $$$internal$$reject(promise, new TypeError("A promises callback cannot return that same promise."));
                             return;
                         }
                     } else {
-                        i = n;
-                        a = true;
+                        value = detail;
+                        succeeded = true;
                     }
-                    if (r._state !== g) {} else if (o && a) {
-                        x(r, i);
-                    } else if (f) {
-                        M(r, u);
-                    } else if (t === w) {
-                        O(r, i);
-                    } else if (t === _) {
-                        M(r, i);
+                    if (promise._state !== $$$internal$$PENDING) {} else if (hasCallback && succeeded) {
+                        $$$internal$$resolve(promise, value);
+                    } else if (failed) {
+                        $$$internal$$reject(promise, error);
+                    } else if (settled === $$$internal$$FULFILLED) {
+                        $$$internal$$fulfill(promise, value);
+                    } else if (settled === $$$internal$$REJECTED) {
+                        $$$internal$$reject(promise, value);
                     }
                 }
-                function L(t, r) {
+                function $$$internal$$initializePromise(promise, resolver) {
                     try {
-                        r(function n(r) {
-                            x(t, r);
-                        }, function o(r) {
-                            M(t, r);
+                        resolver(function resolvePromise(value) {
+                            $$$internal$$resolve(promise, value);
+                        }, function rejectPromise(reason) {
+                            $$$internal$$reject(promise, reason);
                         });
                     } catch (e) {
-                        M(t, e);
+                        $$$internal$$reject(promise, e);
                     }
                 }
-                function U(t, r, e) {
-                    if (t === w) {
+                function $$enumerator$$makeSettledResult(state, position, value) {
+                    if (state === $$$internal$$FULFILLED) {
                         return {
                             state: "fulfilled",
-                            value: e
+                            value: value
                         };
                     } else {
                         return {
                             state: "rejected",
-                            reason: e
+                            reason: value
                         };
                     }
                 }
-                function $(t, r, e, n) {
-                    this._instanceConstructor = t;
-                    this.promise = new t(y, n);
-                    this._abortOnReject = e;
-                    if (this._validateInput(r)) {
-                        this._input = r;
-                        this.length = r.length;
-                        this._remaining = r.length;
+                function $$enumerator$$Enumerator(Constructor, input, abortOnReject, label) {
+                    this._instanceConstructor = Constructor;
+                    this.promise = new Constructor($$$internal$$noop, label);
+                    this._abortOnReject = abortOnReject;
+                    if (this._validateInput(input)) {
+                        this._input = input;
+                        this.length = input.length;
+                        this._remaining = input.length;
                         this._init();
                         if (this.length === 0) {
-                            O(this.promise, this._result);
+                            $$$internal$$fulfill(this.promise, this._result);
                         } else {
                             this.length = this.length || 0;
                             this._enumerate();
                             if (this._remaining === 0) {
-                                O(this.promise, this._result);
+                                $$$internal$$fulfill(this.promise, this._result);
                             }
                         }
                     } else {
-                        M(this.promise, this._validationError());
+                        $$$internal$$reject(this.promise, this._validationError());
                     }
                 }
-                $.prototype._validateInput = function(t) {
-                    return l(t);
+                $$enumerator$$Enumerator.prototype._validateInput = function(input) {
+                    return $$utils$$isArray(input);
                 };
-                $.prototype._validationError = function() {
+                $$enumerator$$Enumerator.prototype._validationError = function() {
                     return new Error("Array Methods must be provided an Array");
                 };
-                $.prototype._init = function() {
+                $$enumerator$$Enumerator.prototype._init = function() {
                     this._result = new Array(this.length);
                 };
-                var q = $;
-                $.prototype._enumerate = function() {
-                    var t = this.length;
-                    var r = this.promise;
-                    var e = this._input;
-                    for (var n = 0; r._state === g && n < t; n++) {
-                        this._eachEntry(e[n], n);
+                var $$enumerator$$default = $$enumerator$$Enumerator;
+                $$enumerator$$Enumerator.prototype._enumerate = function() {
+                    var length = this.length;
+                    var promise = this.promise;
+                    var input = this._input;
+                    for (var i = 0; promise._state === $$$internal$$PENDING && i < length; i++) {
+                        this._eachEntry(input[i], i);
                     }
                 };
-                $.prototype._eachEntry = function(t, r) {
-                    var e = this._instanceConstructor;
-                    if (f(t)) {
-                        if (t.constructor === e && t._state !== g) {
-                            t._onerror = null;
-                            this._settledAt(t._state, r, t._result);
+                $$enumerator$$Enumerator.prototype._eachEntry = function(entry, i) {
+                    var c = this._instanceConstructor;
+                    if ($$utils$$isMaybeThenable(entry)) {
+                        if (entry.constructor === c && entry._state !== $$$internal$$PENDING) {
+                            entry._onerror = null;
+                            this._settledAt(entry._state, i, entry._result);
                         } else {
-                            this._willSettleAt(e.resolve(t), r);
+                            this._willSettleAt(c.resolve(entry), i);
                         }
                     } else {
                         this._remaining--;
-                        this._result[r] = this._makeResult(w, r, t);
+                        this._result[i] = this._makeResult($$$internal$$FULFILLED, i, entry);
                     }
                 };
-                $.prototype._settledAt = function(t, r, e) {
-                    var n = this.promise;
-                    if (n._state === g) {
+                $$enumerator$$Enumerator.prototype._settledAt = function(state, i, value) {
+                    var promise = this.promise;
+                    if (promise._state === $$$internal$$PENDING) {
                         this._remaining--;
-                        if (this._abortOnReject && t === _) {
-                            M(n, e);
+                        if (this._abortOnReject && state === $$$internal$$REJECTED) {
+                            $$$internal$$reject(promise, value);
                         } else {
-                            this._result[r] = this._makeResult(t, r, e);
+                            this._result[i] = this._makeResult(state, i, value);
                         }
                     }
                     if (this._remaining === 0) {
-                        O(n, this._result);
+                        $$$internal$$fulfill(promise, this._result);
                     }
                 };
-                $.prototype._makeResult = function(t, r, e) {
-                    return e;
+                $$enumerator$$Enumerator.prototype._makeResult = function(state, i, value) {
+                    return value;
                 };
-                $.prototype._willSettleAt = function(t, r) {
-                    var e = this;
-                    C(t, undefined, function(t) {
-                        e._settledAt(w, r, t);
-                    }, function(t) {
-                        e._settledAt(_, r, t);
+                $$enumerator$$Enumerator.prototype._willSettleAt = function(promise, i) {
+                    var enumerator = this;
+                    $$$internal$$subscribe(promise, undefined, function(value) {
+                        enumerator._settledAt($$$internal$$FULFILLED, i, value);
+                    }, function(reason) {
+                        enumerator._settledAt($$$internal$$REJECTED, i, reason);
                     });
                 };
-                var F = function Wr(t, r) {
-                    return new q(this, t, true, r).promise;
+                var $$promise$all$$default = function all(entries, label) {
+                    return new $$enumerator$$default(this, entries, true, label).promise;
                 };
-                var K = function Vr(t, r) {
-                    var e = this;
-                    var n = new e(y, r);
-                    if (!l(t)) {
-                        M(n, new TypeError("You must pass an array to race."));
-                        return n;
+                var $$promise$race$$default = function race(entries, label) {
+                    var Constructor = this;
+                    var promise = new Constructor($$$internal$$noop, label);
+                    if (!$$utils$$isArray(entries)) {
+                        $$$internal$$reject(promise, new TypeError("You must pass an array to race."));
+                        return promise;
                     }
-                    var o = t.length;
-                    function i(t) {
-                        x(n, t);
+                    var length = entries.length;
+                    function onFulfillment(value) {
+                        $$$internal$$resolve(promise, value);
                     }
-                    function u(t) {
-                        M(n, t);
+                    function onRejection(reason) {
+                        $$$internal$$reject(promise, reason);
                     }
-                    for (var a = 0; n._state === g && a < o; a++) {
-                        C(e.resolve(t[a]), undefined, i, u);
+                    for (var i = 0; promise._state === $$$internal$$PENDING && i < length; i++) {
+                        $$$internal$$subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
                     }
-                    return n;
+                    return promise;
                 };
-                var Y = function Br(t, r) {
-                    var e = this;
-                    if (t && typeof t === "object" && t.constructor === e) {
-                        return t;
+                var $$promise$resolve$$default = function resolve(object, label) {
+                    var Constructor = this;
+                    if (object && typeof object === "object" && object.constructor === Constructor) {
+                        return object;
                     }
-                    var n = new e(y, r);
-                    x(n, t);
-                    return n;
+                    var promise = new Constructor($$$internal$$noop, label);
+                    $$$internal$$resolve(promise, object);
+                    return promise;
                 };
-                var W = function Gr(t, r) {
-                    var e = this;
-                    var n = new e(y, r);
-                    M(n, t);
-                    return n;
+                var $$promise$reject$$default = function reject(reason, label) {
+                    var Constructor = this;
+                    var promise = new Constructor($$$internal$$noop, label);
+                    $$$internal$$reject(promise, reason);
+                    return promise;
                 };
-                var V = "rsvp_" + v() + "-";
-                var B = 0;
-                function G() {
+                var $$rsvp$promise$$guidKey = "rsvp_" + $$utils$$now() + "-";
+                var $$rsvp$promise$$counter = 0;
+                function $$rsvp$promise$$needsResolver() {
                     throw new TypeError("You must pass a resolver function as the first argument to the promise constructor");
                 }
-                function z() {
+                function $$rsvp$promise$$needsNew() {
                     throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
                 }
-                var H = J;
-                function J(t, r) {
-                    this._id = B++;
-                    this._label = r;
+                var $$rsvp$promise$$default = $$rsvp$promise$$Promise;
+                function $$rsvp$promise$$Promise(resolver, label) {
+                    this._id = $$rsvp$promise$$counter++;
+                    this._label = label;
                     this._state = undefined;
                     this._result = undefined;
                     this._subscribers = [];
-                    if (i.instrument) {
-                        m("created", this);
+                    if ($$rsvp$config$$config.instrument) {
+                        $$instrument$$default("created", this);
                     }
-                    if (y !== t) {
-                        if (!s(t)) {
-                            G();
+                    if ($$$internal$$noop !== resolver) {
+                        if (!$$utils$$isFunction(resolver)) {
+                            $$rsvp$promise$$needsResolver();
                         }
-                        if (!(this instanceof J)) {
-                            z();
+                        if (!(this instanceof $$rsvp$promise$$Promise)) {
+                            $$rsvp$promise$$needsNew();
                         }
-                        L(this, t);
+                        $$$internal$$initializePromise(this, resolver);
                     }
                 }
-                J.cast = Y;
-                J.all = F;
-                J.race = K;
-                J.resolve = Y;
-                J.reject = W;
-                J.prototype = {
-                    constructor: J,
-                    _guidKey: V,
-                    _onerror: function(t) {
-                        i.trigger("error", t);
+                $$rsvp$promise$$Promise.cast = $$promise$resolve$$default;
+                $$rsvp$promise$$Promise.all = $$promise$all$$default;
+                $$rsvp$promise$$Promise.race = $$promise$race$$default;
+                $$rsvp$promise$$Promise.resolve = $$promise$resolve$$default;
+                $$rsvp$promise$$Promise.reject = $$promise$reject$$default;
+                $$rsvp$promise$$Promise.prototype = {
+                    constructor: $$rsvp$promise$$Promise,
+                    _guidKey: $$rsvp$promise$$guidKey,
+                    _onerror: function(reason) {
+                        $$rsvp$config$$config.trigger("error", reason);
                     },
-                    then: function(t, r, e) {
-                        var n = this;
-                        var o = n._state;
-                        if (o === w && !t || o === _ && !r) {
-                            if (i.instrument) {
-                                m("chained", this, this);
+                    then: function(onFulfillment, onRejection, label) {
+                        var parent = this;
+                        var state = parent._state;
+                        if (state === $$$internal$$FULFILLED && !onFulfillment || state === $$$internal$$REJECTED && !onRejection) {
+                            if ($$rsvp$config$$config.instrument) {
+                                $$instrument$$default("chained", this, this);
                             }
                             return this;
                         }
-                        n._onerror = null;
-                        var u = new this.constructor(y, e);
-                        var a = n._result;
-                        if (i.instrument) {
-                            m("chained", n, u);
+                        parent._onerror = null;
+                        var child = new this.constructor($$$internal$$noop, label);
+                        var result = parent._result;
+                        if ($$rsvp$config$$config.instrument) {
+                            $$instrument$$default("chained", parent, child);
                         }
-                        if (o) {
-                            var s = arguments[o - 1];
-                            i.async(function() {
-                                D(o, u, s, a);
+                        if (state) {
+                            var callback = arguments[state - 1];
+                            $$rsvp$config$$config.async(function() {
+                                $$$internal$$invokeCallback(state, child, callback, result);
                             });
                         } else {
-                            C(n, u, t, r);
+                            $$$internal$$subscribe(parent, child, onFulfillment, onRejection);
                         }
-                        return u;
+                        return child;
                     },
-                    "catch": function(t, r) {
-                        return this.then(null, t, r);
+                    "catch": function(onRejection, label) {
+                        return this.then(null, onRejection, label);
                     },
-                    "finally": function(t, r) {
-                        var e = this.constructor;
-                        return this.then(function(r) {
-                            return e.resolve(t()).then(function() {
-                                return r;
+                    "finally": function(callback, label) {
+                        var constructor = this.constructor;
+                        return this.then(function(value) {
+                            return constructor.resolve(callback()).then(function() {
+                                return value;
                             });
-                        }, function(r) {
-                            return e.resolve(t()).then(function() {
-                                throw r;
+                        }, function(reason) {
+                            return constructor.resolve(callback()).then(function() {
+                                throw reason;
                             });
-                        }, r);
+                        }, label);
                     }
                 };
-                function Q() {
+                function $$rsvp$node$$Result() {
                     this.value = undefined;
                 }
-                var X = new Q();
-                var Z = new Q();
-                function tr(t) {
+                var $$rsvp$node$$ERROR = new $$rsvp$node$$Result();
+                var $$rsvp$node$$GET_THEN_ERROR = new $$rsvp$node$$Result();
+                function $$rsvp$node$$getThen(obj) {
                     try {
-                        return t.then;
-                    } catch (r) {
-                        X.value = r;
-                        return X;
+                        return obj.then;
+                    } catch (error) {
+                        $$rsvp$node$$ERROR.value = error;
+                        return $$rsvp$node$$ERROR;
                     }
                 }
-                function rr(t, r, e) {
+                function $$rsvp$node$$tryApply(f, s, a) {
                     try {
-                        t.apply(r, e);
-                    } catch (n) {
-                        X.value = n;
-                        return X;
+                        f.apply(s, a);
+                    } catch (error) {
+                        $$rsvp$node$$ERROR.value = error;
+                        return $$rsvp$node$$ERROR;
                     }
                 }
-                function er(t, r) {
-                    var e = {};
-                    var n;
-                    var o;
-                    var i = t.length;
-                    var u = new Array(i);
-                    for (var a = 0; a < i; a++) {
-                        u[a] = t[a];
+                function $$rsvp$node$$makeObject(_, argumentNames) {
+                    var obj = {};
+                    var name;
+                    var i;
+                    var length = _.length;
+                    var args = new Array(length);
+                    for (var x = 0; x < length; x++) {
+                        args[x] = _[x];
                     }
-                    for (o = 0; o < r.length; o++) {
-                        n = r[o];
-                        e[n] = u[o + 1];
+                    for (i = 0; i < argumentNames.length; i++) {
+                        name = argumentNames[i];
+                        obj[name] = args[i + 1];
                     }
-                    return e;
+                    return obj;
                 }
-                function nr(t) {
-                    var r = t.length;
-                    var e = new Array(r - 1);
-                    for (var n = 1; n < r; n++) {
-                        e[n - 1] = t[n];
+                function $$rsvp$node$$arrayResult(_) {
+                    var length = _.length;
+                    var args = new Array(length - 1);
+                    for (var i = 1; i < length; i++) {
+                        args[i - 1] = _[i];
                     }
-                    return e;
+                    return args;
                 }
-                function or(t, r) {
+                function $$rsvp$node$$wrapThenable(then, promise) {
                     return {
-                        then: function(e, n) {
-                            return t.call(r, e, n);
+                        then: function(onFulFillment, onRejection) {
+                            return then.call(promise, onFulFillment, onRejection);
                         }
                     };
                 }
-                var ir = function zr(t, r) {
-                    var e = function() {
-                        var e = this;
-                        var n = arguments.length;
-                        var o = new Array(n + 1);
-                        var i;
-                        var u = false;
-                        for (var a = 0; a < n; ++a) {
-                            i = arguments[a];
-                            if (!u) {
-                                u = sr(i);
-                                if (u === Z) {
-                                    var s = new H(y);
-                                    M(s, Z.value);
-                                    return s;
-                                } else if (u && u !== true) {
-                                    i = or(u, i);
+                var $$rsvp$node$$default = function denodeify(nodeFunc, options) {
+                    var fn = function() {
+                        var self = this;
+                        var l = arguments.length;
+                        var args = new Array(l + 1);
+                        var arg;
+                        var promiseInput = false;
+                        for (var i = 0; i < l; ++i) {
+                            arg = arguments[i];
+                            if (!promiseInput) {
+                                promiseInput = $$rsvp$node$$needsPromiseInput(arg);
+                                if (promiseInput === $$rsvp$node$$GET_THEN_ERROR) {
+                                    var p = new $$rsvp$promise$$default($$$internal$$noop);
+                                    $$$internal$$reject(p, $$rsvp$node$$GET_THEN_ERROR.value);
+                                    return p;
+                                } else if (promiseInput && promiseInput !== true) {
+                                    arg = $$rsvp$node$$wrapThenable(promiseInput, arg);
                                 }
                             }
-                            o[a] = i;
+                            args[i] = arg;
                         }
-                        var f = new H(y);
-                        o[n] = function(t, e) {
-                            if (t) M(f, t); else if (r === undefined) x(f, e); else if (r === true) x(f, nr(arguments)); else if (l(r)) x(f, er(arguments, r)); else x(f, e);
+                        var promise = new $$rsvp$promise$$default($$$internal$$noop);
+                        args[l] = function(err, val) {
+                            if (err) $$$internal$$reject(promise, err); else if (options === undefined) $$$internal$$resolve(promise, val); else if (options === true) $$$internal$$resolve(promise, $$rsvp$node$$arrayResult(arguments)); else if ($$utils$$isArray(options)) $$$internal$$resolve(promise, $$rsvp$node$$makeObject(arguments, options)); else $$$internal$$resolve(promise, val);
                         };
-                        if (u) {
-                            return ar(f, o, t, e);
+                        if (promiseInput) {
+                            return $$rsvp$node$$handlePromiseInput(promise, args, nodeFunc, self);
                         } else {
-                            return ur(f, o, t, e);
+                            return $$rsvp$node$$handleValueInput(promise, args, nodeFunc, self);
                         }
                     };
-                    e.__proto__ = t;
-                    return e;
+                    fn.__proto__ = nodeFunc;
+                    return fn;
                 };
-                function ur(t, r, e, n) {
-                    var o = rr(e, n, r);
-                    if (o === X) {
-                        M(t, o.value);
+                function $$rsvp$node$$handleValueInput(promise, args, nodeFunc, self) {
+                    var result = $$rsvp$node$$tryApply(nodeFunc, self, args);
+                    if (result === $$rsvp$node$$ERROR) {
+                        $$$internal$$reject(promise, result.value);
                     }
-                    return t;
+                    return promise;
                 }
-                function ar(t, r, e, n) {
-                    return H.all(r).then(function(r) {
-                        var o = rr(e, n, r);
-                        if (o === X) {
-                            M(t, o.value);
+                function $$rsvp$node$$handlePromiseInput(promise, args, nodeFunc, self) {
+                    return $$rsvp$promise$$default.all(args).then(function(args) {
+                        var result = $$rsvp$node$$tryApply(nodeFunc, self, args);
+                        if (result === $$rsvp$node$$ERROR) {
+                            $$$internal$$reject(promise, result.value);
                         }
-                        return t;
+                        return promise;
                     });
                 }
-                function sr(t) {
-                    if (t && typeof t === "object") {
-                        if (t.constructor === H) {
+                function $$rsvp$node$$needsPromiseInput(arg) {
+                    if (arg && typeof arg === "object") {
+                        if (arg.constructor === $$rsvp$promise$$default) {
                             return true;
                         } else {
-                            return tr(t);
+                            return $$rsvp$node$$getThen(arg);
                         }
                     } else {
                         return false;
                     }
                 }
-                var fr = function Hr(t, r) {
-                    return H.all(t, r);
+                var $$rsvp$all$$default = function all(array, label) {
+                    return $$rsvp$promise$$default.all(array, label);
                 };
-                function cr(t, r, e) {
-                    this._superConstructor(t, r, false, e);
+                function $$rsvp$all$settled$$AllSettled(Constructor, entries, label) {
+                    this._superConstructor(Constructor, entries, false, label);
                 }
-                cr.prototype = h(q.prototype);
-                cr.prototype._superConstructor = q;
-                cr.prototype._makeResult = U;
-                cr.prototype._validationError = function() {
+                $$rsvp$all$settled$$AllSettled.prototype = $$utils$$o_create($$enumerator$$default.prototype);
+                $$rsvp$all$settled$$AllSettled.prototype._superConstructor = $$enumerator$$default;
+                $$rsvp$all$settled$$AllSettled.prototype._makeResult = $$enumerator$$makeSettledResult;
+                $$rsvp$all$settled$$AllSettled.prototype._validationError = function() {
                     return new Error("allSettled must be called with an array");
                 };
-                var lr = function Jr(t, r) {
-                    return new cr(H, t, r).promise;
+                var $$rsvp$all$settled$$default = function allSettled(entries, label) {
+                    return new $$rsvp$all$settled$$AllSettled($$rsvp$promise$$default, entries, label).promise;
                 };
-                var vr = function Qr(t, r) {
-                    return H.race(t, r);
+                var $$rsvp$race$$default = function race(array, label) {
+                    return $$rsvp$promise$$default.race(array, label);
                 };
-                function pr(t, r, e) {
-                    this._superConstructor(t, r, true, e);
+                function $$promise$hash$$PromiseHash(Constructor, object, label) {
+                    this._superConstructor(Constructor, object, true, label);
                 }
-                var hr = pr;
-                pr.prototype = h(q.prototype);
-                pr.prototype._superConstructor = q;
-                pr.prototype._init = function() {
+                var $$promise$hash$$default = $$promise$hash$$PromiseHash;
+                $$promise$hash$$PromiseHash.prototype = $$utils$$o_create($$enumerator$$default.prototype);
+                $$promise$hash$$PromiseHash.prototype._superConstructor = $$enumerator$$default;
+                $$promise$hash$$PromiseHash.prototype._init = function() {
                     this._result = {};
                 };
-                pr.prototype._validateInput = function(t) {
-                    return t && typeof t === "object";
+                $$promise$hash$$PromiseHash.prototype._validateInput = function(input) {
+                    return input && typeof input === "object";
                 };
-                pr.prototype._validationError = function() {
+                $$promise$hash$$PromiseHash.prototype._validationError = function() {
                     return new Error("Promise.hash must be called with an object");
                 };
-                pr.prototype._enumerate = function() {
-                    var t = this.promise;
-                    var r = this._input;
-                    var e = [];
-                    for (var n in r) {
-                        if (t._state === g && r.hasOwnProperty(n)) {
-                            e.push({
-                                position: n,
-                                entry: r[n]
+                $$promise$hash$$PromiseHash.prototype._enumerate = function() {
+                    var promise = this.promise;
+                    var input = this._input;
+                    var results = [];
+                    for (var key in input) {
+                        if (promise._state === $$$internal$$PENDING && input.hasOwnProperty(key)) {
+                            results.push({
+                                position: key,
+                                entry: input[key]
                             });
                         }
                     }
-                    var o = e.length;
-                    this._remaining = o;
-                    var i;
-                    for (var u = 0; t._state === g && u < o; u++) {
-                        i = e[u];
-                        this._eachEntry(i.entry, i.position);
+                    var length = results.length;
+                    this._remaining = length;
+                    var result;
+                    for (var i = 0; promise._state === $$$internal$$PENDING && i < length; i++) {
+                        result = results[i];
+                        this._eachEntry(result.entry, result.position);
                     }
                 };
-                var dr = function Xr(t, r) {
-                    return new hr(H, t, r).promise;
+                var $$rsvp$hash$$default = function hash(object, label) {
+                    return new $$promise$hash$$default($$rsvp$promise$$default, object, label).promise;
                 };
-                function mr(t, r, e) {
-                    this._superConstructor(t, r, false, e);
+                function $$rsvp$hash$settled$$HashSettled(Constructor, object, label) {
+                    this._superConstructor(Constructor, object, false, label);
                 }
-                mr.prototype = h(hr.prototype);
-                mr.prototype._superConstructor = q;
-                mr.prototype._makeResult = U;
-                mr.prototype._validationError = function() {
+                $$rsvp$hash$settled$$HashSettled.prototype = $$utils$$o_create($$promise$hash$$default.prototype);
+                $$rsvp$hash$settled$$HashSettled.prototype._superConstructor = $$enumerator$$default;
+                $$rsvp$hash$settled$$HashSettled.prototype._makeResult = $$enumerator$$makeSettledResult;
+                $$rsvp$hash$settled$$HashSettled.prototype._validationError = function() {
                     return new Error("hashSettled must be called with an object");
                 };
-                var yr = function Zr(t, r) {
-                    return new mr(H, t, r).promise;
+                var $$rsvp$hash$settled$$default = function hashSettled(object, label) {
+                    return new $$rsvp$hash$settled$$HashSettled($$rsvp$promise$$default, object, label).promise;
                 };
-                var gr = function te(t) {
+                var $$rsvp$rethrow$$default = function rethrow(reason) {
                     setTimeout(function() {
-                        throw t;
+                        throw reason;
                     });
-                    throw t;
+                    throw reason;
                 };
-                var wr = function re(t) {
-                    var r = {};
-                    r.promise = new H(function(t, e) {
-                        r.resolve = t;
-                        r.reject = e;
-                    }, t);
-                    return r;
+                var $$rsvp$defer$$default = function defer(label) {
+                    var deferred = {};
+                    deferred.promise = new $$rsvp$promise$$default(function(resolve, reject) {
+                        deferred.resolve = resolve;
+                        deferred.reject = reject;
+                    }, label);
+                    return deferred;
                 };
-                var _r = function ee(t, r, e) {
-                    return H.all(t, e).then(function(t) {
-                        if (!s(r)) {
+                var $$rsvp$map$$default = function map(promises, mapFn, label) {
+                    return $$rsvp$promise$$default.all(promises, label).then(function(values) {
+                        if (!$$utils$$isFunction(mapFn)) {
                             throw new TypeError("You must pass a function as map's second argument.");
                         }
-                        var n = t.length;
-                        var o = new Array(n);
-                        for (var i = 0; i < n; i++) {
-                            o[i] = r(t[i]);
+                        var length = values.length;
+                        var results = new Array(length);
+                        for (var i = 0; i < length; i++) {
+                            results[i] = mapFn(values[i]);
                         }
-                        return H.all(o, e);
+                        return $$rsvp$promise$$default.all(results, label);
                     });
                 };
-                var br = function ne(t, r) {
-                    return H.resolve(t, r);
+                var $$rsvp$resolve$$default = function resolve(value, label) {
+                    return $$rsvp$promise$$default.resolve(value, label);
                 };
-                var Er = function oe(t, r) {
-                    return H.reject(t, r);
+                var $$rsvp$reject$$default = function reject(reason, label) {
+                    return $$rsvp$promise$$default.reject(reason, label);
                 };
-                var Ar = function ie(t, r, e) {
-                    return H.all(t, e).then(function(t) {
-                        if (!s(r)) {
+                var $$rsvp$filter$$default = function filter(promises, filterFn, label) {
+                    return $$rsvp$promise$$default.all(promises, label).then(function(values) {
+                        if (!$$utils$$isFunction(filterFn)) {
                             throw new TypeError("You must pass a function as filter's second argument.");
                         }
-                        var n = t.length;
-                        var o = new Array(n);
-                        for (var i = 0; i < n; i++) {
-                            o[i] = r(t[i]);
+                        var length = values.length;
+                        var filtered = new Array(length);
+                        for (var i = 0; i < length; i++) {
+                            filtered[i] = filterFn(values[i]);
                         }
-                        return H.all(o, e).then(function(r) {
-                            var e = new Array(n);
-                            var o = 0;
-                            for (var i = 0; i < n; i++) {
-                                if (r[i]) {
-                                    e[o] = t[i];
-                                    o++;
+                        return $$rsvp$promise$$default.all(filtered, label).then(function(filtered) {
+                            var results = new Array(length);
+                            var newLength = 0;
+                            for (var i = 0; i < length; i++) {
+                                if (filtered[i]) {
+                                    results[newLength] = values[i];
+                                    newLength++;
                                 }
                             }
-                            e.length = o;
-                            return e;
+                            results.length = newLength;
+                            return results;
                         });
                     });
                 };
-                var jr = 0;
-                var Sr = function ue(t, r) {
-                    Pr[jr] = t;
-                    Pr[jr + 1] = r;
-                    jr += 2;
-                    if (jr === 2) {
-                        Nr();
+                var $$rsvp$asap$$len = 0;
+                var $$rsvp$asap$$default = function asap(callback, arg) {
+                    $$rsvp$asap$$queue[$$rsvp$asap$$len] = callback;
+                    $$rsvp$asap$$queue[$$rsvp$asap$$len + 1] = arg;
+                    $$rsvp$asap$$len += 2;
+                    if ($$rsvp$asap$$len === 2) {
+                        $$rsvp$asap$$scheduleFlush();
                     }
                 };
-                var Tr = typeof window !== "undefined" ? window : {};
-                var xr = Tr.MutationObserver || Tr.WebKitMutationObserver;
-                var kr = typeof Uint8ClampedArray !== "undefined" && typeof importScripts !== "undefined" && typeof MessageChannel !== "undefined";
-                function Or() {
+                var $$rsvp$asap$$browserGlobal = typeof window !== "undefined" ? window : {};
+                var $$rsvp$asap$$BrowserMutationObserver = $$rsvp$asap$$browserGlobal.MutationObserver || $$rsvp$asap$$browserGlobal.WebKitMutationObserver;
+                var $$rsvp$asap$$isWorker = typeof Uint8ClampedArray !== "undefined" && typeof importScripts !== "undefined" && typeof MessageChannel !== "undefined";
+                function $$rsvp$asap$$useNextTick() {
                     return function() {
-                        t.nextTick(Ir);
+                        process.nextTick($$rsvp$asap$$flush);
                     };
                 }
-                function Mr() {
-                    var t = 0;
-                    var r = new xr(Ir);
-                    var e = document.createTextNode("");
-                    r.observe(e, {
+                function $$rsvp$asap$$useMutationObserver() {
+                    var iterations = 0;
+                    var observer = new $$rsvp$asap$$BrowserMutationObserver($$rsvp$asap$$flush);
+                    var node = document.createTextNode("");
+                    observer.observe(node, {
                         characterData: true
                     });
                     return function() {
-                        e.data = t = ++t % 2;
+                        node.data = iterations = ++iterations % 2;
                     };
                 }
-                function Cr() {
-                    var t = new MessageChannel();
-                    t.port1.onmessage = Ir;
+                function $$rsvp$asap$$useMessageChannel() {
+                    var channel = new MessageChannel();
+                    channel.port1.onmessage = $$rsvp$asap$$flush;
                     return function() {
-                        t.port2.postMessage(0);
+                        channel.port2.postMessage(0);
                     };
                 }
-                function Rr() {
+                function $$rsvp$asap$$useSetTimeout() {
                     return function() {
-                        setTimeout(Ir, 1);
+                        setTimeout($$rsvp$asap$$flush, 1);
                     };
                 }
-                var Pr = new Array(1e3);
-                function Ir() {
-                    for (var t = 0; t < jr; t += 2) {
-                        var r = Pr[t];
-                        var e = Pr[t + 1];
-                        r(e);
-                        Pr[t] = undefined;
-                        Pr[t + 1] = undefined;
+                var $$rsvp$asap$$queue = new Array(1e3);
+                function $$rsvp$asap$$flush() {
+                    for (var i = 0; i < $$rsvp$asap$$len; i += 2) {
+                        var callback = $$rsvp$asap$$queue[i];
+                        var arg = $$rsvp$asap$$queue[i + 1];
+                        callback(arg);
+                        $$rsvp$asap$$queue[i] = undefined;
+                        $$rsvp$asap$$queue[i + 1] = undefined;
                     }
-                    jr = 0;
+                    $$rsvp$asap$$len = 0;
                 }
-                var Nr;
-                if (typeof t !== "undefined" && {}.toString.call(t) === "[object process]") {
-                    Nr = Or();
-                } else if (xr) {
-                    Nr = Mr();
-                } else if (kr) {
-                    Nr = Cr();
+                var $$rsvp$asap$$scheduleFlush;
+                if (typeof process !== "undefined" && {}.toString.call(process) === "[object process]") {
+                    $$rsvp$asap$$scheduleFlush = $$rsvp$asap$$useNextTick();
+                } else if ($$rsvp$asap$$BrowserMutationObserver) {
+                    $$rsvp$asap$$scheduleFlush = $$rsvp$asap$$useMutationObserver();
+                } else if ($$rsvp$asap$$isWorker) {
+                    $$rsvp$asap$$scheduleFlush = $$rsvp$asap$$useMessageChannel();
                 } else {
-                    Nr = Rr();
+                    $$rsvp$asap$$scheduleFlush = $$rsvp$asap$$useSetTimeout();
                 }
-                i.async = Sr;
-                var Dr = br;
-                function Lr(t, r) {
-                    i.async(t, r);
+                $$rsvp$config$$config.async = $$rsvp$asap$$default;
+                var $$rsvp$$cast = $$rsvp$resolve$$default;
+                function $$rsvp$$async(callback, arg) {
+                    $$rsvp$config$$config.async(callback, arg);
                 }
-                function Ur() {
-                    i.on.apply(i, arguments);
+                function $$rsvp$$on() {
+                    $$rsvp$config$$config.on.apply($$rsvp$config$$config, arguments);
                 }
-                function $r() {
-                    i.off.apply(i, arguments);
+                function $$rsvp$$off() {
+                    $$rsvp$config$$config.off.apply($$rsvp$config$$config, arguments);
                 }
                 if (typeof window !== "undefined" && typeof window["__PROMISE_INSTRUMENTATION__"] === "object") {
-                    var qr = window["__PROMISE_INSTRUMENTATION__"];
-                    u("instrument", true);
-                    for (var Fr in qr) {
-                        if (qr.hasOwnProperty(Fr)) {
-                            Ur(Fr, qr[Fr]);
+                    var $$rsvp$$callbacks = window["__PROMISE_INSTRUMENTATION__"];
+                    $$rsvp$config$$configure("instrument", true);
+                    for (var $$rsvp$$eventName in $$rsvp$$callbacks) {
+                        if ($$rsvp$$callbacks.hasOwnProperty($$rsvp$$eventName)) {
+                            $$rsvp$$on($$rsvp$$eventName, $$rsvp$$callbacks[$$rsvp$$eventName]);
                         }
                     }
                 }
-                var Kr = {
-                    race: vr,
-                    Promise: H,
-                    allSettled: lr,
-                    hash: dr,
-                    hashSettled: yr,
-                    denodeify: ir,
-                    on: Ur,
-                    off: $r,
-                    map: _r,
-                    filter: Ar,
-                    resolve: br,
-                    reject: Er,
-                    all: fr,
-                    rethrow: gr,
-                    defer: wr,
-                    EventTarget: o,
-                    configure: u,
-                    async: Lr
+                var rsvp$umd$$RSVP = {
+                    race: $$rsvp$race$$default,
+                    Promise: $$rsvp$promise$$default,
+                    allSettled: $$rsvp$all$settled$$default,
+                    hash: $$rsvp$hash$$default,
+                    hashSettled: $$rsvp$hash$settled$$default,
+                    denodeify: $$rsvp$node$$default,
+                    on: $$rsvp$$on,
+                    off: $$rsvp$$off,
+                    map: $$rsvp$map$$default,
+                    filter: $$rsvp$filter$$default,
+                    resolve: $$rsvp$resolve$$default,
+                    reject: $$rsvp$reject$$default,
+                    all: $$rsvp$all$$default,
+                    rethrow: $$rsvp$rethrow$$default,
+                    defer: $$rsvp$defer$$default,
+                    EventTarget: $$rsvp$events$$default,
+                    configure: $$rsvp$config$$configure,
+                    async: $$rsvp$$async
                 };
                 if (typeof define === "function" && define.amd) {
                     define(function() {
-                        return Kr;
+                        return rsvp$umd$$RSVP;
                     });
-                } else if (typeof r !== "undefined" && r.exports) {
-                    r.exports = Kr;
+                } else if (typeof module !== "undefined" && module.exports) {
+                    module.exports = rsvp$umd$$RSVP;
                 } else if (typeof this !== "undefined") {
-                    this["RSVP"] = Kr;
+                    this["RSVP"] = rsvp$umd$$RSVP;
                 }
             }).call(this);
-        }).call(this, t("_process"));
+        }).call(this, require("_process"));
     }, {
         _process: 5
     } ]

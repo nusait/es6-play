@@ -7,7 +7,7 @@ var terminateError  = helpers.terminateError;
 var APPSTART        = Date.now();
 
 function instantiateNewApplication(App) {
-
+    // alert('instantiateNewApplication');
     var app = new App();
     return app;
 }
@@ -17,56 +17,33 @@ function loadEnvironment(app) {
     return app; 
 }
 function startApp(app) {
-    if (app.isLocal()) {
-        log(`i am local`);
-        app.on('bind', log);
-    }
+    
     app.start();
     return app;
 }
 function runApp(app) {
 
-    app.run();
-    return app;
-}
-function debugIfLocalEnvironment(app) {
-
-    if (app.isLocal()) {
-
-        log(`=== app.environment() is ${app.environment()}`);
-
-        // add all IOC bindings to window
-        for (var key of app) {
-            if ( ! window[key] ) window[key] = app[key];
-        }
-
-        // add all helper functions to global
-        window.helpers = helpers;
-        for (var key in helpers) {
-            // log(`adding helpers.${key} to window`);
-            if ( ! window[key] ) window[key] = helpers[key];
-        }
-    }
+    app.run(); 
     return app;
 }
 function complete(app) {
 
     var APPDONE = Date.now();
-    log(`=== application loaded in ${ APPDONE - APPSTART } ms`);
-
-    var events    = app.events;
-    var introView = app.introView;
-
-    events.on('app.*', introView.handle.bind(introView));
-    introView.getBluelights();
+    log(`::=== application loaded in ${ APPDONE - APPSTART } ms`);
 }
 
+// quick stamp
+var htmlCL = document.documentElement.classList;
+if (global.cordova) {
+    htmlCL.add(cordova.platformId);
+} else {
+    htmlCL.add('browser');    
+}
 
 autoload.loadApp()
     .then(instantiateNewApplication)
     .then(loadEnvironment)
     .then(startApp)
     .then(runApp)
-    .then(debugIfLocalEnvironment)
     .then(complete)
     .catch(terminateError);

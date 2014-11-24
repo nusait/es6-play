@@ -1,0 +1,80 @@
+@import '../bower-assets/scss-mixins/all';
+@import 'fonts/default';
+@import 'core/colors';
+@import 'core/reset';
+@import 'core/mixins';
+@import 'core/other';
+
+
+// views
+@import 'views/default';
+
+html {
+	@include standard-font;
+	background-color: $light-purple;
+	color: white;
+	height: 100%;
+	width: 100%;
+	// overflow: hidden;
+	position: absolute;
+	body {
+		@include display(flex);
+		@include flex-direction(column);
+		position: absolute;
+		height: 100%;
+		width: 100%;
+		// overflow: hidden;
+		// -webkit-backface-visibility: hidden;
+		.wrapper {
+			@include flex(1);
+			background-color: orange;
+		}
+	}
+}
+
+.statusbar-container {
+	html.browser & {
+		height: 20px;
+		@include display(block);
+	}
+	html.android & {
+		position: relative;
+		background-color: black;
+	}
+	font-size: 12px;
+	background-color: transparent;
+	color: white;
+	display: none;
+	position: absolute; // ios
+	height: 20px;
+	width: 100%;
+	z-index: 10000;
+	.statusbar-faker {
+		height: 100%;
+		display: flex;
+		position: relative;
+		@include flex-direction(column);
+		@include justify-content(center);
+		> div {
+			width: 100%;
+			position: relative;
+			> div {
+				position: absolute;
+				&.left {
+					top: 0;
+					left: 5px;
+				}
+				&.middle {
+					position: relative;
+					width: 100%;
+					text-align: center;
+				}
+				&.right {
+					top: 0;
+					right: 5px;	
+				}		
+			}
+		}
+	}
+}
+

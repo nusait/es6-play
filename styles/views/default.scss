@@ -1,0 +1,15 @@
+// default.scss
+
+@import 'menu/default';
+@import 'about/default';
+@import 'service/default';
+
+.wrapper {
+	> div:not(.menu-view) {
+		@include transition(.3s all);
+		@include transform(translate3d(0, 0, 0));
+	}
+	&.menu-showing > div:not(.menu-view) {
+		@include transform(translate3d(0, -70px, 0));	
+	}
+}
