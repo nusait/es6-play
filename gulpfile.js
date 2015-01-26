@@ -78,8 +78,10 @@ function jsTask(e) {
         .pipe(mold.transformSourcesRelativeTo(jsRoot))
         .pipe(source('bundle.js'))
         .pipe(gulp.dest('./public/js/'))
+        .pipe(notify('$$$ end jsTask'))
         .on('end', function() {
             log('$$$ end jsTask');
+
             gutil.beep();
         });
 }
@@ -112,7 +114,8 @@ function bootstrapTask() {
                     compress: false,
                 }))
                 .pipe(rename('boot-min.js'))
-                .pipe(gulp.dest('./public/js/'));
+                .pipe(gulp.dest('./public/js/'))
+                .pipe(notify('end bootstrapTask: ' + Date.now()));
         });
 }
 function yuidocTask() {
@@ -122,7 +125,7 @@ function yuidocTask() {
 function sassTask(e) {
 
     var filename      = basename(e.path);
-    var reBundleThese = /(initial|colors|bundled)/;
+    var reBundleThese = /(initial|bundled)/; // had 'colors' here before
     var isInit        = reBundleThese.test(filename);
     var destination   = './public/css/';
 
@@ -142,6 +145,8 @@ function sassTask(e) {
             // .pipe(livereload())
             .on('end', function() {
                 gutil.beep();
+                gulp.src('', {read:false})
+                    .pipe(notify('sass initial.scss'));
             });
     } else {
         return gulp.src('./styles/main.scss')
@@ -150,6 +155,8 @@ function sassTask(e) {
             // .pipe(livereload())
             .on('end', function() {
                 gutil.beep();
+                gulp.src('', {read:false})
+                    .pipe(notify('sass main.scss'));
             }); 
     }
 }  
